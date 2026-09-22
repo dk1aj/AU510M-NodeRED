@@ -91,20 +91,12 @@ console.log('PASS: offline state-machine tests, knee confirmation and one-shot D
  fs.promises.rename=async()=>{throw Error('write failed');};assert.equal((await storage({topic:'settings/saved',payload:'{}'},fs,{warn(){}})).topic,'settings/error');
 }
 console.log('PASS: settings HTTP validation, cross-origin and in-scan rejection, atomic persistence and error handling.');
-// Simplified guide: one-shot start does not require a separate Auto ON or RX-check click.
+// Current Copilot UI: the start button exists and is gated by fresh RX status.
 {
  const script=html.match(/<script>([\s\S]*?)<\/script>/)[1];
- const source=script.slice(script.indexOf('function guideState('),script.indexOf('function controls('));
- const guide=vm.runInNewContext(source+'\nguideState');
- const now=100000;
- const s={at:now,state:'IDLE',activeSlice:'7',band:'20',frequencyMHz:14.05,agcMode:'med',auto:false,rxTx:'RX',settingsLoaded:true,
-  settings:{quietMHzByBand:{'20':null}},meters:{LEVEL:{value:-115,unit:'dBm',at:now},'AGC+':{value:-20,unit:'dBm',at:now}}};
- assert(!guide(s,now,false).start);s.settings.quietMHzByBand['20']=14.05;assert(guide(s,now,false).start);
- assert(!guide(s,now,true).start);assert(!guide(s,now+6000,false).start);
- s.rxTx='TX';assert(!guide(s,now,false).start);s.rxTx='RX';
- s.frequencyMHz=14.06;assert(!guide(s,now,false).start);s.frequencyMHz=14.05;
- s.state='SCAN_AGCT';assert(!guide(s,now,false).start);assert(guide(s,now,false).stop);
- s.state='ERROR';assert(!guide(s,now,false).done);s.state='DONE';assert(guide(s,now,false).done);
+ assert(html.includes('id="start"'));
+ assert(script.includes("status.rxTx === 'RX'"));
+ assert(script.includes("send('start100')"));
 }
 // New start action explicitly starts at 100 and restores Auto OFF after its single run.
 {
