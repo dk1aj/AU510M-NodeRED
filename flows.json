@@ -1116,6 +1116,23 @@
     ]
   },
   {
+    "id": "agct_global_status",
+    "type": "function",
+    "z": "b8dbc85ea6f35743",
+    "name": "Cache live AGC-T status",
+    "func": "if(msg?.topic==='au510m/agct/status'&&msg.payload&&typeof msg.payload==='object') global.set('agctStatus',msg.payload); return null;",
+    "outputs": 1,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 820,
+    "y": 1040,
+    "wires": [
+      []
+    ]
+  },
+  {
     "id": "e57c2d55062d0d1f",
     "type": "tab",
     "label": "EXPERIMENT - AU-510M Auto AGC-T Watcher",
@@ -1132,8 +1149,7 @@
     "wires": [
       [
         "556ed6a85cad0331",
-        "2944249a43182f2d",
-        "agct_global_status"
+        "2944249a43182f2d"
       ],
       [
         "a2e5d60332cdb49a"
@@ -1584,22 +1600,5 @@
     "crontab": "",
     "payload": "",
     "payloadType": "date"
-  },
-  {
-    "id": "agct_global_status",
-    "type": "function",
-    "z": "b8dbc85ea6f35743",
-    "name": "Cache live AGC-T status",
-    "func": "if(msg?.topic==='au510m/agct/status'&&msg.payload&&typeof msg.payload==='object') global.set('agctStatus',msg.payload); return null;",
-    "outputs": 1,
-    "noerr": 0,
-    "initialize": "",
-    "finalize": "",
-    "libs": [],
-    "x": 820,
-    "y": 1040,
-    "wires": [
-      []
-    ]
   }
 ]
