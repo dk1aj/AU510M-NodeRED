@@ -30,13 +30,6 @@
     "info": "Read-only Aurora AU-510M dashboard: all 35 requested meters, four sections on the existing /dashboard/au510m page (group ff_group_au510m_meter). Reuses radio 7fbf2bfc9badc7d3 and the existing Dashboard 2.0 group; does not define or modify configuration nodes. Enable this disabled tab and deploy it manually after importing. The local one-second clock requests meter list at startup, retries unavailable inventory after 15 seconds, and refreshes inventory every 60 seconds. Subscriptions resolve exact source/number/name identities to numeric meter IDs, avoiding MQTT wildcard ambiguity in +13.8A and AGC+. Only meter list and sub meter <numeric ID> are sent. No RF, audio, slice, transmit or other write commands. Subscription errors and missing meters appear on cards and in Debug. Waiting for data is not treated as a failed subscription. Samples older than 15 seconds are marked stale. All values originate in the installed flexradio-js scaling; no duplicate scaling. FWDPWR and REFPWR keep the raw dBm sample and convert Watts with 10 ** ((dBm - 30) / 10). Signal meter units come from radio metadata; missing units are explicitly labelled. PASTAT is raw with no undocumented bit decoding. Gauges are display scales only, with unclipped numbers and out-of-scale labels. Browser widgets have no outbound wires or radio controls. Live subscriptions have not been tested by Codex. Deploy helper remaps node IDs while preserving the external radio and Dashboard group IDs."
   },
   {
-    "id": "e57c2d55062d0d1f",
-    "type": "tab",
-    "label": "EXPERIMENT - AU-510M Auto AGC-T Watcher",
-    "disabled": false,
-    "info": "Separate AU-510M watcher. Auto defaults OFF; tab exported disabled. All nine states implemented. Exact API: slice s <slice> agc_threshold=<integer 0..100>, documented by FlexRadio https://github.com/flexradio/smartsdr-api-docs/wiki/TCPIP-slice#SET and transported by installed flexradio-request / flexradio-radio / flexradio-js. Status field agc_threshold. Actual hardware success requires zero response and matching live threshold status after each command. No power/mode/antenna/transmit/tuning command permitted. Scan only at a user-configured quiet frequency, selected active slice dynamically. No invented quiet frequencies. UI /agct-watcher offers per-band quiet MHz, use-current, clear, and optional scan start; persistent settings saved atomically at /mnt/dietpi_userdata/node-red/agct-watcher-settings.json. Use-current saves only a frequency; does not retune or certify quietness. Manual tune to the configured frequency before calibration in this version. Baseline 4 seconds; downward steps of 2, settle 2.5 seconds, 4-second windows, >=20 live dBm samples of both meters. Reject >2 dB spread or >1 dB input drift. Require observed plateau, >=1.5 dB AGC+ fall and a second independent confirmation window. Knee offset +1, then one confirmed final apply and DONE. RX loss, changed slice/receive settings, stale data, failed commands or timeouts abort with no restoration/write on TX. OFF immediately revokes permits; last applied threshold remains on abort. Read requests only from subscription whitelist; write gate accepts only matching, expiring, single-use core permits. No dashboard backend changes. Live calibration not yet validated. Deploy/update explicitly: node /mnt/dietpi_userdata/node-red/scripts/deploy-agct-watcher.mjs --deploy . Simplified UI: adopt measurement QRG, then one-shot Start from AGC-T 100; RX/meter checks are automatic. One-shot temporarily enables writes and restores prior Auto state after DONE or abort. No radio tuning command: adopt only saves the QRG. Auto band-change mode is separate under advanced settings."
-  },
-  {
     "id": "de18e07b81aedd38",
     "type": "flexradio-radio",
     "name": "Mode",
@@ -1123,16 +1116,17 @@
     ]
   },
   {
+    "id": "e57c2d55062d0d1f",
+    "type": "tab",
+    "label": "EXPERIMENT - AU-510M Auto AGC-T Watcher",
+    "disabled": false,
+    "info": "Separate AU-510M watcher. Auto defaults OFF; tab exported disabled. All nine states implemented. Exact API: slice s <slice> agc_threshold=<integer 0..100>, documented by FlexRadio https://github.com/flexradio/smartsdr-api-docs/wiki/TCPIP-slice#SET and transported by installed flexradio-request / flexradio-radio / flexradio-js. Status field agc_threshold. Actual hardware success requires zero response and matching live threshold status after each command. No power/mode/antenna/transmit/tuning command permitted. Scan only at a user-configured quiet frequency, selected active slice dynamically. No invented quiet frequencies. UI /agct-watcher offers per-band quiet MHz, use-current, clear, and optional scan start; persistent settings saved atomically at /mnt/dietpi_userdata/node-red/agct-watcher-settings.json. Use-current saves only a frequency; does not retune or certify quietness. Manual tune to the configured frequency before calibration in this version. Baseline 4 seconds; downward steps of 2, settle 2.5 seconds, 4-second windows, >=20 live dBm samples of both meters. Reject >2 dB spread or >1 dB input drift. Require observed plateau, >=1.5 dB AGC+ fall and a second independent confirmation window. Knee offset +1, then one confirmed final apply and DONE. RX loss, changed slice/receive settings, stale data, failed commands or timeouts abort with no restoration/write on TX. OFF immediately revokes permits; last applied threshold remains on abort. Read requests only from subscription whitelist; write gate accepts only matching, expiring, single-use core permits. No dashboard backend changes. Live calibration not yet validated. Deploy/update explicitly: node /mnt/dietpi_userdata/node-red/scripts/deploy-agct-watcher.mjs --deploy . Simplified UI: adopt measurement QRG, then one-shot Start from AGC-T 100; RX/meter checks are automatic. One-shot temporarily enables writes and restores prior Auto state after DONE or abort. No radio tuning command: adopt only saves the QRG. Auto band-change mode is separate under advanced settings."
+  },
+  {
     "id": "5c67eccefec66e09",
     "type": "function",
     "z": "e57c2d55062d0d1f",
     "name": "Watcher + separated configuration",
-    "func": "// API proof: https://github.com/flexradio/smartsdr-api-docs/wiki/TCPIP-slice#SET\n// Installed flexradio-request -> flexradio-radio.send -> Radio._sendRequest -> flex.encode_request.\n// No transmit, power, mode, antenna or tuning command is generated here.\nconst C = {\n quietMHzByBand: {'160':null,'80':null,'60':null,'40':null,'30':null,'20':null,'17':null,'15':null,'12':null,'10':null,'6':null},\n clientHandle:null, scanStart:null, step:2, kneeOffset:1, minThreshold:0,\n settleMs:2500, measureMs:4000, minSamples:20, bandDebounceMs:2000,\n timeoutMs:20000, ackTimeoutMs:5000, staleMs:3000, rxFreshMs:6000, maxRunMs:240000,\n maxSpreadDb:2, maxInputDriftDb:1, kneeDropDb:1.5, plateauDb:0.5, quietToleranceMHz:0.000001\n};\nconst now=Date.now(),topic=String(msg.topic||''),p=msg.payload;\nconst object=v=>v!==null&&typeof v==='object'&&!Array.isArray(v);\nconst numeric=v=>(typeof v==='number'||(typeof v==='string'&&v.trim()!==''))&&Number.isFinite(Number(v));\nconst ok=v=>v!==null&&v!==undefined&&Number(v)===0;\nconst threshold=v=>Number.isInteger(v)&&v>=0&&v<=100;\nconst empty=()=>({version:2,state:'IDLE',auto:false,slices:{},pans:{},meters:{},inventory:{},rx:'UNKNOWN',rxAt:0,\n active:null,band:null,candidate:null,lastInventory:0,lastTxSub:0,epoch:0,sequence:0,pending:null,run:null,\n samples:null,result:null,trace:[],reason:'AUTO OFF; monitor only',settingsLoaded:false,settings:{quietMHzByBand:{...C.quietMHzByBand},scanStart:C.scanStart},settingsError:null});\nlet s=context.get('watcher');if(!s||s.version!==2)s=empty();\nconst out=[],commands=[],saves=[];\nconst a=()=>s.slices[s.active]||{};\nconst actualBand=()=>{const b=a().band??s.pans[String(a().pan)]?.band;return b==null?null:String(b);};\nconst quiet=()=>{const v=s.settings.quietMHzByBand[s.band];return typeof v==='number'&&Number.isFinite(v)&&v>0?v:null;};\nconst busy=()=>['BAND_CHANGE','WAIT_RX','MEASURE_NOISE','SCAN_AGCT','KNEE_FOUND','APPLY'].includes(s.state);\nconst scanning=()=>['SCAN_AGCT','KNEE_FOUND','APPLY'].includes(s.state);\nconst freshMeters=()=>['LEVEL','AGC+'].every(name=>{const m=s.meters[s.active]?.[name];return m&&m.unit==='dBm'&&now-m.at<=C.staleMs;});\nconst atQuiet=()=>quiet()!==null&&numeric(a().RF_frequency)&&Math.abs(Number(a().RF_frequency)-quiet())<=C.quietToleranceMHz;\nconst signature=()=>JSON.stringify(['mode','filter_lo','filter_hi','rxant','rfgain','nr','nr_level','nb','nb_level','wnb','anf','apf'].map(k=>a()[k]??null));\nfunction blockers(){const b=[];if(!s.settingsLoaded||s.settingsError)b.push(s.settingsError||'SETTINGS LOADING');\n if(quiet()===null)b.push('NO QUIET FREQUENCY CONFIGURED');else if(!atQuiet())b.push('TUNE TO CONFIGURED QUIET FREQUENCY');\n if(!freshMeters())b.push('WAITING FOR LIVE LEVEL / AGC+ IN dBm');if(!['slow','med','fast'].includes(a().agc_mode))b.push('AGC MODE OFF OR UNKNOWN');return b;}\nfunction report(reason=s.reason){s.reason=reason;out.push({topic:'au510m/agct/status',payload:JSON.parse(JSON.stringify({\n state:s.state,auto:s.auto,manualRun:Boolean(s.manual),autoAfterRun:s.manual?s.manual.autoBefore:s.auto,reason,activeSlice:s.active,frequencyMHz:a().RF_frequency??null,band:s.band,\n agcThreshold:a().agc_threshold??null,agcMode:a().agc_mode??null,rxTx:s.rx,meters:s.meters[s.active]||{},\n inventory:s.inventory,inventoryError:s.inventoryError??null,measurement:s.result,quietFrequencyMHz:quiet(),\n settings:s.settings,settingsLoaded:s.settingsLoaded,settingsError:s.settingsError,\n scan:{start:s.run?.initial??null,current:s.run?.current??null,knee:s.knee??null,final:s.final??null,phase:s.phase??null,steps:s.trace.length},\n trace:s.trace,blockers:blockers(),at:now}))});}\nfunction move(state,reason){s.state=state;s.since=now;report(reason);}\nfunction finishManual(){if(s.manual){s.auto=s.manual.autoBefore;s.manual=null;}}\nfunction abort(reason){finishManual();s.pending=null;s.samples=null;s.run=null;s.phase=null;move('ERROR',reason+'; no further writes');}\nfunction read(command){commands.push({payload:command,_agctReadEpoch:s.epoch});}\nfunction begin(reason,scanStart=s.settings.scanStart){s.result=null;s.trace=[];s.knee=null;s.final=null;s.pending=null;s.samples=null;s.run={slice:s.active,band:s.band,started:now,scanStart};move('BAND_CHANGE',reason);}\nfunction newWindow(){s.samples={'LEVEL':[],'AGC+':[]};s.windowAt=now;s.phase='MEASURE';}\nfunction stats(){const r={};for(const name of ['LEVEL','AGC+']){const v=(s.samples?.[name]||[]).slice().sort((x,y)=>x-y);if(v.length<C.minSamples)return null;\n r[name]={unit:'dBm',count:v.length,min:v[0],max:v.at(-1),median:v[Math.floor(v.length/2)],spread:v.at(-1)-v[0]};}return r;}\nfunction sendThreshold(value,purpose){\n if(!s.auto||!s.run||!threshold(value)||s.rx!=='RX'||now-s.rxAt>C.rxFreshMs||!freshMeters()||!atQuiet()||!s.settingsLoaded||s.settingsError){abort('WRITE PRECONDITION FAILED');return;}\n const token=++s.sequence,command='slice s '+s.active+' agc_threshold='+value;\n s.pending={token,command,value,purpose,at:now,ack:false,seen:false,previous:Number(a().agc_threshold)};s.phase='ACK';\n commands.push({payload:command,_agctWrite:{token,epoch:s.epoch}});report(purpose==='apply'?'APPLY; waiting for acknowledgement and live threshold':'SCAN_AGCT; waiting for acknowledgement and live threshold');}\nfunction descend(){const next=s.run.current-C.step;if(next<C.minThreshold){abort('NO KNEE FOUND IN SCAN RANGE');return;}sendThreshold(next,'step');}\nfunction validSettings(v){return object(v)&&object(v.quietMHzByBand)&&Object.entries(v.quietMHzByBand).every(([b,q])=>/^[A-Za-z0-9_-]{1,16}$/.test(b)&&b!=='__proto__'&&b!=='constructor'&&(q===null||(typeof q==='number'&&Number.isFinite(q)&&q>0&&q<=100000)))&&(v.scanStart===null||threshold(v.scanStart));}\nif(topic==='settings/load'){\n try{const settings=typeof p==='string'?JSON.parse(p):p;if(!validSettings(settings))throw Error('Invalid settings');s.settings={quietMHzByBand:{...C.quietMHzByBand,...settings.quietMHzByBand},scanStart:settings.scanStart};s.settingsLoaded=true;s.settingsError=null;report('SETTINGS LOADED');}\n catch(e){s.settingsLoaded=true;s.settingsError='SETTINGS FILE INVALID';report(s.settingsError);}\n}\nif(topic==='settings/missing'){s.settingsLoaded=true;s.settingsError=null;report('NO SAVED SETTINGS; frequencies remain unset');}\nif(topic==='settings/error'){s.settingsPending=null;s.settingsLoaded=true;s.settingsError='SETTINGS SAVE / LOAD FAILED';if(busy())abort(s.settingsError);else report(s.settingsError);}\nif(topic==='settings/saved'){\n if(msg._settingsToken===s.settingsToken){s.settings=s.settingsPending;s.settingsPending=null;s.settingsLoaded=true;s.settingsError=null;report('SETTINGS SAVED');}\n}\nif(topic==='control/settings'){\n if(busy())report('STOP CALIBRATION BEFORE CHANGING SETTINGS');\n else if(s.settingsPending)report('SETTINGS SAVE ALREADY IN PROGRESS');\n else if(!s.settingsLoaded||!object(p)||!validSettings({quietMHzByBand:{[p.band]:p.quietMHz},scanStart:p.scanStart}))report('INVALID SETTINGS');\n else{\n  s.settingsPending={quietMHzByBand:{...s.settings.quietMHzByBand,[p.band]:p.quietMHz},scanStart:p.scanStart};\n  s.settingsToken=(s.settingsToken||0)+1;s.settingsError='SETTINGS SAVING';\n  saves.push({topic:'settings/saved',payload:JSON.stringify(s.settingsPending,null,2),_settingsToken:s.settingsToken});report('SAVING SETTINGS');\n }\n}\nif(topic.startsWith('connection/')){const old=s;s=empty();s.epoch=old.epoch+1;s.auto=old.manual?old.manual.autoBefore:old.auto;s.settings=old.settings;s.settingsLoaded=old.settingsLoaded;s.settingsError=old.settingsError;\n s.settingsToken=old.settingsToken;s.settingsPending=old.settingsPending;\n if(['BAND_CHANGE','WAIT_RX','MEASURE_NOISE','SCAN_AGCT','KNEE_FOUND','APPLY'].includes(old.state))abort('RADIO CONNECTION CHANGED');}\nif(msg.error && !topic.startsWith('settings/'))abort('RADIO REQUEST ERROR: '+String(msg.error.message||msg.error));\nif(msg._agctWrite&&msg.request&&s.pending&&msg._agctWrite.epoch===s.epoch&&msg._agctWrite.token===s.pending.token){if(!ok(msg.status_code))abort('AGC-T COMMAND REJECTED: '+String(msg.status_code));else s.pending.ack=true;}\nif(msg._agctReadEpoch===s.epoch&&msg.request){\n if(!ok(msg.status_code)){s.inventoryError=msg.request+': '+String(msg.status_code);if(busy())abort('SUBSCRIPTION / INVENTORY REQUEST FAILED');}\n else if(msg.request==='meter list'&&object(p)){s.inventory={};for(const [id,m] of Object.entries(p))if(/^\\d+$/.test(id)&&object(m)&&String(m.src).toUpperCase()==='SLC'&&['LEVEL','AGC+'].includes(String(m.nam).toUpperCase())){\n  const name=String(m.nam).toUpperCase();s.inventory['SLC/'+Number(m.num)+'/'+name]={id,unit:m.unit??null};read('sub meter '+id);}s.inventoryError=null;}\n}\nif(topic==='interlock'&&object(p)&&typeof p.state==='string'){const state=p.state.toUpperCase();s.rx=['RECEIVE','READY'].includes(state)?'RX':state==='TRANSMITTING'?'TX':'UNKNOWN';s.rxAt=now;\n if(busy()&&!['BAND_CHANGE','WAIT_RX'].includes(s.state)&&s.rx!=='RX')abort('RX LOST: '+state);}\nconst sm=topic.match(/^slice\\/(\\d+)(\\/removed)?$/);\nif(sm){const id=String(Number(sm[1]));if(sm[2]||p==='removed'||(object(p)&&Number(p.in_use)===0)){delete s.slices[id];delete s.meters[id];}\n else if(object(p)){s.slices[id]={...(s.slices[id]||{}),...p};if(s.pending&&id===s.active&&numeric(p.agc_threshold)&&Number(p.agc_threshold)===s.pending.value)s.pending.seen=true;}}\nconst pm=topic.match(/^display\\/pan\\/([^/]+)$/);if(pm&&object(p))s.pans[pm[1]]={...(s.pans[pm[1]]||{}),...p};\nconst candidates=Object.entries(s.slices).filter(([,v])=>Number(v.active)===1&&(C.clientHandle===null||String(v.client_handle)===C.clientHandle));\nconst active=candidates.length===1?candidates[0][0]:null;\nif(active!==s.active){if(busy())abort('ACTIVE SLICE CHANGED OR AMBIGUOUS');s.active=active;s.band=null;s.candidate=null;report(active===null?'WAITING FOR UNAMBIGUOUS ACTIVE SLICE':'ACTIVE SLICE BASELINE; no calibration');}\nconst band=actualBand();\nif(band!==null&&s.active!==null){if(s.band===null){s.band=band;report('INITIAL BAND BASELINE');}\n else if(band!==s.band){if(!s.candidate||s.candidate.band!==band)s.candidate={band,at:now};if(now-s.candidate.at>=C.bandDebounceMs){s.band=band;s.candidate=null;if(s.manual)abort('BAND CHANGED DURING SINGLE CALIBRATION');else if(s.auto)begin('CONFIRMED RADIO BAND CHANGE');else report('BAND CHANGE; AUTO OFF');}}else s.candidate=null;}\nif(topic==='control/auto'){if(p===true&&!s.auto){s.auto=true;move('IDLE','AUTO ON; next band change or Calibrate');}else if(p!==true){s.manual=null;s.auto=false;s.pending=null;s.run=null;s.samples=null;s.phase=null;move('IDLE','AUTO OFF; no further AGC-T changes');}}\nif(topic==='control/start100'){\n if(busy())report('CALIBRATION ALREADY RUNNING');\n else if(s.active===null||s.band===null||s.candidate||s.rx!=='RX'||now-s.rxAt>C.rxFreshMs||!freshMeters()||!atQuiet()||!s.settingsLoaded||s.settingsError||!['slow','med','fast'].includes(a().agc_mode))report('START BLOCKED; CHECK RX, QUIET FREQUENCY AND LIVE METERS');\n else {s.manual={autoBefore:s.auto};s.auto=true;begin('EXPLICIT SINGLE CALIBRATION FROM AGC-T 100',100);}\n}\nif(topic==='control/calibrate'){if(!s.auto)report('AUTO OFF; calibration ignored');else if(busy())report('CALIBRATION ALREADY RUNNING');else if(s.active===null||s.band===null)abort('ACTIVE SLICE / RADIO BAND UNKNOWN');else if(!s.settingsLoaded||s.settingsError)report('SETTINGS NOT READY');else begin('EXPLICIT CALIBRATION');}\nconst mm=topic.match(/^SLC\\/(\\d+)\\/(LEVEL|AGC\\+)$/i);\nif(mm&&object(p)&&numeric(p.value)){const id=String(Number(mm[1])),name=mm[2].toUpperCase(),supplied=p.unit??s.inventory['SLC/'+id+'/'+name]?.unit;\n const unit=String(supplied).toLowerCase()==='dbm'?'dBm':supplied??null;(s.meters[id]||={})[name]={value:Number(p.value),unit,at:now};\n if(s.samples&&s.phase==='MEASURE'&&id===s.active&&unit==='dBm'&&s.rx==='RX'){if(s.samples[name].length<5000)s.samples[name].push(Number(p.value));else abort('METER SAMPLE LIMIT EXCEEDED');}}\nif(s.run&&['MEASURE_NOISE','SCAN_AGCT','KNEE_FOUND','APPLY'].includes(s.state)){\n const r=s.run,actual=Number(a().agc_threshold),expected=s.pending?[s.pending.previous,s.pending.value]:[r.current];\n if(s.rx!=='RX')abort('RX LOST');\n else if(s.active!==r.slice||band!==r.band||Number(a().RF_frequency)!==r.frequency||a().agc_mode!==r.mode||signature()!==r.signature||!expected.includes(actual))abort('SLICE / BAND / FREQUENCY / AGC / RECEIVE SETTINGS CHANGED');\n else if(now-r.started>C.maxRunMs)abort('CALIBRATION TIMEOUT');\n else if(scanning()&&(!freshMeters()||now-s.rxAt>C.rxFreshMs||!atQuiet()))abort('SCAN TELEMETRY STALE OR QUIET FREQUENCY LOST');\n}\nif(s.pending){if(now-s.pending.at>C.ackTimeoutMs)abort('AGC-T ACKNOWLEDGEMENT / READBACK TIMEOUT');else if(s.pending.ack&&s.pending.seen){const pending=s.pending;s.pending=null;s.run.current=pending.value;\n if(pending.purpose==='apply'){s.final=pending.value;s.phase=null;s.samples=null;finishManual();move('DONE','AGC-T APPLIED AND CONFIRMED; no continuous regulation');}\n else{s.phase='SETTLE';s.settleUntil=now+C.settleMs;s.samples=null;report('SCAN_AGCT; AGC settling');}}}\nif(s.state==='BAND_CHANGE')move('WAIT_RX','WAITING FOR RX; no immediate AGC-T change');\nelse if(s.state==='WAIT_RX'){\n if(now-s.since>C.timeoutMs)abort('RX / BAND / LIVE STATUS TIMEOUT');\n else if(s.rx==='RX'&&now-s.rxAt<=C.rxFreshMs&&!s.candidate&&band===s.band&&numeric(a().RF_frequency)&&threshold(Number(a().agc_threshold))&&['slow','med','fast'].includes(a().agc_mode)){\n  s.run={slice:s.active,band:s.band,started:now,frequency:Number(a().RF_frequency),initial:Number(a().agc_threshold),current:Number(a().agc_threshold),scanStart:s.run.scanStart,mode:a().agc_mode,signature:signature(),plateau:false,confirming:false};\n  newWindow();move('MEASURE_NOISE','COLLECTING LIVE LEVEL AND AGC+; no radio changes');}\n}else if(s.state==='MEASURE_NOISE'&&now-s.windowAt>=C.measureMs){const values=stats();if(values&&freshMeters()){\n s.result={...values,at:now,quietFrequencyMHz:quiet(),noiseFloorConfirmed:false};s.run.baseline=values;s.run.reference=values;s.samples=null;report('LIVE MEASUREMENT COMPLETE');\n if(quiet()===null)abort('NO QUIET FREQUENCY CONFIGURED');else if(!atQuiet())abort('TUNE TO CONFIGURED QUIET FREQUENCY');\n else if(Object.values(values).some(v=>v.spread>C.maxSpreadDb))abort('UNSTABLE SIGNAL; NO SCAN');\n else{move('SCAN_AGCT','NOISE BASELINE ACCEPTED; starting downward scan');if(s.run.scanStart!==null&&s.run.scanStart!==s.run.current){s.run.rebaseline=true;sendThreshold(s.run.scanStart,'start');}else descend();}\n }else if(now-s.windowAt>C.timeoutMs)abort('MISSING / STALE / WRONG-UNIT LIVE METERS');\n}else if(s.state==='SCAN_AGCT'&&!s.pending){\n if(s.phase==='SETTLE'&&now>=s.settleUntil)newWindow();\n else if(s.phase==='MEASURE'&&now-s.windowAt>=C.measureMs){const values=stats();if(!values){if(now-s.windowAt>C.timeoutMs)abort('NOT ENOUGH LIVE SCAN SAMPLES');}\n else{const r=s.run,level=values.LEVEL,agc=values['AGC+'];s.trace.push({threshold:r.current,...values,at:now});s.samples=null;\n  if(Object.values(values).some(v=>v.spread>C.maxSpreadDb)||Math.abs(level.median-r.baseline.LEVEL.median)>C.maxInputDriftDb)abort('RECEIVED SIGNAL / INPUT NOISE CHANGED; ABORTED');\n  else if(r.rebaseline){r.rebaseline=false;r.reference=values;descend();}\n  else{const drop=r.reference['AGC+'].median-agc.median;\n   if(r.confirming){if(drop>=C.kneeDropDb&&Math.abs(agc.median-r.candidateAgc)<=C.plateauDb){s.knee=r.current;s.final=Math.max(C.minThreshold,Math.min(100,s.knee+C.kneeOffset));s.phase=null;move('KNEE_FOUND','KNEE CONFIRMED IN TWO WINDOWS WITH STABLE LEVEL');}else abort('KNEE NOT REPRODUCIBLE');}\n   else if(drop>=C.kneeDropDb){if(!r.plateau)abort('NO PRECEDING AGC PLATEAU; CHOOSE A HIGHER EXPLICIT SCAN START');else{r.confirming=true;r.candidateAgc=agc.median;newWindow();report('CONFIRMING KNEE; second independent measurement window');}}\n   else if(drop < -C.plateauDb)abort('AGC OUTPUT INCREASED; SIGNAL NOT STABLE');\n   else{if(Math.abs(drop)<=C.plateauDb){r.plateau=true;r.reference=values;}descend();}\n  }\n }\n }\n}else if(s.state==='KNEE_FOUND'){move('APPLY','SETTING FINAL AGC-T ONCE');sendThreshold(s.final,'apply');}\nif(topic==='clock'){\n if(!s.lastInventory||now-s.lastInventory>=60000){s.lastInventory=now;for(const cmd of ['sub client all','sub slice all','sub tx all','sub pan all','meter list'])read(cmd);}\n if(busy()&&now-s.lastTxSub>=2000){s.lastTxSub=now;read('sub tx all');}report();\n}\nflow.set('agctWritePermit',s.pending&&scanning()&&s.auto&&s.rx==='RX'&&now-s.rxAt<=C.rxFreshMs&&freshMeters()&&atQuiet()&&!s.settingsError?{\n command:s.pending.command,token:s.pending.token,epoch:s.epoch,expires:Math.min(now+1000,s.pending.at+C.ackTimeoutMs)}:null);\ncontext.set('watcher',s);\nnode.status({fill:s.state==='ERROR'?'red':s.state==='DONE'?'green':s.auto?'blue':'grey',shape:'dot',text:s.state+': '+s.reason});\nreturn [out.length?out:null,commands.length?commands:null,saves.length?saves:null];\n",
-    "outputs": 3,
-    "noerr": 0,
-    "initialize": "context.set('watcher', null); flow.set('agctWritePermit', null);",
-    "finalize": "flow.set('agctWritePermit', null);",
-    "libs": [],
     "x": 560,
     "y": 240,
     "wires": [
@@ -1146,47 +1140,60 @@
       [
         "450b7e9ed2d9e1eb"
       ]
-    ]
+    ],
+    "func": "// API proof: https://github.com/flexradio/smartsdr-api-docs/wiki/TCPIP-slice#SET\n// Installed flexradio-request -> flexradio-radio.send -> Radio._sendRequest -> flex.encode_request.\n// No transmit, power, mode, antenna or tuning command is generated here.\nconst C = {\n quietMHzByBand: {'160':null,'80':null,'60':null,'40':null,'30':null,'20':null,'17':null,'15':null,'12':null,'10':null,'6':null},\n clientHandle:null, scanStart:null, step:2, kneeOffset:1, minThreshold:0,\n settleMs:2500, measureMs:4000, minSamples:20, bandDebounceMs:2000,\n timeoutMs:20000, ackTimeoutMs:5000, staleMs:3000, rxFreshMs:6000, maxRunMs:240000,\n maxSpreadDb:2, maxInputDriftDb:1, kneeDropDb:1.5, plateauDb:0.5, quietToleranceMHz:0.000001\n};\nconst now=Date.now(),topic=String(msg.topic||''),p=msg.payload;\nconst object=v=>v!==null&&typeof v==='object'&&!Array.isArray(v);\nconst numeric=v=>(typeof v==='number'||(typeof v==='string'&&v.trim()!==''))&&Number.isFinite(Number(v));\nconst ok=v=>v!==null&&v!==undefined&&Number(v)===0;\nconst threshold=v=>Number.isInteger(v)&&v>=0&&v<=100;\nconst empty=()=>({version:2,state:'IDLE',auto:false,slices:{},pans:{},meters:{},inventory:{},rx:'UNKNOWN',rxAt:0,\n active:null,band:null,candidate:null,lastInventory:0,lastTxSub:0,epoch:0,sequence:0,pending:null,run:null,\n samples:null,result:null,trace:[],reason:'AUTO OFF; monitor only',settingsLoaded:false,settings:{quietMHzByBand:{...C.quietMHzByBand},scanStart:C.scanStart},settingsError:null});\nlet s=context.get('watcher');if(!s||s.version!==2)s=empty();\nconst out=[],commands=[],saves=[];\nconst a=()=>s.slices[s.active]||{};\nconst actualBand=()=>{const b=a().band??s.pans[String(a().pan)]?.band;return b==null?null:String(b);};\nconst quiet=()=>{const v=s.settings.quietMHzByBand[s.band];return typeof v==='number'&&Number.isFinite(v)&&v>0?v:null;};\nconst busy=()=>['BAND_CHANGE','WAIT_RX','MEASURE_NOISE','SCAN_AGCT','KNEE_FOUND','APPLY'].includes(s.state);\nconst scanning=()=>['SCAN_AGCT','KNEE_FOUND','APPLY'].includes(s.state);\nconst freshMeters=()=>['LEVEL','AGC+'].every(name=>{const m=s.meters[s.active]?.[name];return m&&m.unit==='dBm'&&now-m.at<=C.staleMs;});\nconst atQuiet=()=>quiet()!==null&&numeric(a().RF_frequency)&&Math.abs(Number(a().RF_frequency)-quiet())<=C.quietToleranceMHz;\nconst signature=()=>JSON.stringify(['mode','filter_lo','filter_hi','rxant','rfgain','nr','nr_level','nb','nb_level','wnb','anf','apf'].map(k=>a()[k]??null));\nfunction blockers(){const b=[];if(!s.settingsLoaded||s.settingsError)b.push(s.settingsError||'SETTINGS LOADING');\n if(quiet()===null)b.push('NO QUIET FREQUENCY CONFIGURED');else if(!atQuiet())b.push('TUNE TO CONFIGURED QUIET FREQUENCY');\n if(!freshMeters())b.push('WAITING FOR LIVE LEVEL / AGC+ IN dBm');if(!['slow','med','fast'].includes(a().agc_mode))b.push('AGC MODE OFF OR UNKNOWN');return b;}\nfunction report(reason=s.reason){s.reason=reason;out.push({topic:'au510m/agct/status',payload:JSON.parse(JSON.stringify({\n state:s.state,auto:s.auto,manualRun:Boolean(s.manual),autoAfterRun:s.manual?s.manual.autoBefore:s.auto,reason,activeSlice:s.active,frequencyMHz:a().RF_frequency??null,band:s.band,\n agcThreshold:a().agc_threshold??null,agcMode:a().agc_mode??null,rxTx:s.rx,meters:s.meters[s.active]||{},\n inventory:s.inventory,inventoryError:s.inventoryError??null,measurement:s.result,quietFrequencyMHz:quiet(),\n settings:s.settings,settingsLoaded:s.settingsLoaded,settingsError:s.settingsError,\n scan:{start:s.run?.initial??null,current:s.run?.current??null,knee:s.knee??null,final:s.final??null,phase:s.phase??null,steps:s.trace.length},\n trace:s.trace,blockers:blockers(),at:now}))});}\nfunction move(state,reason){s.state=state;s.since=now;report(reason);}\nfunction finishManual(){if(s.manual){s.auto=s.manual.autoBefore;s.manual=null;}}\nfunction abort(reason){finishManual();s.pending=null;s.samples=null;s.run=null;s.phase=null;move('ERROR',reason+'; no further writes');}\nfunction read(command){commands.push({payload:command,_agctReadEpoch:s.epoch});}\nfunction begin(reason,scanStart=s.settings.scanStart){s.result=null;s.trace=[];s.knee=null;s.final=null;s.pending=null;s.samples=null;s.run={slice:s.active,band:s.band,started:now,scanStart};move('BAND_CHANGE',reason);}\nfunction newWindow(){s.samples={'LEVEL':[],'AGC+':[]};s.windowAt=now;s.phase='MEASURE';}\nfunction stats(){const r={};for(const name of ['LEVEL','AGC+']){const v=(s.samples?.[name]||[]).slice().sort((x,y)=>x-y);if(v.length<C.minSamples)return null;\n r[name]={unit:'dBm',count:v.length,min:v[0],max:v.at(-1),median:v[Math.floor(v.length/2)],spread:v.at(-1)-v[0]};}return r;}\nfunction sendThreshold(value,purpose){\n if(!s.auto||!s.run||!threshold(value)||s.rx!=='RX'||now-s.rxAt>C.rxFreshMs||!freshMeters()||!atQuiet()||!s.settingsLoaded||s.settingsError){abort('WRITE PRECONDITION FAILED');return;}\n const token=++s.sequence,command='slice s '+s.active+' agc_threshold='+value;\n s.pending={token,command,value,purpose,at:now,ack:false,seen:false,previous:Number(a().agc_threshold)};s.phase='ACK';\n commands.push({payload:command,_agctWrite:{token,epoch:s.epoch}});report(purpose==='apply'?'APPLY; waiting for acknowledgement and live threshold':'SCAN_AGCT; waiting for acknowledgement and live threshold');}\nfunction descend(){const next=s.run.current-C.step;if(next<C.minThreshold){abort('NO KNEE FOUND IN SCAN RANGE');return;}sendThreshold(next,'step');}\nfunction validSettings(v){return object(v)&&object(v.quietMHzByBand)&&Object.entries(v.quietMHzByBand).every(([b,q])=>/^[A-Za-z0-9_-]{1,16}$/.test(b)&&b!=='__proto__'&&b!=='constructor'&&(q===null||(typeof q==='number'&&Number.isFinite(q)&&q>0&&q<=100000)))&&(v.scanStart===null||threshold(v.scanStart));}\nif(topic==='settings/load'){\n try{const settings=typeof p==='string'?JSON.parse(p):p;if(!validSettings(settings))throw Error('Invalid settings');s.settings={quietMHzByBand:{...C.quietMHzByBand,...settings.quietMHzByBand},scanStart:settings.scanStart};s.settingsLoaded=true;s.settingsError=null;report('SETTINGS LOADED');}\n catch(e){s.settingsLoaded=true;s.settingsError='SETTINGS FILE INVALID';report(s.settingsError);}\n}\nif(topic==='settings/missing'){s.settingsLoaded=true;s.settingsError=null;report('NO SAVED SETTINGS; frequencies remain unset');}\nif(topic==='settings/error'){s.settingsPending=null;s.settingsLoaded=true;s.settingsError='SETTINGS SAVE / LOAD FAILED';if(busy())abort(s.settingsError);else report(s.settingsError);}\nif(topic==='settings/saved'){\n if(msg._settingsToken===s.settingsToken){s.settings=s.settingsPending;s.settingsPending=null;s.settingsLoaded=true;s.settingsError=null;report('SETTINGS SAVED');}\n}\nif(topic==='control/settings'){\n if(busy())report('STOP CALIBRATION BEFORE CHANGING SETTINGS');\n else if(s.settingsPending)report('SETTINGS SAVE ALREADY IN PROGRESS');\n else if(!s.settingsLoaded||!object(p)||!validSettings({quietMHzByBand:{[p.band]:p.quietMHz},scanStart:p.scanStart}))report('INVALID SETTINGS');\n else{\n  s.settingsPending={quietMHzByBand:{...s.settings.quietMHzByBand,[p.band]:p.quietMHz},scanStart:p.scanStart};\n  s.settingsToken=(s.settingsToken||0)+1;s.settingsError='SETTINGS SAVING';\n  saves.push({topic:'settings/saved',payload:JSON.stringify(s.settingsPending,null,2),_settingsToken:s.settingsToken});report('SAVING SETTINGS');\n }\n}\nif(topic.startsWith('connection/')){const old=s;s=empty();s.epoch=old.epoch+1;s.auto=old.manual?old.manual.autoBefore:old.auto;s.settings=old.settings;s.settingsLoaded=old.settingsLoaded;s.settingsError=old.settingsError;\n s.settingsToken=old.settingsToken;s.settingsPending=old.settingsPending;\n if(['BAND_CHANGE','WAIT_RX','MEASURE_NOISE','SCAN_AGCT','KNEE_FOUND','APPLY'].includes(old.state))abort('RADIO CONNECTION CHANGED');}\nif(msg.error && !topic.startsWith('settings/'))abort('RADIO REQUEST ERROR: '+String(msg.error.message||msg.error));\nif(msg._agctWrite&&msg.request&&s.pending&&msg._agctWrite.epoch===s.epoch&&msg._agctWrite.token===s.pending.token){if(!ok(msg.status_code))abort('AGC-T COMMAND REJECTED: '+String(msg.status_code));else s.pending.ack=true;}\nif(msg._agctReadEpoch===s.epoch&&msg.request){\n if(!ok(msg.status_code)){s.inventoryError=msg.request+': '+String(msg.status_code);if(busy())abort('SUBSCRIPTION / INVENTORY REQUEST FAILED');}\n else if(msg.request==='meter list'&&object(p)){s.inventory={};for(const [id,m] of Object.entries(p))if(/^\\d+$/.test(id)&&object(m)&&String(m.src).toUpperCase()==='SLC'&&['LEVEL','AGC+'].includes(String(m.nam).toUpperCase())){\n  const name=String(m.nam).toUpperCase();s.inventory['SLC/'+Number(m.num)+'/'+name]={id,unit:m.unit??null};read('sub meter '+id);}s.inventoryError=null;}\n}\nif(topic==='interlock'&&object(p)&&typeof p.state==='string'){const state=p.state.toUpperCase();s.rx=['RECEIVE','READY'].includes(state)?'RX':state==='TRANSMITTING'?'TX':'UNKNOWN';s.rxAt=now;\n if(busy()&&!['BAND_CHANGE','WAIT_RX'].includes(s.state)&&s.rx!=='RX')abort('RX LOST: '+state);}\nconst sm=topic.match(/^slice\\/(\\d+)(\\/removed)?$/);\nif(sm){const id=String(Number(sm[1]));if(sm[2]||p==='removed'||(object(p)&&Number(p.in_use)===0)){delete s.slices[id];delete s.meters[id];}\n else if(object(p)){s.slices[id]={...(s.slices[id]||{}),...p};if(s.pending&&id===s.active&&numeric(p.agc_threshold)&&Number(p.agc_threshold)===s.pending.value)s.pending.seen=true;}}\nconst pm=topic.match(/^display\\/pan\\/([^/]+)$/);if(pm&&object(p))s.pans[pm[1]]={...(s.pans[pm[1]]||{}),...p};\nconst candidates=Object.entries(s.slices).filter(([,v])=>Number(v.active)===1&&(C.clientHandle===null||String(v.client_handle)===C.clientHandle));\nconst active=candidates.length===1?candidates[0][0]:null;\nif(active!==s.active){if(busy())abort('ACTIVE SLICE CHANGED OR AMBIGUOUS');s.active=active;s.band=null;s.candidate=null;report(active===null?'WAITING FOR UNAMBIGUOUS ACTIVE SLICE':'ACTIVE SLICE BASELINE; no calibration');}\nconst band=actualBand();\nif(band!==null&&s.active!==null){if(s.band===null){s.band=band;report('INITIAL BAND BASELINE');}\n else if(band!==s.band){if(!s.candidate||s.candidate.band!==band)s.candidate={band,at:now};if(now-s.candidate.at>=C.bandDebounceMs){s.band=band;s.candidate=null;if(s.manual)abort('BAND CHANGED DURING SINGLE CALIBRATION');else if(s.auto)begin('CONFIRMED RADIO BAND CHANGE');else report('BAND CHANGE; AUTO OFF');}}else s.candidate=null;}\nif(topic==='control/auto'){if(p===true&&!s.auto){s.auto=true;move('IDLE','AUTO ON; next band change or Calibrate');}else if(p!==true){s.manual=null;s.auto=false;s.pending=null;s.run=null;s.samples=null;s.phase=null;move('IDLE','AUTO OFF; no further AGC-T changes');}}\nif(topic==='control/start100'){\n if(busy())report('CALIBRATION ALREADY RUNNING');\n else if(s.active===null||s.band===null||s.candidate||s.rx!=='RX'||now-s.rxAt>C.rxFreshMs||!freshMeters()||!atQuiet()||!s.settingsLoaded||s.settingsError||!['slow','med','fast'].includes(a().agc_mode))report('START BLOCKED; CHECK RX, QUIET FREQUENCY AND LIVE METERS');\n else {s.manual={autoBefore:s.auto};s.auto=true;begin('EXPLICIT SINGLE CALIBRATION FROM AGC-T 100',100);}\n}\nif(topic==='control/calibrate'){if(!s.auto)report('AUTO OFF; calibration ignored');else if(busy())report('CALIBRATION ALREADY RUNNING');else if(s.active===null||s.band===null)abort('ACTIVE SLICE / RADIO BAND UNKNOWN');else if(!s.settingsLoaded||s.settingsError)report('SETTINGS NOT READY');else begin('EXPLICIT CALIBRATION');}\nconst mm=topic.match(/^SLC\\/(\\d+)\\/(LEVEL|AGC\\+)$/i);\nif(mm&&object(p)&&numeric(p.value)){const id=String(Number(mm[1])),name=mm[2].toUpperCase(),supplied=p.unit??s.inventory['SLC/'+id+'/'+name]?.unit;\n const unit=String(supplied).toLowerCase()==='dbm'?'dBm':supplied??null;(s.meters[id]||={})[name]={value:Number(p.value),unit,at:now};\n if(s.samples&&s.phase==='MEASURE'&&id===s.active&&unit==='dBm'&&s.rx==='RX'){if(s.samples[name].length<5000)s.samples[name].push(Number(p.value));else abort('METER SAMPLE LIMIT EXCEEDED');}}\nif(s.run&&['MEASURE_NOISE','SCAN_AGCT','KNEE_FOUND','APPLY'].includes(s.state)){\n const r=s.run,actual=Number(a().agc_threshold),expected=s.pending?[s.pending.previous,s.pending.value]:[r.current];\n if(s.rx!=='RX')abort('RX LOST');\n else if(s.active!==r.slice||band!==r.band||Number(a().RF_frequency)!==r.frequency||a().agc_mode!==r.mode||signature()!==r.signature||!expected.includes(actual))abort('SLICE / BAND / FREQUENCY / AGC / RECEIVE SETTINGS CHANGED');\n else if(now-r.started>C.maxRunMs)abort('CALIBRATION TIMEOUT');\n else if(scanning()&&(!freshMeters()||now-s.rxAt>C.rxFreshMs||!atQuiet()))abort('SCAN TELEMETRY STALE OR QUIET FREQUENCY LOST');\n}\nif(s.pending){if(now-s.pending.at>C.ackTimeoutMs)abort('AGC-T ACKNOWLEDGEMENT / READBACK TIMEOUT');else if(s.pending.ack&&s.pending.seen){const pending=s.pending;s.pending=null;s.run.current=pending.value;\n if(pending.purpose==='apply'){s.final=pending.value;s.phase=null;s.samples=null;finishManual();move('DONE','AGC-T APPLIED AND CONFIRMED; no continuous regulation');}\n else{s.phase='SETTLE';s.settleUntil=now+C.settleMs;s.samples=null;report('SCAN_AGCT; AGC settling');}}}\nif(s.state==='BAND_CHANGE')move('WAIT_RX','WAITING FOR RX; no immediate AGC-T change');\nelse if(s.state==='WAIT_RX'){\n if(now-s.since>C.timeoutMs)abort('RX / BAND / LIVE STATUS TIMEOUT');\n else if(s.rx==='RX'&&now-s.rxAt<=C.rxFreshMs&&!s.candidate&&band===s.band&&numeric(a().RF_frequency)&&threshold(Number(a().agc_threshold))&&['slow','med','fast'].includes(a().agc_mode)){\n  s.run={slice:s.active,band:s.band,started:now,frequency:Number(a().RF_frequency),initial:Number(a().agc_threshold),current:Number(a().agc_threshold),scanStart:s.run.scanStart,mode:a().agc_mode,signature:signature(),plateau:false,confirming:false};\n  newWindow();move('MEASURE_NOISE','COLLECTING LIVE LEVEL AND AGC+; no radio changes');}\n}else if(s.state==='MEASURE_NOISE'&&now-s.windowAt>=C.measureMs){const values=stats();if(values&&freshMeters()){\n s.result={...values,at:now,quietFrequencyMHz:quiet(),noiseFloorConfirmed:false};s.run.baseline=values;s.run.reference=values;s.samples=null;report('LIVE MEASUREMENT COMPLETE');\n if(quiet()===null)abort('NO QUIET FREQUENCY CONFIGURED');else if(!atQuiet())abort('TUNE TO CONFIGURED QUIET FREQUENCY');\n else if(Object.values(values).some(v=>v.spread>C.maxSpreadDb))abort('UNSTABLE SIGNAL; NO SCAN');\n else{move('SCAN_AGCT','NOISE BASELINE ACCEPTED; starting downward scan');if(s.run.scanStart!==null&&s.run.scanStart!==s.run.current){s.run.rebaseline=true;sendThreshold(s.run.scanStart,'start');}else descend();}\n }else if(now-s.windowAt>C.timeoutMs)abort('MISSING / STALE / WRONG-UNIT LIVE METERS');\n}else if(s.state==='SCAN_AGCT'&&!s.pending){\n if(s.phase==='SETTLE'&&now>=s.settleUntil)newWindow();\n else if(s.phase==='MEASURE'&&now-s.windowAt>=C.measureMs){const values=stats();if(!values){if(now-s.windowAt>C.timeoutMs)abort('NOT ENOUGH LIVE SCAN SAMPLES');}\n else{const r=s.run,level=values.LEVEL,agc=values['AGC+'];s.trace.push({threshold:r.current,...values,at:now});s.samples=null;\n  if(Object.values(values).some(v=>v.spread>C.maxSpreadDb)||Math.abs(level.median-r.baseline.LEVEL.median)>C.maxInputDriftDb)abort('RECEIVED SIGNAL / INPUT NOISE CHANGED; ABORTED');\n  else if(r.rebaseline){r.rebaseline=false;r.reference=values;descend();}\n  else{const drop=r.reference['AGC+'].median-agc.median;\n   if(r.confirming){if(drop>=C.kneeDropDb&&Math.abs(agc.median-r.candidateAgc)<=C.plateauDb){s.knee=r.current;s.final=Math.max(C.minThreshold,Math.min(100,s.knee+C.kneeOffset));s.phase=null;move('KNEE_FOUND','KNEE CONFIRMED IN TWO WINDOWS WITH STABLE LEVEL');}else abort('KNEE NOT REPRODUCIBLE');}\n   else if(drop>=C.kneeDropDb){if(!r.plateau)abort('NO PRECEDING AGC PLATEAU; CHOOSE A HIGHER EXPLICIT SCAN START');else{r.confirming=true;r.candidateAgc=agc.median;newWindow();report('CONFIRMING KNEE; second independent measurement window');}}\n   else if(drop < -C.plateauDb)abort('AGC OUTPUT INCREASED; SIGNAL NOT STABLE');\n   else{if(Math.abs(drop)<=C.plateauDb){r.plateau=true;r.reference=values;}descend();}\n  }\n }\n }\n}else if(s.state==='KNEE_FOUND'){move('APPLY','SETTING FINAL AGC-T ONCE');sendThreshold(s.final,'apply');}\nif(topic==='clock'){\n if(!s.lastInventory||now-s.lastInventory>=60000){s.lastInventory=now;for(const cmd of ['sub client all','sub slice all','sub tx all','sub pan all','meter list'])read(cmd);}\n if(!s.lastTxSub||now-s.lastTxSub>=5000){s.lastTxSub=now;read('sub tx all');}report();\n}\nflow.set('agctWritePermit',s.pending&&scanning()&&s.auto&&s.rx==='RX'&&now-s.rxAt<=C.rxFreshMs&&freshMeters()&&atQuiet()&&!s.settingsError?{\n command:s.pending.command,token:s.pending.token,epoch:s.epoch,expires:Math.min(now+1000,s.pending.at+C.ackTimeoutMs)}:null);\ncontext.set('watcher',s);\nnode.status({fill:s.state==='ERROR'?'red':s.state==='DONE'?'green':s.auto?'blue':'grey',shape:'dot',text:s.state+': '+s.reason});\nreturn [out.length?out:null,commands.length?commands:null,saves.length?saves:null];\n",
+    "outputs": 3,
+    "noerr": 0,
+    "initialize": "context.set('watcher', null); flow.set('agctWritePermit', null);",
+    "finalize": "flow.set('agctWritePermit', null);",
+    "libs": []
   },
   {
     "id": "d5e6ccb24dea5faa",
     "type": "flexradio-message",
     "z": "e57c2d55062d0d1f",
     "name": "Live status + connection",
-    "radio": "7fbf2bfc9badc7d3",
-    "client": "all",
-    "topic": "^(slice/[0-9]+(/removed)?|display/pan/[^/]+|interlock|connection/.*)$",
-    "topic_type": "re",
     "x": 200,
     "y": 180,
     "wires": [
       [
         "5c67eccefec66e09"
       ]
-    ]
+    ],
+    "radio": "7fbf2bfc9badc7d3",
+    "topic": "^(slice/[0-9]+(/removed)?|display/pan/[^/]+|interlock|connection/.*)$",
+    "topic_type": "re",
+    "client": "all"
   },
   {
     "id": "55681b80c46d9de0",
     "type": "flexradio-meter",
     "z": "e57c2d55062d0d1f",
     "name": "Live LEVEL and literal AGC+",
-    "radio": "7fbf2bfc9badc7d3",
-    "topic": "^[Ss][Ll][Cc]/[0-9]+/([Ll][Ee][Vv][Ee][Ll]|[Aa][Gg][Cc][+])$",
-    "topic_type": "re",
-    "output_mode": "context",
     "x": 200,
     "y": 240,
     "wires": [
       [
         "5c67eccefec66e09"
       ]
-    ]
+    ],
+    "radio": "7fbf2bfc9badc7d3",
+    "topic": "^[Ss][Ll][Cc]/[0-9]+/([Ll][Ee][Vv][Ee][Ll]|[Aa][Gg][Cc][+])$",
+    "topic_type": "re",
+    "output_mode": "context"
   },
   {
     "id": "41838b67edd44f75",
     "type": "inject",
     "z": "e57c2d55062d0d1f",
     "name": "Clock / refresh subscriptions",
+    "x": 200,
+    "y": 320,
+    "wires": [
+      [
+        "5c67eccefec66e09"
+      ]
+    ],
     "props": [
       {
         "p": "payload"
@@ -1196,84 +1203,55 @@
         "vt": "str"
       }
     ],
-    "repeat": "1",
-    "crontab": "",
-    "once": true,
-    "onceDelay": 1,
     "topic": "clock",
     "payload": "",
     "payloadType": "date",
-    "x": 200,
-    "y": 320,
-    "wires": [
-      [
-        "5c67eccefec66e09"
-      ]
-    ]
+    "repeat": "1",
+    "crontab": "",
+    "once": true,
+    "onceDelay": 1
   },
   {
     "id": "299efe7bbf8ca636",
     "type": "inject",
     "z": "e57c2d55062d0d1f",
     "name": "Auto AGC-T ON",
-    "props": [
-      {
-        "p": "payload"
-      },
-      {
-        "p": "topic",
-        "vt": "str"
-      }
-    ],
-    "repeat": "",
-    "crontab": "",
-    "once": false,
-    "onceDelay": 1,
-    "topic": "control/auto",
-    "payload": "true",
-    "payloadType": "bool",
     "x": 200,
     "y": 380,
     "wires": [
       [
         "5c67eccefec66e09"
       ]
-    ]
+    ],
+    "props": [
+      {
+        "p": "payload"
+      },
+      {
+        "p": "topic",
+        "vt": "str"
+      }
+    ],
+    "topic": "control/auto",
+    "payload": "true",
+    "payloadType": "bool",
+    "repeat": "",
+    "crontab": "",
+    "once": false,
+    "onceDelay": 1
   },
   {
     "id": "eb4f166622744515",
     "type": "inject",
     "z": "e57c2d55062d0d1f",
     "name": "Auto AGC-T OFF",
-    "props": [
-      {
-        "p": "payload"
-      },
-      {
-        "p": "topic",
-        "vt": "str"
-      }
-    ],
-    "repeat": "",
-    "crontab": "",
-    "once": false,
-    "onceDelay": 1,
-    "topic": "control/auto",
-    "payload": "false",
-    "payloadType": "bool",
     "x": 200,
     "y": 440,
     "wires": [
       [
         "5c67eccefec66e09"
       ]
-    ]
-  },
-  {
-    "id": "6b2adfc046f7bc82",
-    "type": "inject",
-    "z": "e57c2d55062d0d1f",
-    "name": "Calibrate / measure",
+    ],
     "props": [
       {
         "p": "payload"
@@ -1283,59 +1261,84 @@
         "vt": "str"
       }
     ],
+    "topic": "control/auto",
+    "payload": "false",
+    "payloadType": "bool",
     "repeat": "",
     "crontab": "",
     "once": false,
-    "onceDelay": 1,
-    "topic": "control/calibrate",
-    "payload": "",
-    "payloadType": "date",
+    "onceDelay": 1
+  },
+  {
+    "id": "6b2adfc046f7bc82",
+    "type": "inject",
+    "z": "e57c2d55062d0d1f",
+    "name": "Calibrate / measure",
     "x": 200,
     "y": 500,
     "wires": [
       [
         "5c67eccefec66e09"
       ]
-    ]
+    ],
+    "props": [
+      {
+        "p": "payload"
+      },
+      {
+        "p": "topic",
+        "vt": "str"
+      }
+    ],
+    "topic": "control/calibrate",
+    "payload": "",
+    "payloadType": "date",
+    "repeat": "",
+    "crontab": "",
+    "once": false,
+    "onceDelay": 1
   },
   {
     "id": "a2e5d60332cdb49a",
     "type": "function",
     "z": "e57c2d55062d0d1f",
     "name": "AGC-T command gate: RX + live scan permit",
-    "func": "if(msg.action || typeof msg.payload!=='string'){node.error('Blocked invalid command',msg);return null;}\nif(/^(meter list|sub (client|slice|tx|pan) all|sub meter \\d+)$/.test(msg.payload))return {payload:msg.payload,_agctReadEpoch:msg._agctReadEpoch};\nconst match=msg.payload.match(/^slice s (\\d+) agc_threshold=(\\d{1,3})$/);\nconst permit=flow.get('agctWritePermit'),tag=msg._agctWrite;\nconst key=tag?tag.epoch+':'+tag.token:null;\nif(match && Number(match[2])<=100 && permit && tag && permit.command===msg.payload && permit.token===tag.token && permit.epoch===tag.epoch && Date.now()<=permit.expires && context.get('lastSent')!==key){\n context.set('lastSent',key);flow.set('agctWritePermit',null);\n return {payload:msg.payload,_agctWrite:tag};\n}\nnode.error('Blocked AGC-T write: no current RX/scan permit',msg);return null;\n",
-    "outputs": 1,
-    "noerr": 0,
-    "initialize": "context.set('lastSent', null);",
-    "finalize": "",
-    "libs": [],
     "x": 850,
     "y": 320,
     "wires": [
       [
         "07c61c6741eb8fad"
       ]
-    ]
+    ],
+    "func": "if(msg.action || typeof msg.payload!=='string'){node.error('Blocked invalid command',msg);return null;}\nif(/^(meter list|sub (client|slice|tx|pan) all|sub meter \\d+)$/.test(msg.payload))return {payload:msg.payload,_agctReadEpoch:msg._agctReadEpoch};\nconst match=msg.payload.match(/^slice s (\\d+) agc_threshold=(\\d{1,3})$/);\nconst permit=flow.get('agctWritePermit'),tag=msg._agctWrite;\nconst key=tag?tag.epoch+':'+tag.token:null;\nif(match && Number(match[2])<=100 && permit && tag && permit.command===msg.payload && permit.token===tag.token && permit.epoch===tag.epoch && Date.now()<=permit.expires && context.get('lastSent')!==key){\n context.set('lastSent',key);flow.set('agctWritePermit',null);\n return {payload:msg.payload,_agctWrite:tag};\n}\nnode.error('Blocked AGC-T write: no current RX/scan permit',msg);return null;\n",
+    "outputs": 1,
+    "noerr": 0,
+    "initialize": "context.set('lastSent', null);",
+    "finalize": "",
+    "libs": []
   },
   {
     "id": "07c61c6741eb8fad",
     "type": "flexradio-request",
     "z": "e57c2d55062d0d1f",
     "name": "Existing FlexRadio: subscriptions + guarded AGC-T",
-    "radio": "7fbf2bfc9badc7d3",
     "x": 850,
     "y": 400,
     "wires": [
       [
         "5c67eccefec66e09"
       ]
-    ]
+    ],
+    "radio": "7fbf2bfc9badc7d3"
   },
   {
     "id": "556ed6a85cad0331",
     "type": "debug",
     "z": "e57c2d55062d0d1f",
     "name": "Watcher state / real measurements / blockers",
+    "x": 880,
+    "y": 180,
+    "wires": [],
     "active": true,
     "tosidebar": true,
     "console": false,
@@ -1343,175 +1346,166 @@
     "complete": "payload",
     "targetType": "msg",
     "statusVal": "",
-    "statusType": "auto",
-    "x": 880,
-    "y": 180,
-    "wires": []
+    "statusType": "auto"
   },
   {
     "id": "c267bc4c521e7d37",
     "type": "catch",
     "z": "e57c2d55062d0d1f",
     "name": "Request errors",
-    "scope": [
-      "07c61c6741eb8fad",
-      "a2e5d60332cdb49a"
-    ],
-    "uncaught": false,
     "x": 560,
     "y": 480,
     "wires": [
       [
         "5c67eccefec66e09"
       ]
-    ]
+    ],
+    "scope": [
+      "07c61c6741eb8fad",
+      "a2e5d60332cdb49a"
+    ],
+    "uncaught": false
   },
   {
     "id": "0a415d5be7183ebf",
     "type": "comment",
     "z": "e57c2d55062d0d1f",
     "name": "AGC-T scan: explicit quiet frequency, stable live meters, RX only",
-    "info": "Separate AU-510M watcher. Auto defaults OFF; tab exported disabled. All nine states implemented. Exact API: slice s <slice> agc_threshold=<integer 0..100>, documented by FlexRadio https://github.com/flexradio/smartsdr-api-docs/wiki/TCPIP-slice#SET and transported by installed flexradio-request / flexradio-radio / flexradio-js. Status field agc_threshold. Actual hardware success requires zero response and matching live threshold status after each command. No power/mode/antenna/transmit/tuning command permitted. Scan only at a user-configured quiet frequency, selected active slice dynamically. No invented quiet frequencies. UI /agct-watcher offers per-band quiet MHz, use-current, clear, and optional scan start; persistent settings saved atomically at /mnt/dietpi_userdata/node-red/agct-watcher-settings.json. Use-current saves only a frequency; does not retune or certify quietness. Manual tune to the configured frequency before calibration in this version. Baseline 4 seconds; downward steps of 2, settle 2.5 seconds, 4-second windows, >=20 live dBm samples of both meters. Reject >2 dB spread or >1 dB input drift. Require observed plateau, >=1.5 dB AGC+ fall and a second independent confirmation window. Knee offset +1, then one confirmed final apply and DONE. RX loss, changed slice/receive settings, stale data, failed commands or timeouts abort with no restoration/write on TX. OFF immediately revokes permits; last applied threshold remains on abort. Read requests only from subscription whitelist; write gate accepts only matching, expiring, single-use core permits. No dashboard backend changes. Live calibration not yet validated. Deploy/update explicitly: node /mnt/dietpi_userdata/node-red/scripts/deploy-agct-watcher.mjs --deploy .",
     "x": 420,
     "y": 80,
-    "wires": []
+    "wires": [],
+    "info": "Separate AU-510M watcher. Auto defaults OFF; tab exported disabled. All nine states implemented. Exact API: slice s <slice> agc_threshold=<integer 0..100>, documented by FlexRadio https://github.com/flexradio/smartsdr-api-docs/wiki/TCPIP-slice#SET and transported by installed flexradio-request / flexradio-radio / flexradio-js. Status field agc_threshold. Actual hardware success requires zero response and matching live threshold status after each command. No power/mode/antenna/transmit/tuning command permitted. Scan only at a user-configured quiet frequency, selected active slice dynamically. No invented quiet frequencies. UI /agct-watcher offers per-band quiet MHz, use-current, clear, and optional scan start; persistent settings saved atomically at /mnt/dietpi_userdata/node-red/agct-watcher-settings.json. Use-current saves only a frequency; does not retune or certify quietness. Manual tune to the configured frequency before calibration in this version. Baseline 4 seconds; downward steps of 2, settle 2.5 seconds, 4-second windows, >=20 live dBm samples of both meters. Reject >2 dB spread or >1 dB input drift. Require observed plateau, >=1.5 dB AGC+ fall and a second independent confirmation window. Knee offset +1, then one confirmed final apply and DONE. RX loss, changed slice/receive settings, stale data, failed commands or timeouts abort with no restoration/write on TX. OFF immediately revokes permits; last applied threshold remains on abort. Read requests only from subscription whitelist; write gate accepts only matching, expiring, single-use core permits. No dashboard backend changes. Live calibration not yet validated. Deploy/update explicitly: node /mnt/dietpi_userdata/node-red/scripts/deploy-agct-watcher.mjs --deploy ."
   },
   {
     "id": "2944249a43182f2d",
     "type": "function",
     "z": "e57c2d55062d0d1f",
     "name": "Cache watcher status for separate UI",
+    "x": 1120,
+    "y": 180,
+    "wires": [
+      []
+    ],
     "func": "flow.set('agctUiStatus', RED.util.cloneMessage(msg.payload)); return null;",
     "outputs": 1,
     "noerr": 0,
     "initialize": "flow.set('agctUiStatus', null);",
     "finalize": "",
-    "libs": [],
-    "x": 1120,
-    "y": 180,
-    "wires": [
-      []
-    ]
+    "libs": []
   },
   {
     "id": "775f561069ab2910",
     "type": "http in",
     "z": "e57c2d55062d0d1f",
     "name": "GET /agct-watcher",
-    "url": "/agct-watcher",
-    "method": "get",
-    "upload": false,
-    "swaggerDoc": "",
     "x": 210,
     "y": 620,
     "wires": [
       [
         "1ac2fbb45c33694d"
       ]
-    ]
+    ],
+    "url": "/agct-watcher",
+    "method": "get",
+    "upload": false,
+    "swaggerDoc": ""
   },
   {
     "id": "d069bbdd8597f694",
     "type": "http in",
     "z": "e57c2d55062d0d1f",
     "name": "GET /agct-watcher/status",
-    "url": "/agct-watcher/status",
-    "method": "get",
-    "upload": false,
-    "swaggerDoc": "",
     "x": 210,
     "y": 700,
     "wires": [
       [
         "b4b38e54e7974a08"
       ]
-    ]
+    ],
+    "url": "/agct-watcher/status",
+    "method": "get",
+    "upload": false,
+    "swaggerDoc": ""
   },
   {
     "id": "f69c6041d125cc4b",
     "type": "http in",
     "z": "e57c2d55062d0d1f",
     "name": "POST /agct-watcher/control",
-    "url": "/agct-watcher/control",
-    "method": "post",
-    "upload": false,
-    "swaggerDoc": "",
     "x": 210,
     "y": 780,
     "wires": [
       [
         "e7fad9b7ada1fd50"
       ]
-    ]
+    ],
+    "url": "/agct-watcher/control",
+    "method": "post",
+    "upload": false,
+    "swaggerDoc": ""
   },
   {
     "id": "1ac2fbb45c33694d",
     "type": "template",
     "z": "e57c2d55062d0d1f",
     "name": "Standalone German watcher UI",
-    "field": "payload",
-    "fieldType": "msg",
-    "format": "html",
-    "syntax": "plain",
-    "template": "<!doctype html>\n<html lang=\"de\">\n<head>\n  <meta charset=\"utf-8\">\n  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n  <title># AU-510M · AGC-T Watcher</title>\n  <style>\n  :root {\n    --bg-1: #07111f;\n    --bg-2: #111827;\n    --panel: rgba(15, 23, 42, 0.9);\n    --panel-2: rgba(17, 24, 39, 0.96);\n    --panel-3: rgba(30, 41, 59, 0.96);\n    --line: rgba(103, 232, 249, 0.75);\n    --text: #eef8ff;\n    --muted: #bfd9f7;\n    --cyan: #67e8f9;\n    --blue: #60a5fa;\n    --indigo: #8b5cf6;\n    --pink: #f472b6;\n    --green: #4ade80;\n    --gold: #fbbf24;\n    --red: #f87171;\n    --orange: #fb923c;\n    --shadow: rgba(15, 23, 42, 0.7);\n  }\n\n  * { box-sizing: border-box; }\n  html, body {\n    margin: 0;\n    min-height: 100%;\n    background: radial-gradient(circle at top left, rgba(96,165,250,0.18), transparent 25%),\n                radial-gradient(circle at top right, rgba(244,114,182,0.18), transparent 28%),\n                linear-gradient(180deg, var(--bg-1), var(--bg-2));\n    color: var(--text);\n    font: 15px/1.45 system-ui, -apple-system, Segoe UI, sans-serif;\n  }\n\n  body {\n    padding: 18px;\n  }\n\n  .wrap {\n    max-width: 1180px;\n    margin: 0 auto;\n    display: grid;\n    gap: 18px;\n  }\n\n  .topbar {\n    display: flex;\n    justify-content: space-between;\n    align-items: center;\n    gap: 14px;\n    flex-wrap: wrap;\n    padding: 6px 2px;\n  }\n\n  .title {\n    display: flex;\n    align-items: center;\n    gap: 12px;\n    flex-wrap: wrap;\n  }\n\n  .dot {\n    width: 16px;\n    height: 16px;\n    border-radius: 50%;\n    background: linear-gradient(135deg, var(--green), var(--cyan));\n    box-shadow: 0 0 18px rgba(103, 232, 249, 0.9);\n  }\n\n  h1 {\n    margin: 0;\n    font-size: clamp(1.5rem, 2.2vw, 2.3rem);\n    letter-spacing: 0.06em;\n    text-transform: uppercase;\n  }\n\n  .chip {\n    display: inline-flex;\n    align-items: center;\n    justify-content: center;\n    padding: 8px 14px;\n    border-radius: 999px;\n    font-size: 12px;\n    font-weight: 700;\n    letter-spacing: 0.06em;\n    text-transform: uppercase;\n    color: #ecfeff;\n    border: 1px solid rgba(103,232,249,0.7);\n    background: linear-gradient(90deg, rgba(96,165,250,0.35), rgba(139,92,246,0.35), rgba(244,114,182,0.35));\n    box-shadow: inset 0 0 16px rgba(255,255,255,0.08), 0 0 18px rgba(96,165,250,0.12);\n  }\n\n  .chip.warn {\n    background: linear-gradient(90deg, rgba(251,191,36,0.28), rgba(248,113,113,0.26));\n    border-color: rgba(251,191,36,0.8);\n    color: #fff5d6;\n  }\n\n  .hero {\n    display: grid;\n    grid-template-columns: repeat(4, minmax(0, 1fr));\n    gap: 16px;\n  }\n\n  .panel,\n  .status,\n  .stat,\n  .phase {\n    position: relative;\n    background: linear-gradient(180deg, rgba(15,23,42,0.98), rgba(30,41,59,0.95));\n    border: 1px solid rgba(103,232,249,0.4);\n    border-radius: 16px;\n    box-shadow: 0 14px 26px rgba(2, 6, 23, 0.45), inset 0 1px 0 rgba(255,255,255,0.05);\n    overflow: hidden;\n  }\n\n  .panel::before,\n  .status::before,\n  .stat::before,\n  .phase::before {\n    content: \"\";\n    position: absolute;\n    inset: 0 0 auto 0;\n    height: 3px;\n    background: linear-gradient(90deg, var(--cyan), var(--blue), var(--pink));\n    opacity: 0.95;\n  }\n\n  .status {\n    padding: 18px 18px 16px;\n    grid-column: span 2;\n    min-height: 140px;\n  }\n\n  .status h2,\n  .stats h2,\n  .timeline h2,\n  .panel h2 {\n    margin: 0 0 10px;\n    font-size: 12px;\n    letter-spacing: 0.12em;\n    text-transform: uppercase;\n    color: var(--muted);\n  }\n\n  .value {\n    display: flex;\n    align-items: baseline;\n    gap: 10px;\n    margin: 8px 0 6px;\n    font-weight: 800;\n  }\n\n  .value strong {\n    font-size: clamp(2rem, 3vw, 3rem);\n    letter-spacing: -0.06em;\n    color: var(--text);\n    text-shadow: 0 0 18px rgba(103,232,249,0.35);\n  }\n\n  .value span {\n    color: var(--muted);\n    font-size: 1rem;\n    letter-spacing: 0.04em;\n    text-transform: uppercase;\n  }\n\n  .stats {\n    display: grid;\n    gap: 12px;\n    padding: 14px 16px;\n  }\n\n  .stat {\n    padding: 12px 14px;\n    background: linear-gradient(180deg, rgba(15,23,42,0.95), rgba(30,41,59,0.9));\n  }\n\n  .stat .label {\n    display: block;\n    font-size: 11px;\n    letter-spacing: 0.12em;\n    text-transform: uppercase;\n    color: var(--muted);\n    margin-bottom: 6px;\n  }\n\n  .stat .value {\n    margin: 0;\n    font-size: 1.25rem;\n    color: var(--text);\n  }\n\n  .primary {\n    background: linear-gradient(135deg, rgba(96,165,250,0.16), rgba(139,92,246,0.16));\n    border-color: rgba(96,165,250,0.7);\n  }\n\n  .secondary {\n    background: linear-gradient(135deg, rgba(103,232,249,0.12), rgba(34,197,94,0.12));\n    border-color: rgba(103,232,249,0.7);\n  }\n\n  .warning {\n    background: linear-gradient(135deg, rgba(251,191,36,0.14), rgba(249,115,22,0.16));\n    border-color: rgba(251,191,36,0.7);\n  }\n\n  .danger {\n    background: linear-gradient(135deg, rgba(248,113,113,0.14), rgba(244,114,182,0.14));\n    border-color: rgba(248,113,113,0.7);\n  }\n\n  .timeline {\n    padding: 16px 18px 14px;\n    background: linear-gradient(180deg, rgba(15,23,42,0.98), rgba(17,24,39,0.94));\n    border: 1px solid rgba(96,165,250,0.45);\n    border-radius: 16px;\n    box-shadow: 0 14px 26px rgba(2, 6, 23, 0.45);\n  }\n\n  .flow {\n    display: grid;\n    grid-template-columns: repeat(6, minmax(0, 1fr));\n    gap: 10px;\n    margin-top: 12px;\n  }\n\n  .step {\n    position: relative;\n    min-height: 90px;\n    padding: 12px 10px 10px;\n    border-radius: 12px;\n    border: 1px solid rgba(148,163,184,0.4);\n    background: rgba(15,23,42,0.62);\n    color: var(--muted);\n    display: flex;\n    flex-direction: column;\n    justify-content: center;\n    align-items: center;\n    text-align: center;\n    transition: all 0.25s ease;\n  }\n\n  .step .circle {\n    width: 16px;\n    height: 16px;\n    border-radius: 50%;\n    margin-bottom: 8px;\n    background: rgba(148,163,184,0.4);\n    box-shadow: inset 0 0 0 2px rgba(255,255,255,0.15);\n  }\n\n  .step.active {\n    border-color: rgba(103,232,249,0.9);\n    background: linear-gradient(135deg, rgba(103,232,249,0.2), rgba(96,165,250,0.22));\n    color: var(--text);\n    transform: translateY(-1px);\n    box-shadow: 0 0 0 1px rgba(103,232,249,0.5), 0 8px 20px rgba(96,165,250,0.18);\n  }\n\n  .step.active .circle {\n    background: linear-gradient(135deg, var(--cyan), var(--blue));\n  }\n\n  .step.done {\n    border-color: rgba(74,222,128,0.85);\n    background: linear-gradient(135deg, rgba(74,222,128,0.18), rgba(52,211,153,0.12));\n    color: #ddffe9;\n  }\n\n  .step.done .circle {\n    background: linear-gradient(135deg, var(--green), var(--cyan));\n  }\n\n  .phase-text {\n    font-size: 10px;\n    line-height: 1.35;\n    letter-spacing: 0.06em;\n    text-transform: uppercase;\n  }\n\n  .actions {\n    display: flex;\n    gap: 10px;\n    flex-wrap: wrap;\n    margin-top: 8px;\n  }\n\n  button {\n    border: 0;\n    border-radius: 12px;\n    padding: 11px 16px;\n    font: 700 13px/1.1 system-ui, sans-serif;\n    letter-spacing: 0.04em;\n    cursor: pointer;\n    transition: transform 0.2s ease, box-shadow 0.2s ease, opacity 0.2s ease;\n  }\n\n  button:hover:not(:disabled) { transform: translateY(-1px); }\n  button:disabled { opacity: 0.45; cursor: not-allowed; }\n\n  #takeQrg, #start {\n    background: linear-gradient(135deg, var(--cyan), var(--blue));\n    color: #07111f;\n    box-shadow: 0 8px 18px rgba(96,165,250,0.25);\n  }\n\n  #stop {\n    background: linear-gradient(135deg, #fca5a5, #f87171);\n    color: #200d0d;\n    box-shadow: 0 8px 18px rgba(248,113,113,0.28);\n  }\n\n  .qrg-box {\n    display: grid;\n    gap: 10px;\n    margin-top: 12px;\n    padding: 14px 16px;\n    border-radius: 12px;\n    background: linear-gradient(135deg, rgba(96,165,250,0.13), rgba(139,92,246,0.18));\n    border: 1px solid rgba(96,165,250,0.4);\n  }\n\n  .qrg-row {\n    display: flex;\n    gap: 10px;\n    align-items: center;\n    flex-wrap: wrap;\n  }\n\n  input {\n    flex: 1;\n    min-width: 120px;\n    padding: 10px 12px;\n    border-radius: 10px;\n    border: 1px solid rgba(103,232,249,0.5);\n    background: rgba(15,23,42,0.7);\n    color: var(--text);\n    font: 600 14px/1.1 system-ui, sans-serif;\n  }\n\n  .note,\n  #qrgHint,\n  #statusText,\n  #feedback {\n    color: var(--muted);\n    font-size: 0.97rem;\n    line-height: 1.5;\n  }\n\n  .feedback {\n    padding: 12px 14px;\n    border-radius: 12px;\n    background: rgba(15,23,42,0.75);\n    border: 1px solid rgba(148,163,184,0.35);\n  }\n\n  @media (max-width: 900px) {\n    .hero {\n      grid-template-columns: repeat(2, minmax(0, 1fr));\n    }\n    .flow {\n      grid-template-columns: repeat(3, minmax(0, 1fr));\n    }\n  }\n\n  @media (max-width: 560px) {\n    body {\n      padding: 10px;\n    }\n    .hero {\n      grid-template-columns: 1fr;\n    }\n    .flow {\n      grid-template-columns: repeat(2, minmax(0, 1fr));\n    }\n    .status {\n      grid-column: span 1;\n    }\n  }\n\n  /* Compact operator layout: RX and live meters stay visible above the controls. */\n  .wrap { max-width: 980px; gap: 8px; }\n  body { padding: 8px; }\n  .topbar { padding: 2px 0; gap: 6px; }\n  h1 { font-size: 1.15rem; }\n  .hero { gap: 6px; padding: 8px; }\n  .flow { gap: 4px; }\n  .flow .step { padding: 5px 7px; font-size: 0.78rem; }\n  .main { gap: 8px; }\n  .panel { padding: 9px; }\n  .stats { grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 5px; }\n  .stat { padding: 6px 7px; }\n  .stat .label { font-size: 0.68rem; }\n  .stat .value { font-size: 0.98rem; }\n  .status, #feedback { padding: 6px 8px; font-size: 0.82rem; }\n  .actions { gap: 5px; margin-top: 6px; }\n  button { padding: 7px 9px; font-size: 0.82rem; }\n  .note { font-size: 0.75rem; margin-top: 5px; }\n  .timeline { display: flex; gap: 4px; align-items: stretch; }\n  .phase { flex: 1; padding: 6px; min-width: 0; }\n  .phase-title { font-size: 0.78rem; }\n  .phase-text { font-size: 0.7rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }\n  @media (max-width: 700px) { .stats { grid-template-columns: repeat(3, minmax(0, 1fr)); } .timeline { flex-direction: column; } }\n</style>\n</head>\n<body>\n  <div class=\"wrap\">\n    <div class=\"topbar\">\n      <div class=\"title\">\n        <span class=\"dot\"></span>\n        <h1 style=\"color:#ff5a5f;text-shadow:0 0 16px rgba(255,90,95,0.8),0 0 28px rgba(255,90,95,0.5);\">AU-510M · AGC-T Mess-Flow</h1>\n      </div>\n      <div class=\"chip warn\" id=\"uiVersion\">Alt 1.1 · Neu 1.2</div>\n    </div>\n\n    <section class=\"hero\">\n      <div class=\"chip\">QRG → Messung → AGC-T 100 → Knie → AGC-T neu → Fertig</div>\n      <div class=\"flow\">\n        <div class=\"step\"><span class=\"n\">1</span>QRG</div>\n        <div class=\"step\"><span class=\"n\">2</span>Messung</div>\n        <div class=\"step\"><span class=\"n\">3</span>AGC-T 100</div>\n        <div class=\"step\"><span class=\"n\">4</span>Knie</div>\n        <div class=\"step\"><span class=\"n\">5</span>AGC-T neu</div>\n        <div class=\"step\"><span class=\"n\">6</span>Fertig</div>\n      </div>\n    </section>\n\n    <div class=\"main\">\n      <section class=\"panel\">\n        <div class=\"stats\">\n          <div class=\"stat\"><div class=\"label\">Status</div><div class=\"value\" id=\"state\">Warte</div></div>\n          <div class=\"stat\"><div class=\"label\">RX/TX</div><div class=\"value\" id=\"rxtx\">—</div></div>\n          <div class=\"stat\"><div class=\"label\">LEVEL</div><div class=\"value\" id=\"level\">—</div></div>\n          <div class=\"stat\"><div class=\"label\">AGC+</div><div class=\"value\" id=\"agcp\">—</div></div>\n          <div class=\"stat\"><div class=\"label\">AGC-T</div><div class=\"value\" id=\"agct\">—</div></div>\n        </div>\n        <div class=\"status\" id=\"statusText\">Warte auf Radio-Daten …</div>\n        <div class=\"actions\">\n          <button id=\"takeQrg\" class=\"secondary\">QRG übernehmen</button>\n          <button id=\"start\" class=\"primary\">Messung starten</button>\n          <button id=\"stop\" class=\"danger\">Stopp / Auto AUS</button>\n        </div>\n        <div class=\"note\">QRG sichern, dann Messung starten. Danach AGC-T 100 → Knie suchen → neuen Endwert übernehmen.</div>\n        <div class=\"feedback\" id=\"feedback\"> </div>\n      </section>\n\n      <aside class=\"panel\">\n        <div class=\"qrg-box\">\n          <label for=\"qrgInput\">Mess-QRG</label>\n          <input id=\"qrgInput\" type=\"number\" min=\"1\" step=\"0.000001\" placeholder=\"z.B. 14.074 MHz\" disabled>\n          <div class=\"note\" id=\"qrgHint\">Am Radio eine ruhige Stelle wählen und hier übernehmen.</div>\n        </div>\n        <div class=\"timeline\" aria-label=\"Bedienung und nächste Schritte\">\n          <div class=\"phase active\" id=\"p1\"><div class=\"phase-title\"><span class=\"circle\">1</span>QRG</div><div class=\"phase-text\" id=\"p1txt\">übernehmen</div></div>\n          <div class=\"phase\" id=\"p2\"><div class=\"phase-title\"><span class=\"circle\">2</span>Messung</div><div class=\"phase-text\" id=\"p2txt\">RX + Meter</div></div>\n          <div class=\"phase\" id=\"p3\"><div class=\"phase-title\"><span class=\"circle\">3</span>Fertig</div><div class=\"phase-text\" id=\"p3txt\">Endwert</div></div>\n        </div>\n      </aside>\n    </div>\n  </div>\n\n  <script>\n    const stateEl = document.getElementById('state');\n    const bandEl = document.getElementById('band');\n    const rxTxEl = document.getElementById('rxtx');\n    const levelEl = document.getElementById('level');\n    const agcpEl = document.getElementById('agcp');\n    const agctEl = document.getElementById('agct');\n    const statusEl = document.getElementById('statusText');\n    const qrgInput = document.getElementById('qrgInput');\n    const qrgHint = document.getElementById('qrgHint');\n    const feedbackEl = document.getElementById('feedback');\n    const takeQrgBtn = document.getElementById('takeQrg');\n    const startBtn = document.getElementById('start');\n    const stopBtn = document.getElementById('stop');\n\n    let status = null;\n    let busy = false;\n\n    function setPhase(idx, done, active, text) {\n      const el = document.getElementById('p' + idx);\n      if (!el) return;\n      el.classList.toggle('done', !!done);\n      el.classList.toggle('active', !!active);\n      const txt = document.getElementById('p' + idx + 'txt');\n      if (txt) txt.textContent = text;\n    }\n\n    function updateUI() {\n      const fresh = !!status && Number.isFinite(status.at) && (Date.now() - status.at) < 5000;\n      const band = fresh && status.band ? status.band : '—';\n      const agct = fresh && Number.isFinite(status.agcThreshold) ? String(status.agcThreshold) : '—';\n      const rxTx = fresh ? (status.rxTx || 'UNKNOWN') : '—';\n      const level = fresh && status.meters && status.meters.LEVEL && Number.isFinite(status.meters.LEVEL.value) ? status.meters.LEVEL.value.toFixed(1) + ' dBm' : '—';\n      const agcp = fresh && status.meters && status.meters['AGC+'] && Number.isFinite(status.meters['AGC+'].value) ? status.meters['AGC+'].value.toFixed(1) + ' dBm' : '—';\n      const quiet = fresh && status.settings && status.settings.quietMHzByBand && status.band ? status.settings.quietMHzByBand[status.band] : null;\n      const isRx = fresh && status.rxTx === 'RX';\n      const ready = fresh && !!status.settingsLoaded && !status.settingsError;\n      const atQuiet = fresh && quiet !== null && Number.isFinite(status.frequencyMHz) && Math.abs(status.frequencyMHz - quiet) < 0.000001;\n\n      const reasonText = fresh && status.reason ? String(status.reason) : '';\n      const waitingForSettling = /no immediate AGC-T change|AGC settling|WAITING FOR RX|WAIT_RX|SETTLE/i.test(reasonText || (fresh ? status.state || '' : ''));\n\n      stateEl.textContent = fresh ? (waitingForSettling ? 'Warte auf Stabilisierung' : (status.state || 'READY')) : 'Warte';\n      bandEl.textContent = band;\n      rxTxEl.textContent = rxTx;\n      rxTxEl.style.color = rxTx === 'RX' ? 'var(--green)' : rxTx === 'TX' ? 'var(--red)' : 'var(--gold)';\n      levelEl.textContent = level;\n      agcpEl.textContent = agcp;\n      agctEl.textContent = agct;\n\n      const msg = !fresh ? 'Warte auf aktuelle Radio-Daten …' : waitingForSettling ? 'Warten: keine unmittelbare AGC-T-Änderung – der Flow stabilisiert sich kurz, bevor weitergemessen wird.' : !atQuiet ? 'Bitte QRG übernehmen und auf die Mess-Frequenz abstimmen.' : !isRx ? 'Warte auf RX, damit die Messung gestartet werden kann.' : !ready ? 'Einstellungen werden noch geladen …' : 'Bereit. AGC-T 100, Knie suchen und neuen Endwert übernehmen.';\n      statusEl.textContent = msg;\n      qrgHint.textContent = quiet !== null ? 'Gespeicherte Mess-QRG: ' + quiet + ' MHz' : 'Am Radio eine ruhige Stelle wählen und hier übernehmen.';\n\n      qrgInput.disabled = !(fresh && ready && !busy);\n      takeQrgBtn.disabled = !(fresh && ready && !busy);\n      startBtn.disabled = !(fresh && ready && atQuiet && isRx && !busy && !['BAND_CHANGE','WAIT_RX','MEASURE_NOISE','SCAN_AGCT','KNEE_FOUND','APPLY'].includes(status && status.state));\n      stopBtn.disabled = !(fresh && !busy);\n\n      if (fresh && Number.isFinite(status.frequencyMHz)) qrgInput.value = status.frequencyMHz;\n\n      if (quiet !== null) {\n        setPhase(1, atQuiet, !atQuiet, atQuiet ? 'QRG übernommen und aktiv.' : 'QRG fehlt oder stimmt nicht überein.');\n      } else {\n        setPhase(1, false, true, 'Keine Mess-QRG gesetzt.');\n      }\n\n      setPhase(2, isRx && atQuiet, !(isRx && atQuiet), isRx && atQuiet ? 'RX und Live-Meter ok.' : 'Warte auf RX + Mess-QRG.');\n      const done = fresh && status.state === 'DONE';\n      setPhase(3, done, false, done ? 'Endwert bestätigt: ' + (status.scan && status.scan.final ? status.scan.final : agct) : 'Endwert erscheint hier nach der Prüfung.');\n    }\n\n    async function fetchStatus() {\n      try {\n        const r = await fetch('/agct-watcher/status', { cache: 'no-store' });\n        if (!r.ok) throw new Error('status ' + r.status);\n        status = await r.json();\n      } catch (e) {\n        status = null;\n      }\n      updateUI();\n      setTimeout(fetchStatus, 1000);\n    }\n\n    async function send(action, extra = {}) {\n      busy = true;\n      updateUI();\n      try {\n        const r = await fetch('/agct-watcher/control', {\n          method: 'POST',\n          headers: { 'Content-Type': 'application/json', 'X-AGCT-Watcher': '1' },\n          body: JSON.stringify({ action, ...extra })\n        });\n        const data = await r.json().catch(() => ({}));\n        if (!r.ok) throw new Error(data.error || 'HTTP ' + r.status);\n        feedbackEl.textContent = 'Befehl gesendet: ' + action;\n      } catch (e) {\n        feedbackEl.textContent = 'Fehler: ' + e.message;\n      } finally {\n        busy = false;\n        updateUI();\n      }\n    }\n\n    takeQrgBtn.addEventListener('click', () => {\n      const value = Number(qrgInput.value);\n      if (!Number.isFinite(value) || value <= 0) {\n        feedbackEl.textContent = 'Bitte eine gültige Frequenz in MHz eingeben.';\n        return;\n      }\n      send('settings', { band: status && status.band ? status.band : 'unknown', quietMHz: value, scanStart: 100 });\n    });\n\n    startBtn.addEventListener('click', () => send('start100'));\n    stopBtn.addEventListener('click', () => send('off'));\n\n    fetchStatus();\n  </script>\n</body>\n</html>\n",
-    "output": "str",
     "x": 520,
     "y": 620,
     "wires": [
       [
         "5fd22d92c15aef27"
       ]
-    ]
+    ],
+    "field": "payload",
+    "fieldType": "msg",
+    "format": "html",
+    "syntax": "plain",
+    "template": "<!doctype html>\n<html lang=\"de\">\n<head>\n  <meta charset=\"utf-8\">\n  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n  <title># AU-510M · AGC-T Watcher</title>\n  <style>\n  :root {\n    --bg-1: #07111f;\n    --bg-2: #111827;\n    --panel: rgba(15, 23, 42, 0.9);\n    --panel-2: rgba(17, 24, 39, 0.96);\n    --panel-3: rgba(30, 41, 59, 0.96);\n    --line: rgba(103, 232, 249, 0.75);\n    --text: #eef8ff;\n    --muted: #bfd9f7;\n    --cyan: #67e8f9;\n    --blue: #60a5fa;\n    --indigo: #8b5cf6;\n    --pink: #f472b6;\n    --green: #4ade80;\n    --gold: #fbbf24;\n    --red: #f87171;\n    --orange: #fb923c;\n    --shadow: rgba(15, 23, 42, 0.7);\n  }\n\n  * { box-sizing: border-box; }\n  html, body {\n    margin: 0;\n    min-height: 100%;\n    background: radial-gradient(circle at top left, rgba(96,165,250,0.18), transparent 25%),\n                radial-gradient(circle at top right, rgba(244,114,182,0.18), transparent 28%),\n                linear-gradient(180deg, var(--bg-1), var(--bg-2));\n    color: var(--text);\n    font: 15px/1.45 system-ui, -apple-system, Segoe UI, sans-serif;\n  }\n\n  body {\n    padding: 18px;\n  }\n\n  .wrap {\n    max-width: 1180px;\n    margin: 0 auto;\n    display: grid;\n    gap: 18px;\n  }\n\n  .topbar {\n    display: flex;\n    justify-content: space-between;\n    align-items: center;\n    gap: 14px;\n    flex-wrap: wrap;\n    padding: 6px 2px;\n  }\n\n  .title {\n    display: flex;\n    align-items: center;\n    gap: 12px;\n    flex-wrap: wrap;\n  }\n\n  .dot {\n    width: 16px;\n    height: 16px;\n    border-radius: 50%;\n    background: linear-gradient(135deg, var(--green), var(--cyan));\n    box-shadow: 0 0 18px rgba(103, 232, 249, 0.9);\n  }\n\n  h1 {\n    margin: 0;\n    font-size: clamp(1.5rem, 2.2vw, 2.3rem);\n    letter-spacing: 0.06em;\n    text-transform: uppercase;\n  }\n\n  .chip {\n    display: inline-flex;\n    align-items: center;\n    justify-content: center;\n    padding: 8px 14px;\n    border-radius: 999px;\n    font-size: 12px;\n    font-weight: 700;\n    letter-spacing: 0.06em;\n    text-transform: uppercase;\n    color: #ecfeff;\n    border: 1px solid rgba(103,232,249,0.7);\n    background: linear-gradient(90deg, rgba(96,165,250,0.35), rgba(139,92,246,0.35), rgba(244,114,182,0.35));\n    box-shadow: inset 0 0 16px rgba(255,255,255,0.08), 0 0 18px rgba(96,165,250,0.12);\n  }\n\n  .chip.warn {\n    background: linear-gradient(90deg, rgba(251,191,36,0.28), rgba(248,113,113,0.26));\n    border-color: rgba(251,191,36,0.8);\n    color: #fff5d6;\n  }\n\n  .hero {\n    display: grid;\n    grid-template-columns: repeat(4, minmax(0, 1fr));\n    gap: 16px;\n  }\n\n  .panel,\n  .status,\n  .stat,\n  .phase {\n    position: relative;\n    background: linear-gradient(180deg, rgba(15,23,42,0.98), rgba(30,41,59,0.95));\n    border: 1px solid rgba(103,232,249,0.4);\n    border-radius: 16px;\n    box-shadow: 0 14px 26px rgba(2, 6, 23, 0.45), inset 0 1px 0 rgba(255,255,255,0.05);\n    overflow: hidden;\n  }\n\n  .panel::before,\n  .status::before,\n  .stat::before,\n  .phase::before {\n    content: \"\";\n    position: absolute;\n    inset: 0 0 auto 0;\n    height: 3px;\n    background: linear-gradient(90deg, var(--cyan), var(--blue), var(--pink));\n    opacity: 0.95;\n  }\n\n  .status {\n    padding: 18px 18px 16px;\n    grid-column: span 2;\n    min-height: 140px;\n  }\n\n  .status h2,\n  .stats h2,\n  .timeline h2,\n  .panel h2 {\n    margin: 0 0 10px;\n    font-size: 12px;\n    letter-spacing: 0.12em;\n    text-transform: uppercase;\n    color: var(--muted);\n  }\n\n  .value {\n    display: flex;\n    align-items: baseline;\n    gap: 10px;\n    margin: 8px 0 6px;\n    font-weight: 800;\n  }\n\n  .value strong {\n    font-size: clamp(2rem, 3vw, 3rem);\n    letter-spacing: -0.06em;\n    color: var(--text);\n    text-shadow: 0 0 18px rgba(103,232,249,0.35);\n  }\n\n  .value span {\n    color: var(--muted);\n    font-size: 1rem;\n    letter-spacing: 0.04em;\n    text-transform: uppercase;\n  }\n\n  .stats {\n    display: grid;\n    gap: 12px;\n    padding: 14px 16px;\n  }\n\n  .stat {\n    padding: 12px 14px;\n    background: linear-gradient(180deg, rgba(15,23,42,0.95), rgba(30,41,59,0.9));\n  }\n\n  .stat .label {\n    display: block;\n    font-size: 11px;\n    letter-spacing: 0.12em;\n    text-transform: uppercase;\n    color: var(--muted);\n    margin-bottom: 6px;\n  }\n\n  .stat .value {\n    margin: 0;\n    font-size: 1.25rem;\n    color: var(--text);\n  }\n\n  .primary {\n    background: linear-gradient(135deg, rgba(96,165,250,0.16), rgba(139,92,246,0.16));\n    border-color: rgba(96,165,250,0.7);\n  }\n\n  .secondary {\n    background: linear-gradient(135deg, rgba(103,232,249,0.12), rgba(34,197,94,0.12));\n    border-color: rgba(103,232,249,0.7);\n  }\n\n  .warning {\n    background: linear-gradient(135deg, rgba(251,191,36,0.14), rgba(249,115,22,0.16));\n    border-color: rgba(251,191,36,0.7);\n  }\n\n  .danger {\n    background: linear-gradient(135deg, rgba(248,113,113,0.14), rgba(244,114,182,0.14));\n    border-color: rgba(248,113,113,0.7);\n  }\n\n  .timeline {\n    padding: 16px 18px 14px;\n    background: linear-gradient(180deg, rgba(15,23,42,0.98), rgba(17,24,39,0.94));\n    border: 1px solid rgba(96,165,250,0.45);\n    border-radius: 16px;\n    box-shadow: 0 14px 26px rgba(2, 6, 23, 0.45);\n  }\n\n  .flow {\n    display: grid;\n    grid-template-columns: repeat(6, minmax(0, 1fr));\n    gap: 10px;\n    margin-top: 12px;\n  }\n\n  .step {\n    position: relative;\n    min-height: 90px;\n    padding: 12px 10px 10px;\n    border-radius: 12px;\n    border: 1px solid rgba(148,163,184,0.4);\n    background: rgba(15,23,42,0.62);\n    color: var(--muted);\n    display: flex;\n    flex-direction: column;\n    justify-content: center;\n    align-items: center;\n    text-align: center;\n    transition: all 0.25s ease;\n  }\n\n  .step .circle {\n    width: 16px;\n    height: 16px;\n    border-radius: 50%;\n    margin-bottom: 8px;\n    background: rgba(148,163,184,0.4);\n    box-shadow: inset 0 0 0 2px rgba(255,255,255,0.15);\n  }\n\n  .step.active {\n    border-color: rgba(103,232,249,0.9);\n    background: linear-gradient(135deg, rgba(103,232,249,0.2), rgba(96,165,250,0.22));\n    color: var(--text);\n    transform: translateY(-1px);\n    box-shadow: 0 0 0 1px rgba(103,232,249,0.5), 0 8px 20px rgba(96,165,250,0.18);\n  }\n\n  .step.active .circle {\n    background: linear-gradient(135deg, var(--cyan), var(--blue));\n  }\n\n  .step.done {\n    border-color: rgba(74,222,128,0.85);\n    background: linear-gradient(135deg, rgba(74,222,128,0.18), rgba(52,211,153,0.12));\n    color: #ddffe9;\n  }\n\n  .step.done .circle {\n    background: linear-gradient(135deg, var(--green), var(--cyan));\n  }\n\n  .phase-text {\n    font-size: 10px;\n    line-height: 1.35;\n    letter-spacing: 0.06em;\n    text-transform: uppercase;\n  }\n\n  .actions {\n    display: flex;\n    gap: 10px;\n    flex-wrap: wrap;\n    margin-top: 8px;\n  }\n\n  button {\n    border: 0;\n    border-radius: 12px;\n    padding: 11px 16px;\n    font: 700 13px/1.1 system-ui, sans-serif;\n    letter-spacing: 0.04em;\n    cursor: pointer;\n    transition: transform 0.2s ease, box-shadow 0.2s ease, opacity 0.2s ease;\n  }\n\n  button:hover:not(:disabled) { transform: translateY(-1px); }\n  button:disabled { opacity: 0.45; cursor: not-allowed; }\n\n  #takeQrg, #start {\n    background: linear-gradient(135deg, var(--cyan), var(--blue));\n    color: #07111f;\n    box-shadow: 0 8px 18px rgba(96,165,250,0.25);\n  }\n\n  #stop {\n    background: linear-gradient(135deg, #fca5a5, #f87171);\n    color: #200d0d;\n    box-shadow: 0 8px 18px rgba(248,113,113,0.28);\n  }\n\n  .qrg-box {\n    display: grid;\n    gap: 10px;\n    margin-top: 12px;\n    padding: 14px 16px;\n    border-radius: 12px;\n    background: linear-gradient(135deg, rgba(96,165,250,0.13), rgba(139,92,246,0.18));\n    border: 1px solid rgba(96,165,250,0.4);\n  }\n\n  .qrg-row {\n    display: flex;\n    gap: 10px;\n    align-items: center;\n    flex-wrap: wrap;\n  }\n\n  input {\n    flex: 1;\n    min-width: 120px;\n    padding: 10px 12px;\n    border-radius: 10px;\n    border: 1px solid rgba(103,232,249,0.5);\n    background: rgba(15,23,42,0.7);\n    color: var(--text);\n    font: 600 14px/1.1 system-ui, sans-serif;\n  }\n\n  .note,\n  #qrgHint,\n  #statusText,\n  #feedback {\n    color: var(--muted);\n    font-size: 0.97rem;\n    line-height: 1.5;\n  }\n\n  .feedback {\n    padding: 12px 14px;\n    border-radius: 12px;\n    background: rgba(15,23,42,0.75);\n    border: 1px solid rgba(148,163,184,0.35);\n  }\n\n  @media (max-width: 900px) {\n    .hero {\n      grid-template-columns: repeat(2, minmax(0, 1fr));\n    }\n    .flow {\n      grid-template-columns: repeat(3, minmax(0, 1fr));\n    }\n  }\n\n  @media (max-width: 560px) {\n    body {\n      padding: 10px;\n    }\n    .hero {\n      grid-template-columns: 1fr;\n    }\n    .flow {\n      grid-template-columns: repeat(2, minmax(0, 1fr));\n    }\n    .status {\n      grid-column: span 1;\n    }\n  }\n\n  /* Compact operator layout: RX and live meters stay visible above the controls. */\n  .wrap { max-width: 980px; gap: 8px; }\n  body { padding: 8px; }\n  .topbar { padding: 2px 0; gap: 6px; }\n  h1 { font-size: 1.15rem; }\n  .hero { gap: 6px; padding: 8px; }\n  .flow { gap: 4px; }\n  .flow .step { padding: 5px 7px; font-size: 0.78rem; }\n  .main { gap: 8px; }\n  .panel { padding: 9px; }\n  .stats { grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 5px; }\n  .stat { padding: 6px 7px; }\n  .stat .label { font-size: 0.68rem; }\n  .stat .value { font-size: 0.98rem; }\n  .status, #feedback { padding: 6px 8px; font-size: 0.82rem; }\n  .actions { gap: 5px; margin-top: 6px; }\n  button { padding: 7px 9px; font-size: 0.82rem; }\n  .note { font-size: 0.75rem; margin-top: 5px; }\n  .timeline { display: flex; gap: 4px; align-items: stretch; }\n  .phase { flex: 1; padding: 6px; min-width: 0; }\n  .phase-title { font-size: 0.78rem; }\n  .phase-text { font-size: 0.7rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }\n  @media (max-width: 700px) { .stats { grid-template-columns: repeat(3, minmax(0, 1fr)); } .timeline { flex-direction: column; } }\n</style>\n</head>\n<body>\n  <div class=\"wrap\">\n    <div class=\"topbar\">\n      <div class=\"title\">\n        <span class=\"dot\"></span>\n        <h1 style=\"color:#ff5a5f;text-shadow:0 0 16px rgba(255,90,95,0.8),0 0 28px rgba(255,90,95,0.5);\">AU-510M · AGC-T Mess-Flow</h1>\n      </div>\n      <div class=\"chip warn\" id=\"uiVersion\">Alt 1.1 · Neu 1.2</div>\n    </div>\n\n    <section class=\"hero\">\n      <div class=\"chip\">QRG → Messung → AGC-T 100 → Knie → AGC-T neu → Fertig</div>\n      <div class=\"flow\">\n        <div class=\"step\"><span class=\"n\">1</span>QRG</div>\n        <div class=\"step\"><span class=\"n\">2</span>Messung</div>\n        <div class=\"step\"><span class=\"n\">3</span>AGC-T 100</div>\n        <div class=\"step\"><span class=\"n\">4</span>Knie</div>\n        <div class=\"step\"><span class=\"n\">5</span>AGC-T neu</div>\n        <div class=\"step\"><span class=\"n\">6</span>Fertig</div>\n      </div>\n    </section>\n\n    <div class=\"main\">\n      <section class=\"panel\">\n        <div class=\"stats\">\n          <div class=\"stat\"><div class=\"label\">Status</div><div class=\"value\" id=\"state\">Warte</div></div>\n          <div class=\"stat\"><div class=\"label\">RX/TX</div><div class=\"value\" id=\"rxtx\">—</div></div>\n          <div class=\"stat\"><div class=\"label\">LEVEL</div><div class=\"value\" id=\"level\">—</div></div>\n          <div class=\"stat\"><div class=\"label\">AGC+</div><div class=\"value\" id=\"agcp\">—</div></div>\n          <div class=\"stat\"><div class=\"label\">AGC-T</div><div class=\"value\" id=\"agct\">—</div></div>\n        </div>\n        <div class=\"status\" id=\"statusText\">Warte auf Radio-Daten …</div>\n        <div class=\"actions\">\n          <button id=\"takeQrg\" class=\"secondary\">QRG übernehmen</button>\n          <button id=\"start\" class=\"primary\">Messung starten</button>\n          <button id=\"stop\" class=\"danger\">Stopp / Auto AUS</button>\n        </div>\n        <div class=\"note\">QRG sichern, dann Messung starten. Danach AGC-T 100 → Knie suchen → neuen Endwert übernehmen.</div>\n        <div class=\"feedback\" id=\"feedback\"> </div>\n      </section>\n\n      <aside class=\"panel\">\n        <div class=\"qrg-box\">\n          <label for=\"qrgInput\">Mess-QRG</label>\n          <input id=\"qrgInput\" type=\"number\" min=\"1\" step=\"0.000001\" placeholder=\"z.B. 14.074 MHz\" disabled>\n          <div class=\"note\" id=\"qrgHint\">Am Radio eine ruhige Stelle wählen und hier übernehmen.</div>\n        </div>\n        <div class=\"timeline\" aria-label=\"Bedienung und nächste Schritte\">\n          <div class=\"phase active\" id=\"p1\"><div class=\"phase-title\"><span class=\"circle\">1</span>QRG</div><div class=\"phase-text\" id=\"p1txt\">übernehmen</div></div>\n          <div class=\"phase\" id=\"p2\"><div class=\"phase-title\"><span class=\"circle\">2</span>Messung</div><div class=\"phase-text\" id=\"p2txt\">RX + Meter</div></div>\n          <div class=\"phase\" id=\"p3\"><div class=\"phase-title\"><span class=\"circle\">3</span>Fertig</div><div class=\"phase-text\" id=\"p3txt\">Endwert</div></div>\n        </div>\n      </aside>\n    </div>\n  </div>\n\n  <script>\n    const stateEl = document.getElementById('state');\n    const bandEl = document.getElementById('band');\n    const rxTxEl = document.getElementById('rxtx');\n    const levelEl = document.getElementById('level');\n    const agcpEl = document.getElementById('agcp');\n    const agctEl = document.getElementById('agct');\n    const statusEl = document.getElementById('statusText');\n    const qrgInput = document.getElementById('qrgInput');\n    const qrgHint = document.getElementById('qrgHint');\n    const feedbackEl = document.getElementById('feedback');\n    const takeQrgBtn = document.getElementById('takeQrg');\n    const startBtn = document.getElementById('start');\n    const stopBtn = document.getElementById('stop');\n\n    let status = null;\n    let busy = false;\n\n    function setPhase(idx, done, active, text) {\n      const el = document.getElementById('p' + idx);\n      if (!el) return;\n      el.classList.toggle('done', !!done);\n      el.classList.toggle('active', !!active);\n      const txt = document.getElementById('p' + idx + 'txt');\n      if (txt) txt.textContent = text;\n    }\n\n    function updateUI() {\n      const fresh = !!status && Number.isFinite(status.at) && (Date.now() - status.at) < 5000;\n      const band = fresh && status.band ? status.band : '—';\n      const agct = fresh && Number.isFinite(status.agcThreshold) ? String(status.agcThreshold) : '—';\n      const rxTx = fresh ? (status.rxTx || 'UNKNOWN') : '—';\n      const level = fresh && status.meters && status.meters.LEVEL && Number.isFinite(status.meters.LEVEL.value) ? status.meters.LEVEL.value.toFixed(1) + ' dBm' : '—';\n      const agcp = fresh && status.meters && status.meters['AGC+'] && Number.isFinite(status.meters['AGC+'].value) ? status.meters['AGC+'].value.toFixed(1) + ' dBm' : '—';\n      const quiet = fresh && status.settings && status.settings.quietMHzByBand && status.band ? status.settings.quietMHzByBand[status.band] : null;\n      const isRx = fresh && status.rxTx === 'RX';\n      const ready = fresh && !!status.settingsLoaded && !status.settingsError;\n      const atQuiet = fresh && quiet !== null && Number.isFinite(status.frequencyMHz) && Math.abs(status.frequencyMHz - quiet) < 0.000001;\n\n      const reasonText = fresh && status.reason ? String(status.reason) : '';\n      const waitingForSettling = /no immediate AGC-T change|AGC settling|WAITING FOR RX|WAIT_RX|SETTLE/i.test(reasonText || (fresh ? status.state || '' : ''));\n\n      stateEl.textContent = fresh ? (waitingForSettling ? 'Warte auf Stabilisierung' : (status.state || 'READY')) : 'Warte';\n      bandEl.textContent = band;\n      rxTxEl.textContent = rxTx;\n      rxTxEl.style.color = rxTx === 'RX' ? 'var(--green)' : rxTx === 'TX' ? 'var(--red)' : 'var(--gold)';\n      levelEl.textContent = level;\n      agcpEl.textContent = agcp;\n      agctEl.textContent = agct;\n\n      const msg = !fresh ? 'Warte auf aktuelle Radio-Daten …' : waitingForSettling ? 'Warten: keine unmittelbare AGC-T-Änderung – der Flow stabilisiert sich kurz, bevor weitergemessen wird.' : !atQuiet ? 'Bitte QRG übernehmen und auf die Mess-Frequenz abstimmen.' : !isRx ? 'Warte auf RX, damit die Messung gestartet werden kann.' : !ready ? 'Einstellungen werden noch geladen …' : 'Bereit. AGC-T 100, Knie suchen und neuen Endwert übernehmen.';\n      statusEl.textContent = msg;\n      qrgHint.textContent = quiet !== null ? 'Gespeicherte Mess-QRG: ' + quiet + ' MHz' : 'Am Radio eine ruhige Stelle wählen und hier übernehmen.';\n\n      qrgInput.disabled = !(fresh && ready && !busy);\n      takeQrgBtn.disabled = !(fresh && ready && !busy);\n      startBtn.disabled = !(fresh && ready && atQuiet && isRx && !busy && !['BAND_CHANGE','WAIT_RX','MEASURE_NOISE','SCAN_AGCT','KNEE_FOUND','APPLY'].includes(status && status.state));\n      stopBtn.disabled = !(fresh && !busy);\n\n      if (fresh && Number.isFinite(status.frequencyMHz)) qrgInput.value = status.frequencyMHz;\n\n      if (quiet !== null) {\n        setPhase(1, atQuiet, !atQuiet, atQuiet ? 'QRG übernommen und aktiv.' : 'QRG fehlt oder stimmt nicht überein.');\n      } else {\n        setPhase(1, false, true, 'Keine Mess-QRG gesetzt.');\n      }\n\n      setPhase(2, isRx && atQuiet, !(isRx && atQuiet), isRx && atQuiet ? 'RX und Live-Meter ok.' : 'Warte auf RX + Mess-QRG.');\n      const done = fresh && status.state === 'DONE';\n      setPhase(3, done, false, done ? 'Endwert bestätigt: ' + (status.scan && status.scan.final ? status.scan.final : agct) : 'Endwert erscheint hier nach der Prüfung.');\n    }\n\n    async function fetchStatus() {\n      try {\n        const r = await fetch('/agct-watcher/status', { cache: 'no-store' });\n        if (!r.ok) throw new Error('status ' + r.status);\n        status = await r.json();\n      } catch (e) {\n        status = null;\n      }\n      updateUI();\n      setTimeout(fetchStatus, 1000);\n    }\n\n    async function send(action, extra = {}) {\n      busy = true;\n      updateUI();\n      try {\n        const r = await fetch('/agct-watcher/control', {\n          method: 'POST',\n          headers: { 'Content-Type': 'application/json', 'X-AGCT-Watcher': '1' },\n          body: JSON.stringify({ action, ...extra })\n        });\n        const data = await r.json().catch(() => ({}));\n        if (!r.ok) throw new Error(data.error || 'HTTP ' + r.status);\n        feedbackEl.textContent = 'Befehl gesendet: ' + action;\n      } catch (e) {\n        feedbackEl.textContent = 'Fehler: ' + e.message;\n      } finally {\n        busy = false;\n        updateUI();\n      }\n    }\n\n    takeQrgBtn.addEventListener('click', () => {\n      // Use the actual live radio frequency by default; manual input is optional.\n      const live = status && Number(status.frequencyMHz);\n      const typed = Number(qrgInput.value);\n      const value = Number.isFinite(live) && live > 0 ? live : typed;\n      if (!Number.isFinite(value) || value <= 0) {\n        feedbackEl.textContent = 'Warte auf eine aktuelle Frequenz vom Radio.';\n        return;\n      }\n      qrgInput.value = value;\n      send('settings', { band: status && status.band ? status.band : 'unknown', quietMHz: value, scanStart: 100 });\n    });\n\n    startBtn.addEventListener('click', () => send('start100'));\n    stopBtn.addEventListener('click', () => send('off'));\n\n    fetchStatus();\n  </script>\n</body>\n</html>\n",
+    "output": "str"
   },
   {
     "id": "5fd22d92c15aef27",
     "type": "function",
     "z": "e57c2d55062d0d1f",
     "name": "HTML / no cache",
-    "func": "msg.headers={'Content-Type':'text/html; charset=utf-8','Cache-Control':'no-store','X-Content-Type-Options':'nosniff'}; return msg;",
-    "outputs": 1,
-    "noerr": 0,
-    "initialize": "",
-    "finalize": "",
-    "libs": [],
     "x": 810,
     "y": 620,
     "wires": [
       [
         "550c0f4a32b8be5d"
       ]
-    ]
+    ],
+    "func": "msg.headers={'Content-Type':'text/html; charset=utf-8','Cache-Control':'no-store','X-Content-Type-Options':'nosniff'}; return msg;",
+    "outputs": 1,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": []
   },
   {
     "id": "b4b38e54e7974a08",
     "type": "function",
     "z": "e57c2d55062d0d1f",
     "name": "Return latest actual watcher status",
-    "func": "msg.payload=flow.get('agctUiStatus') || null; msg.headers={'Content-Type':'application/json','Cache-Control':'no-store'}; return msg;",
-    "outputs": 1,
-    "noerr": 0,
-    "initialize": "",
-    "finalize": "",
-    "libs": [],
     "x": 550,
     "y": 700,
     "wires": [
       [
         "550c0f4a32b8be5d"
       ]
-    ]
+    ],
+    "func": "msg.payload=flow.get('agctUiStatus') || null; msg.headers={'Content-Type':'application/json','Cache-Control':'no-store'}; return msg;",
+    "outputs": 1,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": []
   },
   {
     "id": "e7fad9b7ada1fd50",
     "type": "function",
     "z": "e57c2d55062d0d1f",
     "name": "Validate UI action; forward only watcher controls",
-    "func": "const h=msg.req?.headers||{},body=msg.payload,action=body?.action;\nconst originOK=typeof h.host==='string'&&['http://'+h.host,'https://'+h.host].includes(h.origin);\nmsg.headers={'Content-Type':'application/json','Cache-Control':'no-store'};\nfunction reject(code,error){msg.statusCode=code;msg.payload={error};return [null,msg];}\nif(!originOK||h['x-agct-watcher']!=='1'||!/^application\\/json(?:;|$)/i.test(h['content-type']||'')||!['on','off','calibrate','settings','start100'].includes(action))return reject(400,'Ungültige Watcher-Anforderung');\nconst status=flow.get('agctUiStatus');\nif(action!=='off'&&(!status||Date.now()-status.at>5000))return reject(409,'Keine aktuellen Watcher-Daten');\nconst running=['BAND_CHANGE','WAIT_RX','MEASURE_NOISE','SCAN_AGCT','KNEE_FOUND','APPLY'].includes(status?.state);\nlet command;\nif(action==='settings'){\n if(running)return reject(409,'Zuerst Auto AUS wählen');\n const v = body.settings ?? { band: body.band, quietMHz: body.quietMHz, scanStart: body.scanStart };\n if(!v||typeof v.band!=='string'||!/^[A-Za-z0-9_-]{1,16}$/.test(v.band)||['__proto__','constructor'].includes(v.band)||\n !(v.quietMHz===null||(typeof v.quietMHz==='number'&&Number.isFinite(v.quietMHz)&&v.quietMHz>0&&v.quietMHz<=100000))||\n !(v.scanStart===null||(Number.isInteger(v.scanStart)&&v.scanStart>=0&&v.scanStart<=100)))return reject(400,'Band, Frequenz oder AGC-T-Startwert ungültig');\n if(v.band!==status.band && !Object.hasOwn(status.settings?.quietMHzByBand||{},v.band))return reject(400,'Unbekanntes Band');\n command={topic:'control/settings',payload:{band:v.band,quietMHz:v.quietMHz,scanStart:v.scanStart}};\n}else if(action==='start100'){\n const quiet=status.settings?.quietMHzByBand?.[status.band];\n const freshMeters=['LEVEL','AGC+'].every(name=>{const m=status.meters?.[name];return m&&m.unit==='dBm'&&Number.isFinite(m.value)&&Date.now()-m.at<=3000;});\n if(running||status.rxTx!=='RX'||status.activeSlice==null||status.band==null||!status.settingsLoaded||status.settingsError||!freshMeters||!['slow','med','fast'].includes(status.agcMode)||typeof quiet!=='number'||typeof status.frequencyMHz!=='number'||Math.abs(quiet-status.frequencyMHz)>0.000001)return reject(409,'Bitte Mess-QRG übernehmen, darauf abstimmen und auf RX mit aktuellen Metern warten');\n command={topic:'control/start100'};\n}else if(action==='calibrate'){\n if(running||!status.auto||status.rxTx!=='RX'||status.activeSlice==null||status.band==null||!status.settingsLoaded||status.settingsError)return reject(409,'Kalibrierung aktuell nicht möglich');\n command={topic:'control/calibrate'};\n}else command={topic:'control/auto',payload:action==='on'};\nmsg.statusCode=202;msg.payload={accepted:action};return [command,msg];\n",
-    "outputs": 2,
-    "noerr": 0,
-    "initialize": "",
-    "finalize": "",
-    "libs": [],
     "x": 550,
     "y": 780,
     "wires": [
@@ -1521,24 +1515,37 @@
       [
         "550c0f4a32b8be5d"
       ]
-    ]
+    ],
+    "func": "const h=msg.req?.headers||{},body=msg.payload,action=body?.action;\nconst originOK=typeof h.host==='string'&&['http://'+h.host,'https://'+h.host].includes(h.origin);\nmsg.headers={'Content-Type':'application/json','Cache-Control':'no-store'};\nfunction reject(code,error){msg.statusCode=code;msg.payload={error};return [null,msg];}\nif(!originOK||h['x-agct-watcher']!=='1'||!/^application\\/json(?:;|$)/i.test(h['content-type']||'')||!['on','off','calibrate','settings','start100'].includes(action))return reject(400,'Ungültige Watcher-Anforderung');\nconst status=flow.get('agctUiStatus');\nif(action!=='off'&&(!status||Date.now()-status.at>5000))return reject(409,'Keine aktuellen Watcher-Daten');\nconst running=['BAND_CHANGE','WAIT_RX','MEASURE_NOISE','SCAN_AGCT','KNEE_FOUND','APPLY'].includes(status?.state);\nlet command;\nif(action==='settings'){\n if(running)return reject(409,'Zuerst Auto AUS wählen');\n const v = body.settings ?? { band: body.band, quietMHz: body.quietMHz, scanStart: body.scanStart };\n if(!v||typeof v.band!=='string'||!/^[A-Za-z0-9_-]{1,16}$/.test(v.band)||['__proto__','constructor'].includes(v.band)||\n !(v.quietMHz===null||(typeof v.quietMHz==='number'&&Number.isFinite(v.quietMHz)&&v.quietMHz>0&&v.quietMHz<=100000))||\n !(v.scanStart===null||(Number.isInteger(v.scanStart)&&v.scanStart>=0&&v.scanStart<=100)))return reject(400,'Band, Frequenz oder AGC-T-Startwert ungültig');\n if(v.band!==status.band && !Object.hasOwn(status.settings?.quietMHzByBand||{},v.band))return reject(400,'Unbekanntes Band');\n command={topic:'control/settings',payload:{band:v.band,quietMHz:v.quietMHz,scanStart:v.scanStart}};\n}else if(action==='start100'){\n const quiet=status.settings?.quietMHzByBand?.[status.band];\n const freshMeters=['LEVEL','AGC+'].every(name=>{const m=status.meters?.[name];return m&&m.unit==='dBm'&&Number.isFinite(m.value)&&Date.now()-m.at<=3000;});\n if(running||status.rxTx!=='RX'||status.activeSlice==null||status.band==null||!status.settingsLoaded||status.settingsError||!freshMeters||!['slow','med','fast'].includes(status.agcMode)||typeof quiet!=='number'||typeof status.frequencyMHz!=='number'||Math.abs(quiet-status.frequencyMHz)>0.000001)return reject(409,'Bitte Mess-QRG übernehmen, darauf abstimmen und auf RX mit aktuellen Metern warten');\n command={topic:'control/start100'};\n}else if(action==='calibrate'){\n if(running||!status.auto||status.rxTx!=='RX'||status.activeSlice==null||status.band==null||!status.settingsLoaded||status.settingsError)return reject(409,'Kalibrierung aktuell nicht möglich');\n command={topic:'control/calibrate'};\n}else command={topic:'control/auto',payload:action==='on'};\nmsg.statusCode=202;msg.payload={accepted:action};return [command,msg];\n",
+    "outputs": 2,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": []
   },
   {
     "id": "550c0f4a32b8be5d",
     "type": "http response",
     "z": "e57c2d55062d0d1f",
     "name": "UI response",
-    "statusCode": "",
-    "headers": {},
     "x": 1100,
     "y": 700,
-    "wires": []
+    "wires": [],
+    "statusCode": "",
+    "headers": {}
   },
   {
     "id": "450b7e9ed2d9e1eb",
     "type": "function",
     "z": "e57c2d55062d0d1f",
     "name": "Persistent watcher settings (atomic file)",
+    "x": 850,
+    "y": 900,
+    "wires": [
+      [
+        "5c67eccefec66e09"
+      ]
+    ],
     "func": "// Built-in fs only. Fixed path; no filenames or executable data accepted from the UI.\nconst path='/mnt/dietpi_userdata/node-red/agct-watcher-settings.json';\ntry {\n if(msg.topic==='settings/read'){\n  const text=await fs.promises.readFile(path,'utf8');\n  if(text.length>8192)throw Error('Settings file too large');\n  return {topic:'settings/load',payload:text};\n }\n if(msg.topic==='settings/saved' && typeof msg.payload==='string' && msg.payload.length<=8192){\n  JSON.parse(msg.payload);\n  await fs.promises.writeFile(path+'.tmp',msg.payload+'\\n',{encoding:'utf8',mode:0o600});\n  await fs.promises.rename(path+'.tmp',path);\n  return {topic:'settings/saved',_settingsToken:msg._settingsToken};\n }\n throw Error('Invalid settings storage request');\n}catch(e){\n if(msg.topic==='settings/read' && e.code==='ENOENT')return {topic:'settings/missing'};\n node.warn('Watcher settings: '+e.message);\n return {topic:'settings/error',payload:e.message};\n}\n",
     "outputs": 1,
     "noerr": 0,
@@ -1549,13 +1556,6 @@
         "var": "fs",
         "module": "fs"
       }
-    ],
-    "x": 850,
-    "y": 900,
-    "wires": [
-      [
-        "5c67eccefec66e09"
-      ]
     ]
   },
   {
@@ -1563,25 +1563,25 @@
     "type": "inject",
     "z": "e57c2d55062d0d1f",
     "name": "Load watcher settings",
-    "props": [
-      {
-        "p": "topic",
-        "vt": "str"
-      }
-    ],
-    "repeat": "",
-    "crontab": "",
-    "once": true,
-    "onceDelay": 0.1,
-    "topic": "settings/read",
-    "payload": "",
-    "payloadType": "date",
     "x": 200,
     "y": 900,
     "wires": [
       [
         "450b7e9ed2d9e1eb"
       ]
-    ]
+    ],
+    "props": [
+      {
+        "p": "topic",
+        "vt": "str"
+      }
+    ],
+    "topic": "settings/read",
+    "once": true,
+    "onceDelay": 0.1,
+    "repeat": "",
+    "crontab": "",
+    "payload": "",
+    "payloadType": "date"
   }
 ]
