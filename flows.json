@@ -33,7 +33,7 @@
     "id": "e57c2d55062d0d1f",
     "type": "tab",
     "label": "EXPERIMENT - AU-510M Auto AGC-T Watcher",
-    "disabled": true,
+    "disabled": false,
     "info": "Separate AU-510M watcher. Auto defaults OFF; tab exported disabled. All nine states implemented. Exact API: slice s <slice> agc_threshold=<integer 0..100>, documented by FlexRadio https://github.com/flexradio/smartsdr-api-docs/wiki/TCPIP-slice#SET and transported by installed flexradio-request / flexradio-radio / flexradio-js. Status field agc_threshold. Actual hardware success requires zero response and matching live threshold status after each command. No power/mode/antenna/transmit/tuning command permitted. Scan only at a user-configured quiet frequency, selected active slice dynamically. No invented quiet frequencies. UI /agct-watcher offers per-band quiet MHz, use-current, clear, and optional scan start; persistent settings saved atomically at /mnt/dietpi_userdata/node-red/agct-watcher-settings.json. Use-current saves only a frequency; does not retune or certify quietness. Manual tune to the configured frequency before calibration in this version. Baseline 4 seconds; downward steps of 2, settle 2.5 seconds, 4-second windows, >=20 live dBm samples of both meters. Reject >2 dB spread or >1 dB input drift. Require observed plateau, >=1.5 dB AGC+ fall and a second independent confirmation window. Knee offset +1, then one confirmed final apply and DONE. RX loss, changed slice/receive settings, stale data, failed commands or timeouts abort with no restoration/write on TX. OFF immediately revokes permits; last applied threshold remains on abort. Read requests only from subscription whitelist; write gate accepts only matching, expiring, single-use core permits. No dashboard backend changes. Live calibration not yet validated. Deploy/update explicitly: node /mnt/dietpi_userdata/node-red/scripts/deploy-agct-watcher.mjs --deploy . Simplified UI: adopt measurement QRG, then one-shot Start from AGC-T 100; RX/meter checks are automatic. One-shot temporarily enables writes and restores prior Auto state after DONE or abort. No radio tuning command: adopt only saves the QRG. Auto band-change mode is separate under advanced settings."
   },
   {
@@ -1345,8 +1345,8 @@
     "targetType": "msg",
     "statusVal": "",
     "statusType": "auto",
-    "x": 880,
-    "y": 180,
+    "x": 850,
+    "y": 100,
     "wires": []
   },
   {
@@ -1388,8 +1388,8 @@
     "initialize": "flow.set('agctUiStatus', null);",
     "finalize": "",
     "libs": [],
-    "x": 1120,
-    "y": 180,
+    "x": 1050,
+    "y": 220,
     "wires": [
       []
     ]
@@ -1666,7 +1666,7 @@
     "width": 12,
     "height": 0,
     "head": "",
-    "format": "<template>\n  <section class=\"agct-card\">\n    <header><h2>AU-510M · AGC-T Watcher</h2><span class=\"version\">Version 1.4</span></header>\n    <div class=\"grid\">\n      <div><small>Status</small><strong>{{msg.payload?.state || '—'}}</strong></div>\n      <div><small>RX/TX</small><strong :class=\"msg.payload?.rxTx === 'RX' ? 'rx' : msg.payload?.rxTx === 'TX' ? 'tx' : 'unknown'\">{{msg.payload?.rxTx || 'UNKNOWN'}}</strong></div>\n      <div><small>Frequenz</small><strong>{{msg.payload?.frequencyMHz == null ? '—' : Number(msg.payload.frequencyMHz).toFixed(3)}} MHz</strong></div>\n      <div><small>LEVEL</small><strong>{{msg.payload?.meters?.LEVEL?.value ?? '—'}} dBm</strong></div>\n      <div><small>AGC+</small><strong>{{msg.payload?.meters?.['AGC+']?.value ?? '—'}} dBm</strong></div>\n      <div><small>AGC-T vorher</small><strong>{{msg.payload?.scan?.start ?? msg.payload?.agcThreshold ?? '—'}}</strong></div>\n      <div><small>AGC-T nachher</small><strong>{{msg.payload?.scan?.final ?? '—'}}</strong></div>\n    </div>\n    <p class=\"reason\">{{msg.payload?.reason || 'Warte auf Status'}}</p>\n    <p v-if=\"msg.payload?.blockers?.length\" class=\"blocker\">{{msg.payload.blockers.join(' · ')}}</p>\n  </section>\n</template>\n<style>\n.agct-card{font-family:system-ui,sans-serif;padding:14px;background:#101b2d;color:#eef8ff;border:1px solid #36516d;border-radius:10px}.agct-card header{display:flex;justify-content:space-between;align-items:center;gap:8px}.agct-card h2{margin:0;font-size:1.1rem}.version{font-size:.75rem;color:#9bd8ff}.grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px;margin-top:12px}.grid div{padding:8px;background:#1a2a40;border-radius:6px;min-width:0}.grid small{display:block;color:#9eb5cc;font-size:.7rem}.grid strong{display:block;margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.rx{color:#5ee68a}.tx{color:#ff7272}.unknown{color:#ffd166}.reason,.blocker{margin:10px 0 0;color:#b7cbe0}.blocker{color:#ffd166}@media(max-width:800px){.grid{grid-template-columns:repeat(3,minmax(0,1fr))}}\n</style>",
+    "format": "<template>\n  <section class=\"agct-card\">\n    <header><h2>AU-510M · AGC-T Watcher</h2><span class=\"version\">Version 1.4</span></header>\n    <div class=\"grid\">\n      <div><small>Status</small><strong>{{msg.payload?.state || '—'}}</strong></div>\n      <div><small>RX/TX</small><strong :class=\"msg.payload?.rxTx === 'RX' ? 'rx' : msg.payload?.rxTx === 'TX' ? 'tx' : 'unknown'\">{{msg.payload?.rxTx || 'UNKNOWN'}}</strong></div>\n      <div><small>Frequenz</small><strong>{{msg.payload?.frequencyMHz ?? '—'}} MHz</strong></div>\n      <div><small>LEVEL</small><strong>{{msg.payload?.meters?.LEVEL?.value ?? '—'}} dBm</strong></div>\n      <div><small>AGC+</small><strong>{{msg.payload?.meters?.['AGC+']?.value ?? '—'}} dBm</strong></div>\n      <div><small>AGC-T vorher</small><strong>{{msg.payload?.scan?.start ?? msg.payload?.agcThreshold ?? '—'}}</strong></div>\n      <div><small>AGC-T nachher</small><strong>{{msg.payload?.scan?.final ?? '—'}}</strong></div>\n    </div>\n    <p class=\"reason\">{{msg.payload?.reason || 'Warte auf Status'}}</p>\n    <p v-if=\"msg.payload?.blockers?.length\" class=\"blocker\">{{msg.payload.blockers.join(' · ')}}</p>\n  </section>\n</template>\n<style>\n.agct-card{font-family:system-ui,sans-serif;padding:14px;background:#101b2d;color:#eef8ff;border:1px solid #36516d;border-radius:10px}.agct-card header{display:flex;justify-content:space-between;align-items:center;gap:8px}.agct-card h2{margin:0;font-size:1.1rem}.version{font-size:.75rem;color:#9bd8ff}.grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px;margin-top:12px}.grid div{padding:8px;background:#1a2a40;border-radius:6px;min-width:0}.grid small{display:block;color:#9eb5cc;font-size:.7rem}.grid strong{display:block;margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.rx{color:#5ee68a}.tx{color:#ff7272}.unknown{color:#ffd166}.reason,.blocker{margin:10px 0 0;color:#b7cbe0}.blocker{color:#ffd166}@media(max-width:800px){.grid{grid-template-columns:repeat(3,minmax(0,1fr))}}\n</style>",
     "className": "",
     "passthru": true,
     "storeOutMessages": false,
