@@ -17,8 +17,14 @@ This repository is a live Node-RED RF power / Stream Deck workspace. The working
 - Prefer small, targeted edits and re-run the relevant validation commands after changes.
 - Do not use `npm ci` as a generic validation step.
 
+## Current handoff branch
+- Working branch: `handoff/codex-rfpower`
+- Base state: clean project baseline after the initial repo setup and handover commit.
+- Next objective: continue from the verified static state and move only to the required live validation or the next minimal fix.
+
 ## Working approach for future sessions
 - Start with the project rules in AGENTS.md.
 - Check whether the user request is a live deployment change or a static repo change.
 - Only perform minimal edits and validate them immediately.
 - If hardware validation is not available, say so explicitly and do not claim live correctness.
+- When switching to another agent or later session, record the current branch, validation result, and remaining risk in this file.
