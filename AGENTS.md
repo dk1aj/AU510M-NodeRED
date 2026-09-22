@@ -48,3 +48,5 @@ The separate AU-510M Auto AGC-T Watcher UI displays its current version in the `
 For the separate AU-510M Auto AGC-T Watcher, do not deploy automatically by default. If the user explicitly instructs “deploy selbst” or otherwise clearly authorizes deployment, validate the changed flows first and then deploy the complete current flow configuration, preserving the existing RADIO/PA/TX/RX/EXT paths.
 
 The live dashboard AGC-T navigation label must use the exact visible form `AGC-T WATCHER · VERSION X.Y`. Increment `X.Y` for every AGC-T watcher, meter-handling, dashboard-tab, or AGC-T UI change, and keep the version synchronized with the standalone watcher UI version.
+
+The user has authorized automatic deployment for AU-510M Auto AGC-T Watcher changes. After validation, deploy watcher changes automatically; do not wait for a separate deploy request unless the user revokes this authorization.
