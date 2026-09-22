@@ -1,0 +1,46 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <style>
+    body { font-family: sans-serif; color: #ddd; padding: 12px; }
+    label { display: block; margin-bottom: 6px; }
+    input { box-sizing: border-box; width: 100%; padding: 7px; background: #333; color: white; border: 1px solid #666; }
+    small { display: block; margin-top: 8px; color: #aaa; }
+  </style>
+</head>
+<body>
+  <label for="keyboardValue">Tastaturwert</label>
+  <input id="keyboardValue" type="text" placeholder="z. B. F1 oder A">
+  <small>Das Plugin liest den N1MM-Fokus auf UDP 127.0.0.1:12060 und sendet den Wert beim Loslassen an das aktive Entry-Fenster.</small>
+  <script>
+    let websocket;
+    let context;
+    const input = document.getElementById("keyboardValue");
+
+    function connectElgatoStreamDeckSocket(port, uuid, registerEvent, info, actionInfo) {
+      context = uuid;
+      websocket = new WebSocket(`ws://127.0.0.1:${port}`);
+      websocket.onopen = () => {
+        websocket.send(JSON.stringify({ event: registerEvent, uuid }));
+        websocket.send(JSON.stringify({ event: "getSettings", context }));
+      };
+      websocket.onmessage = event => {
+        const message = JSON.parse(event.data);
+        if (message.event === "didReceiveSettings") {
+          input.value = message.payload.settings.keyboardValue || "";
+        }
+      };
+    }
+
+    input.addEventListener("input", () => {
+      if (!websocket || websocket.readyState !== WebSocket.OPEN) return;
+      websocket.send(JSON.stringify({
+        event: "setSettings",
+        context,
+        payload: { keyboardValue: input.value }
+      }));
+    });
+  </script>
+</body>
+</html>

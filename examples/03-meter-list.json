@@ -1,0 +1,62 @@
+[
+  {
+    "id": "c8377627042fbc03",
+    "type": "tab",
+    "label": "03 - Meter list (manual experiment)",
+    "disabled": true,
+    "info": "Enable this tab manually, deploy it, then click meter list to request the inventory. No automatic inject. Uses existing radio configuration 7fbf2bfc9badc7d3."
+  },
+  {
+    "id": "aed8c933591fa103",
+    "type": "inject",
+    "z": "c8377627042fbc03",
+    "name": "meter list",
+    "props": [
+      {
+        "p": "payload"
+      }
+    ],
+    "repeat": "",
+    "crontab": "",
+    "once": false,
+    "onceDelay": 0.1,
+    "payload": "meter list",
+    "payloadType": "str",
+    "x": 160,
+    "y": 120,
+    "wires": [
+      [
+        "cb517e1d426fa203"
+      ]
+    ]
+  },
+  {
+    "id": "cb517e1d426fa203",
+    "type": "flexradio-request",
+    "z": "c8377627042fbc03",
+    "name": "FlexRadio Request",
+    "radio": "7fbf2bfc9badc7d3",
+    "x": 390,
+    "y": 120,
+    "wires": [
+      [
+        "df824307188fa303"
+      ]
+    ]
+  },
+  {
+    "id": "df824307188fa303",
+    "type": "debug",
+    "z": "c8377627042fbc03",
+    "name": "Debug",
+    "active": true,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "true",
+    "targetType": "full",
+    "x": 620,
+    "y": 120,
+    "wires": []
+  }
+]

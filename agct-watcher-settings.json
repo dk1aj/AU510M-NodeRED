@@ -1,0 +1,16 @@
+{
+  "quietMHzByBand": {
+    "6": null,
+    "10": null,
+    "12": null,
+    "15": null,
+    "17": null,
+    "20": 14.057,
+    "30": null,
+    "40": null,
+    "60": null,
+    "80": null,
+    "160": null
+  },
+  "scanStart": 100
+}

@@ -1,0 +1,76 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <style>
+    body { font-family: sans-serif; color: #ddd; padding: 12px; }
+    label { display: block; margin: 12px 0 5px; }
+    input, select { box-sizing: border-box; width: 100%; padding: 7px; background: #333; color: white; border: 1px solid #666; }
+    small { display: block; margin-top: 8px; color: #aaa; }
+  </style>
+</head>
+<body>
+  <label for="title">Titel</label>
+  <input id="title" type="text" placeholder="optional, z. B. PA TEMP">
+  <label for="meterName">Messwert</label>
+  <select id="meterName"><option value="">Messwert wird geladen …</option></select>
+  <label for="unit">Einheit</label>
+  <input id="unit" type="text" placeholder="optional, z. B. W oder °C">
+  <small>Funkgeraet- und Verstaerkerwerte werden ueber den Meter-WebSocket aktualisiert.</small>
+  <script>
+    let websocket;
+    let context;
+    let settings = {};
+    const meter = document.getElementById("meterName");
+    const unit = document.getElementById("unit");
+    const title = document.getElementById("title");
+
+    function send(event, payload = {}) {
+      if (websocket?.readyState === WebSocket.OPEN) websocket.send(JSON.stringify({ event, context, payload }));
+    }
+    function save() {
+      settings = { meterName: meter.value, unit: unit.value, title: title.value };
+      send("setSettings", settings);
+    }
+    function fillMeters(names) {
+      const selected = settings.meterName || meter.value;
+      meter.innerHTML = "";
+      for (const name of names) {
+        const option = document.createElement("option");
+        option.value = option.textContent = name;
+        meter.appendChild(option);
+      }
+      if (selected && !names.includes(selected)) {
+        const option = document.createElement("option");
+        option.value = option.textContent = selected;
+        meter.appendChild(option);
+      }
+      meter.value = selected || names[0] || "";
+    }
+    function connectElgatoStreamDeckSocket(port, uuid, registerEvent) {
+      context = uuid;
+      websocket = new WebSocket(`ws://127.0.0.1:${port}`);
+      websocket.onopen = () => {
+        websocket.send(JSON.stringify({ event: registerEvent, uuid }));
+        send("getSettings");
+        send("sendToPlugin", { request: "meters" });
+      };
+      websocket.onmessage = event => {
+        const message = JSON.parse(event.data);
+        if (message.event === "didReceiveSettings") {
+          settings = message.payload.settings || {};
+          unit.value = settings.unit || "";
+          title.value = settings.title || "";
+          if (settings.meterName) fillMeters([settings.meterName]);
+          send("sendToPlugin", { request: "meters" });
+        } else if (message.event === "sendToPropertyInspector") {
+          fillMeters(message.payload.meters || []);
+        }
+      };
+    }
+    meter.addEventListener("change", save);
+    unit.addEventListener("input", save);
+    title.addEventListener("input", save);
+  </script>
+</body>
+</html>

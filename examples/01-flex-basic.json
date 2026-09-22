@@ -1,0 +1,157 @@
+[
+    {
+        "id": "c9a17f4601bc4e88",
+        "type": "tab",
+        "label": "TEST - Flex Basic Status",
+        "disabled": true,
+        "info": "Manual, read-only FlexRadio status test. Reuses radio config 7fbf2bfc9badc7d3 (Name#1)."
+    },
+    {
+        "id": "2a501dd5c09b4f54",
+        "type": "inject",
+        "z": "c9a17f4601bc4e88",
+        "name": "Subscribe (manual)",
+        "props": [
+            {
+                "p": "payload"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 140,
+        "y": 100,
+        "wires": [
+            [
+                "86c623ba1f754f3a"
+            ]
+        ]
+    },
+    {
+        "id": "86c623ba1f754f3a",
+        "type": "function",
+        "z": "c9a17f4601bc4e88",
+        "name": "Read-only status requests",
+        "func": "return [[\n    { payload: \"info\" },\n    { payload: \"sub client all\" },\n    { payload: \"sub slice all\" },\n    { payload: \"sub tx all\" }\n]];",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 370,
+        "y": 100,
+        "wires": [
+            [
+                "399c99c065f6426c"
+            ]
+        ]
+    },
+    {
+        "id": "399c99c065f6426c",
+        "type": "flexradio-request",
+        "z": "c9a17f4601bc4e88",
+        "name": "Existing FlexRadio",
+        "radio": "7fbf2bfc9badc7d3",
+        "x": 620,
+        "y": 100,
+        "wires": [
+            [
+                "29ce40c20d634d9a"
+            ]
+        ]
+    },
+    {
+        "id": "29ce40c20d634d9a",
+        "type": "debug",
+        "z": "c9a17f4601bc4e88",
+        "name": "Request responses",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 850,
+        "y": 100,
+        "wires": []
+    },
+    {
+        "id": "6cf334172f7f438c",
+        "type": "flexradio-message",
+        "z": "c9a17f4601bc4e88",
+        "name": "Basic radio status",
+        "radio": "7fbf2bfc9badc7d3",
+        "client": "all",
+        "topic": "#",
+        "topic_type": "mqtt",
+        "x": 160,
+        "y": 220,
+        "wires": [
+            [
+                "46dde252ca8d480d",
+                "7eecc2f78f6c47b0"
+            ]
+        ]
+    },
+    {
+        "id": "46dde252ca8d480d",
+        "type": "debug",
+        "z": "c9a17f4601bc4e88",
+        "name": "All received radio messages",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 470,
+        "y": 200,
+        "wires": []
+    },
+    {
+        "id": "7eecc2f78f6c47b0",
+        "type": "function",
+        "z": "c9a17f4601bc4e88",
+        "name": "Identify frequency, mode, RX/TX",
+        "func": "const topic = String(msg.topic || \"\");\nconst payload = msg.payload && typeof msg.payload === \"object\" ? msg.payload : {};\nconst found = [];\nconst slice = topic.match(/^slice\\/(\\d+)$/);\n\nif (slice && Object.prototype.hasOwnProperty.call(payload, \"RF_frequency\")) {\n    found.push({ topic: \"test/flex/frequency\", payload: { slice: slice[1], MHz: payload.RF_frequency } });\n}\nif (slice && typeof payload.mode === \"string\") {\n    found.push({ topic: \"test/flex/mode\", payload: { slice: slice[1], mode: payload.mode } });\n}\nif (topic === \"interlock\" && typeof payload.state === \"string\") {\n    const state = payload.state.toUpperCase();\n    const rxTx = state === \"TRANSMITTING\" ? \"TX\" : (state === \"RECEIVE\" || state === \"READY\" ? \"RX\" : \"UNKNOWN\");\n    found.push({ topic: \"test/flex/rx-tx\", payload: { rxTx, state } });\n}\n\nreturn found.length ? [found] : null;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 480,
+        "y": 260,
+        "wires": [
+            [
+                "93a30708943043a5"
+            ]
+        ]
+    },
+    {
+        "id": "93a30708943043a5",
+        "type": "debug",
+        "z": "c9a17f4601bc4e88",
+        "name": "Frequency / mode / RX-TX",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 790,
+        "y": 260,
+        "wires": []
+    }
+]

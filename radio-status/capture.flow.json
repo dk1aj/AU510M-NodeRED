@@ -1,0 +1,41 @@
+[
+  {
+    "id": "au510m_status_capture",
+    "type": "tab",
+    "label": "DIAGNOSTICS - AU-510M actual status capture",
+    "disabled": true,
+    "info": "Passive existing-connection listener only. Enable manually to inspect messages already received. No request nodes. Copy full topic/payload/client from Debug for source verification."
+  },
+  {
+    "id": "au510m_status_capture_input",
+    "type": "flexradio-message",
+    "z": "au510m_status_capture",
+    "name": "Existing AU-510M connection - passive status",
+    "radio": "7fbf2bfc9badc7d3",
+    "client": "all",
+    "topic": "#",
+    "topic_type": "mqtt",
+    "x": 260,
+    "y": 100,
+    "wires": [
+      [
+        "au510m_status_capture_debug"
+      ]
+    ]
+  },
+  {
+    "id": "au510m_status_capture_debug",
+    "type": "debug",
+    "z": "au510m_status_capture",
+    "name": "ACTUAL radio topic / payload / client",
+    "active": true,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "true",
+    "targetType": "full",
+    "x": 600,
+    "y": 100,
+    "wires": []
+  }
+]

@@ -1,0 +1,65 @@
+[
+    {
+        "id": "afa4c6031e9a7fee",
+        "type": "tab",
+        "label": "TEST - Aurora meter list",
+        "disabled": true,
+        "info": "Manual read-only test: meter list → FlexRadio Request → Debug. Reuses existing configuration 7fbf2bfc9badc7d3 (Name#1); no new radio configuration. Enable this tab and deploy manually when ready, then click meter list once."
+    },
+    {
+        "id": "afe8dad83ea227d0",
+        "type": "inject",
+        "z": "afa4c6031e9a7fee",
+        "name": "meter list",
+        "props": [
+            {
+                "p": "payload"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "meter list",
+        "payloadType": "str",
+        "x": 150,
+        "y": 100,
+        "wires": [
+            [
+                "0232d1b76880613d"
+            ]
+        ]
+    },
+    {
+        "id": "0232d1b76880613d",
+        "type": "flexradio-request",
+        "z": "afa4c6031e9a7fee",
+        "name": "Existing FlexRadio — Name#1",
+        "radio": "7fbf2bfc9badc7d3",
+        "x": 430,
+        "y": 100,
+        "wires": [
+            [
+                "472f313012d8db49"
+            ]
+        ]
+    },
+    {
+        "id": "472f313012d8db49",
+        "type": "debug",
+        "z": "afa4c6031e9a7fee",
+        "name": "Meter list response",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 720,
+        "y": 100,
+        "wires": []
+    }
+]

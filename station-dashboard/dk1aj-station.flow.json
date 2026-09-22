@@ -1,0 +1,373 @@
+[
+  {
+    "id": "dk1aj_station_dashboard",
+    "type": "tab",
+    "label": "DK1AJ STATION — read only",
+    "disabled": true,
+    "info": "Prepared, not deployed. See station-dashboard/README.md. Enable with diagnostics after review. Reuses existing radio and Dashboard base/theme."
+  },
+  {
+    "id": "dk1aj_station_diagnostics",
+    "type": "tab",
+    "label": "DIAGNOSTICS — DK1AJ STATION",
+    "disabled": true,
+    "info": "Manual read-only subscriptions and meter list. No radio-setting commands. Re-run Read telemetry after each radio reconnect."
+  },
+  {
+    "id": "dk1aj_station_page",
+    "type": "ui-page",
+    "name": "DK1AJ STATION",
+    "ui": "ff_au510m_base",
+    "path": "/dk1aj-station",
+    "icon": "radio-tower",
+    "layout": "grid",
+    "theme": "ff_au510m_theme",
+    "order": 0,
+    "className": "",
+    "visible": true,
+    "disabled": false,
+    "breakpoints": [
+      {
+        "name": "Default",
+        "px": 0,
+        "cols": 3
+      },
+      {
+        "name": "Tablet",
+        "px": 576,
+        "cols": 6
+      },
+      {
+        "name": "Desktop",
+        "px": 1024,
+        "cols": 12
+      }
+    ]
+  },
+  {
+    "id": "dk1aj_station_group",
+    "type": "ui-group",
+    "name": "Station",
+    "page": "dk1aj_station_page",
+    "width": 12,
+    "height": 1,
+    "order": 1,
+    "showTitle": false,
+    "className": "",
+    "visible": true,
+    "disabled": false,
+    "groupType": "default"
+  },
+  {
+    "id": "dk1aj_station_view",
+    "type": "ui-template",
+    "z": "dk1aj_station_dashboard",
+    "x": 790,
+    "y": 220,
+    "wires": [],
+    "name": "Station values and read-only gauges",
+    "group": "dk1aj_station_group",
+    "page": "",
+    "ui": "",
+    "order": 1,
+    "width": 12,
+    "height": 0,
+    "head": "",
+    "format": "<template>\n  <main class=\"dk1aj-station\">\n    <div class=\"station-banner\"><strong>DK1AJ STATION</strong><span>READ ONLY · {{ live ? d.connection : 'N/A — dashboard data unavailable' }}</span></div>\n    <div class=\"station-columns\">\n      <section aria-label=\"Radio status\">\n        <article class=\"station-card frequency\"><label>FREQUENCY</label><strong>{{ field('frequency').text }}</strong><small>{{ field('frequency').reason }}</small></article>\n        <div class=\"station-pair\">\n          <article class=\"station-card\"><label>MODE</label><strong>{{ field('mode').text }}</strong></article>\n          <article class=\"station-card\" :class=\"{ transmitting: field('rxTx').text === 'TX' }\"><label>RX / TX</label><strong>{{ field('rxTx').text }}</strong></article>\n        </div>\n        <article class=\"station-card\"><label>RADIO CONNECTION</label><strong>{{ live ? d.connection : 'N/A' }}</strong><small>Frequency and mode follow the unique active slice, or the sole reported slice.</small></article>\n        <article class=\"station-card\"><label>REFLECTED POWER</label><strong>{{ field('reflected').text }}</strong><small>{{ field('reflected').reason || field('reflected').source }}</small></article>\n      </section>\n      <section aria-label=\"Power and temperature\">\n        <div class=\"station-pair\">\n          <article class=\"station-card\"><label>TX POWER SET</label><strong>{{ field('set').text }}</strong><small>{{ field('set').reason }}</small></article>\n          <article class=\"station-card\"><label>FORWARD POWER ACTUAL</label><strong>{{ field('forward').text }}</strong><small>{{ field('forward').reason || field('forward').source }}</small></article>\n        </div>\n        <article class=\"station-card\"><label>ACTUAL FORWARD POWER</label>\n          <meter v-if=\"valid('forward')\" min=\"0\" :max=\"powerMax\" :value=\"field('forward').value\" aria-label=\"Actual forward power in watts\"></meter>\n          <strong v-else>N/A</strong><small>{{ valid('forward') ? '0–' + powerMax + ' W · display scale' : field('forward').reason }}</small>\n        </article>\n        <article class=\"station-card\"><label>SWR</label><strong>{{ field('swr').text }}</strong>\n          <meter v-if=\"valid('swr')\" min=\"1\" :max=\"swrMax\" :value=\"field('swr').value\" aria-label=\"SWR\"></meter>\n          <small>{{ valid('swr') ? '1–' + swrMax + ' · display scale' : field('swr').reason }}</small>\n        </article>\n        <article v-for=\"t in temperatures\" :key=\"t.id\" class=\"station-card\"><label>{{ t.label }}</label><strong>{{ t.text }}</strong>\n          <meter v-if=\"t.value !== null\" :min=\"Math.min(0, Math.floor(t.value / 10) * 10)\" :max=\"Math.max(100, Math.ceil(t.value / 10) * 10)\" :value=\"t.value\" :aria-label=\"t.label + ' in degrees Celsius'\"></meter>\n          <small>{{ t.reason || 'Temperature · °C · display scale, not an alarm threshold' }}</small>\n        </article>\n        <article v-if=\"!temperatures.length\" class=\"station-card\"><label>RADIO / PA TEMPERATURE</label><strong>N/A</strong><small>{{ live ? d.temperatureReason : 'Waiting for radio telemetry' }}</small></article>\n      </section>\n    </div>\n  </main>\n</template>\n<script>\nexport default {\n  data() { return { now: Date.now(), timer: null }; },\n  mounted() { this.timer = setInterval(() => { this.now = Date.now(); }, 1000); },\n  unmounted() { clearInterval(this.timer); },\n  computed: {\n    d() { return this.msg?.payload || {}; },\n    live() { return Number.isFinite(this.d.at) && Math.abs(this.now - this.d.at) < 10000; },\n    temperatures() { return this.live ? (this.d.temperatures || []) : []; },\n    powerMax() { return Math.max(500, Math.ceil((this.field('forward').value || 0) / 100) * 100); },\n    swrMax() { return Math.max(3, Math.ceil(this.field('swr').value || 1)); }\n  },\n  methods: {\n    field(key) { return this.live && this.d[key] ? this.d[key] : { text: 'N/A', value: null, reason: 'Waiting for radio telemetry' }; },\n    valid(key) { return Number.isFinite(this.field(key).value); }\n  }\n};\n</script>\n<style>\n.dk1aj-station { color: #eef4ff; padding: 8px; font-variant-numeric: tabular-nums; }\n.dk1aj-station .station-banner { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 12px; padding: 8px 0 20px; }\n.dk1aj-station .station-banner span { color: #bac8dc; }\n.dk1aj-station .station-columns { display: grid; grid-template-columns: minmax(0,1fr) minmax(0,1fr); gap: 20px; }\n.dk1aj-station section { min-width: 0; }\n.dk1aj-station .station-pair { display: grid; grid-template-columns: minmax(0,1fr) minmax(0,1fr); gap: 12px; }\n.dk1aj-station .station-card { background: #182230; border: 1px solid #35475c; border-radius: 10px; padding: 20px; margin-bottom: 14px; overflow-wrap: anywhere; }\n.dk1aj-station label, .dk1aj-station small { display: block; color: #bdccdf; }\n.dk1aj-station label { font-size: 14px; letter-spacing: .07em; margin-bottom: 10px; }\n.dk1aj-station strong { display: block; font-size: 30px; line-height: 1.3; }\n.dk1aj-station .frequency strong { font-size: clamp(32px,3.7vw,64px); color: #8dceff; }\n.dk1aj-station small { margin-top: 10px; font-size: 13px; }\n.dk1aj-station .transmitting { border-color: #ff9980; }\n.dk1aj-station meter { width: 100%; height: 30px; margin-top: 10px; accent-color: #65baff; }\n@media(max-width: 850px) { .dk1aj-station .station-columns { grid-template-columns: 1fr; } }\n</style>\n",
+    "storeOutMessages": true,
+    "passthru": false,
+    "resendOnRefresh": true,
+    "templateScope": "local",
+    "className": ""
+  },
+  {
+    "id": "dk1aj_station_messages",
+    "type": "flexradio-message",
+    "z": "dk1aj_station_dashboard",
+    "x": 170,
+    "y": 100,
+    "wires": [
+      [
+        "dk1aj_station_state",
+        "dk1aj_station_raw_out"
+      ]
+    ],
+    "name": "Existing radio — status only",
+    "radio": "7fbf2bfc9badc7d3",
+    "client": "all",
+    "topic": "#",
+    "topic_type": "mqtt"
+  },
+  {
+    "id": "dk1aj_station_meters",
+    "type": "flexradio-meter",
+    "z": "dk1aj_station_dashboard",
+    "x": 180,
+    "y": 180,
+    "wires": [
+      [
+        "dk1aj_station_state"
+      ]
+    ],
+    "name": "Decoded meters with metadata",
+    "radio": "7fbf2bfc9badc7d3",
+    "topic": "#",
+    "topic_type": "mqtt",
+    "output_mode": "object"
+  },
+  {
+    "id": "dk1aj_station_connection",
+    "type": "status",
+    "z": "dk1aj_station_dashboard",
+    "x": 180,
+    "y": 260,
+    "wires": [
+      [
+        "dk1aj_station_state"
+      ]
+    ],
+    "name": "Existing integration connection",
+    "scope": [
+      "dk1aj_station_messages"
+    ]
+  },
+  {
+    "id": "dk1aj_station_clock",
+    "type": "inject",
+    "z": "dk1aj_station_dashboard",
+    "x": 160,
+    "y": 340,
+    "wires": [
+      [
+        "dk1aj_station_state"
+      ]
+    ],
+    "name": "Refresh / expire readings (1 s)",
+    "props": [
+      {
+        "p": "payload"
+      },
+      {
+        "p": "topic",
+        "vt": "str"
+      }
+    ],
+    "payloadType": "date",
+    "topic": "station/tick",
+    "repeat": "1",
+    "crontab": "",
+    "once": true,
+    "onceDelay": 0.5
+  },
+  {
+    "id": "dk1aj_station_state",
+    "type": "function",
+    "z": "dk1aj_station_dashboard",
+    "x": 510,
+    "y": 220,
+    "wires": [
+      [
+        "dk1aj_station_view"
+      ]
+    ],
+    "name": "Collect telemetry; never send commands",
+    "func": "function update(s, msg, now) {\n    const empty = () => ({ connection: 'N/A', connectionAt: 0, meters: {}, samples: {}, slices: {}, tx: {}, interlock: null });\n    s = s || empty();\n    const p = msg.payload;\n    const object = p && typeof p === 'object' && !Array.isArray(p);\n    const number = v => (typeof v === 'number' || (typeof v === 'string' && v.trim() !== '')) && Number.isFinite(Number(v));\n    let connection;\n    if (msg.topic === 'connection/tcp') connection = p;\n    if (msg.status) {\n        const st = msg.status;\n        connection = st.fill === 'green' && st.shape === 'dot' ? 'connected' :\n            st.text === 'connecting' ? 'connecting' :\n            ['disconnected', 'closed', 'not configured'].includes(st.text) ? 'disconnected' : undefined;\n    }\n    if (connection && ['connected', 'connecting', 'disconnected'].includes(connection)) {\n        if (connection !== s.connection) s = empty();\n        s.connection = connection;\n        s.connectionAt = now;\n    }\n    if (s.connection === 'connected' && now - s.connectionAt > 12000) {\n        s = empty();\n        s.connection = 'N/A — connection status expired';\n    }\n    // Metadata must come from a successful meter list, never an assumed ID.\n    if (msg.request === 'meter list' && Number(msg.status_code) === 0 && object) {\n        s.meters = p;\n        s.samples = {};\n    }\n    if (s.connection === 'connected') {\n        if (msg.meter !== undefined && object && s.meters[msg.meter]) {\n            s.samples[msg.meter] = { value: number(p.value) ? Number(p.value) : null, at: now };\n        }\n        const slice = String(msg.topic || '').match(/^slice\\/(\\d+)$/);\n        if (slice) {\n            if (p === 'removed' || (object && Number(p.in_use) === 0)) delete s.slices[slice[1]];\n            else if (object) s.slices[slice[1]] = { ...s.slices[slice[1]], ...p };\n        }\n        if (msg.topic === 'transmit' && object) s.tx = { ...s.tx, ...p };\n        if (msg.topic === 'interlock' && object && typeof p.state === 'string') s.interlock = p.state;\n    }\n    const na = reason => ({ value: null, text: 'N/A', reason });\n    const value = (v, unit, reason = '') => ({ value: v, text: `${v.toFixed(2).replace(/\\.00$/, '')}${unit ? ' ' + unit : ''}`, reason });\n    const connected = s.connection === 'connected';\n    function meterValue(id, meta) {\n        const sample = s.samples[id];\n        if (!connected || !sample || sample.value === null || now - sample.at > 15000) return na('No fresh sample (15 second timeout)');\n        const v = sample.value;\n        const unit = String(meta.unit || '').toLowerCase();\n        if (unit === 'dbm') return value(10 ** ((v - 30) / 10), 'W');\n        if (unit === 'watts') return v >= 0 ? value(v, 'W') : na('Invalid negative power');\n        if (unit === 'swr') return v >= 1 ? value(v, ':1') : na('Invalid SWR');\n        if (unit === 'degc') return value(v, '°C');\n        if (unit === 'degf') return value((v - 32) * 5 / 9, '°C');\n        return na('Unsupported reported meter unit');\n    }\n    function named(name, units) {\n        const matches = Object.entries(s.meters).filter(([, m]) => String(m.nam).toUpperCase() === name && units.includes(String(m.unit).toLowerCase()));\n        if (matches.length !== 1) return na(matches.length ? 'Multiple matching meters; source needs confirmation' : `${name} with supported units absent from meter list`);\n        const [id, m] = matches[0];\n        return { ...meterValue(id, m), source: `${m.src}/${m.num}/${m.nam}` };\n    }\n    const slices = Object.entries(s.slices);\n    const active = slices.filter(([, x]) => Number(x.active) === 1);\n    const selected = active.length === 1 ? active[0] : slices.length === 1 ? slices[0] : null;\n    const freq = connected && selected && number(selected[1].RF_frequency) ?\n        { value: Number(selected[1].RF_frequency), text: `${Number(selected[1].RF_frequency).toFixed(6)} MHz`, reason: `Slice ${selected[0]}` } : na('No unique active slice with reported RF_frequency');\n    const mode = connected && selected && typeof selected[1].mode === 'string' ? { text: selected[1].mode } : na('No mode for selected slice');\n    const state = String(s.interlock || '').toUpperCase();\n    const rxTx = connected && state ? { text: state === 'TRANSMITTING' ? 'TX' : ['RECEIVE', 'READY'].includes(state) ? 'RX' : `N/A — ${state}` } : na('No interlock state received');\n    const set = connected && number(s.tx.rfpower) ? { value: Number(s.tx.rfpower), text: String(s.tx.rfpower), reason: 'Radio setting · unit / watt scaling unverified' } : na('No transmit.rfpower received');\n    const temperatures = Object.entries(s.meters).filter(([, m]) => ['degc', 'degf'].includes(String(m.unit).toLowerCase()))\n        .map(([id, m]) => ({ ...meterValue(id, m), label: `${m.nam} (${m.src}/${m.num})`, id }));\n    const snapshot = { at: now, connection: s.connection, frequency: freq, mode, rxTx, set,\n        forward: named('FWDPWR', ['dbm', 'watts']), reflected: named('REFPWR', ['dbm', 'watts']),\n        swr: named('SWR', ['swr']), temperatures,\n        temperatureReason: temperatures.length ? '' : 'No temperature meters with degC / degF units in meter list' };\n    return { state: s, snapshot };\n}\nconst result = update(context.get('station'), msg, Date.now());\ncontext.set('station', result.state);\nreturn msg.topic === 'station/tick' ? { payload: result.snapshot } : null;",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": []
+  },
+  {
+    "id": "dk1aj_station_metadata_in",
+    "type": "link in",
+    "z": "dk1aj_station_dashboard",
+    "x": 355,
+    "y": 400,
+    "wires": [
+      [
+        "dk1aj_station_state"
+      ]
+    ],
+    "name": "Meter inventory",
+    "links": [
+      "dk1aj_station_metadata_out"
+    ]
+  },
+  {
+    "id": "dk1aj_station_raw_out",
+    "type": "link out",
+    "z": "dk1aj_station_dashboard",
+    "x": 425,
+    "y": 60,
+    "wires": [],
+    "name": "Status to diagnostics",
+    "mode": "link",
+    "links": [
+      "dk1aj_station_raw_in"
+    ]
+  },
+  {
+    "id": "dk1aj_station_raw_in",
+    "type": "link in",
+    "z": "dk1aj_station_diagnostics",
+    "x": 155,
+    "y": 400,
+    "wires": [
+      [
+        "dk1aj_station_status_debug"
+      ]
+    ],
+    "name": "Raw status from dashboard",
+    "links": [
+      "dk1aj_station_raw_out"
+    ]
+  },
+  {
+    "id": "dk1aj_station_status_debug",
+    "type": "debug",
+    "z": "dk1aj_station_diagnostics",
+    "x": 420,
+    "y": 400,
+    "wires": [],
+    "name": "Actual radio status (enable to capture)",
+    "active": false,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "true",
+    "targetType": "full"
+  },
+  {
+    "id": "dk1aj_station_read",
+    "type": "inject",
+    "z": "dk1aj_station_diagnostics",
+    "x": 160,
+    "y": 100,
+    "wires": [
+      [
+        "dk1aj_station_commands"
+      ]
+    ],
+    "name": "Read telemetry (manual / after reconnect)",
+    "props": [
+      {
+        "p": "payload"
+      },
+      {
+        "p": "topic",
+        "vt": "str"
+      }
+    ],
+    "payloadType": "date",
+    "topic": "station/tick",
+    "repeat": "",
+    "crontab": "",
+    "once": false,
+    "onceDelay": 0.5
+  },
+  {
+    "id": "dk1aj_station_commands",
+    "type": "function",
+    "z": "dk1aj_station_diagnostics",
+    "x": 450,
+    "y": 100,
+    "wires": [
+      [
+        "dk1aj_station_request"
+      ]
+    ],
+    "name": "Fixed read-only requests",
+    "func": "return [[{payload:\"sub slice all\"},{payload:\"sub tx all\"},{payload:\"meter list\"}]];",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": []
+  },
+  {
+    "id": "dk1aj_station_request",
+    "type": "flexradio-request",
+    "z": "dk1aj_station_diagnostics",
+    "x": 780,
+    "y": 100,
+    "wires": [
+      [
+        "dk1aj_station_inventory",
+        "dk1aj_station_responses"
+      ]
+    ],
+    "name": "Existing radio — read-only requests",
+    "radio": "7fbf2bfc9badc7d3"
+  },
+  {
+    "id": "dk1aj_station_inventory",
+    "type": "function",
+    "z": "dk1aj_station_diagnostics",
+    "x": 470,
+    "y": 230,
+    "wires": [
+      [
+        "dk1aj_station_metadata_out"
+      ],
+      [
+        "dk1aj_station_request"
+      ]
+    ],
+    "name": "Inspect list; subscribe discovered IDs",
+    "func": "if (msg.request !== 'meter list' || Number(msg.status_code) !== 0 || !msg.payload || typeof msg.payload !== 'object') return null;\nconst commands = Object.entries(msg.payload).filter(([id, m]) => /^\\d+$/.test(id) && m && (\n    (['FWDPWR','REFPWR'].includes(String(m.nam).toUpperCase()) && ['dbm','watts'].includes(String(m.unit).toLowerCase())) ||\n    (String(m.nam).toUpperCase() === 'SWR' && String(m.unit).toLowerCase() === 'swr') ||\n    ['degc','degf'].includes(String(m.unit).toLowerCase())\n)).map(([id]) => ({payload: 'sub meter ' + id}));\nreturn [msg, commands];",
+    "outputs": 2,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": []
+  },
+  {
+    "id": "dk1aj_station_metadata_out",
+    "type": "link out",
+    "z": "dk1aj_station_diagnostics",
+    "x": 755,
+    "y": 230,
+    "wires": [],
+    "name": "Inventory to dashboard",
+    "mode": "link",
+    "links": [
+      "dk1aj_station_metadata_in"
+    ]
+  },
+  {
+    "id": "dk1aj_station_responses",
+    "type": "debug",
+    "z": "dk1aj_station_diagnostics",
+    "x": 1060,
+    "y": 160,
+    "wires": [],
+    "name": "Meter list / subscription responses",
+    "active": true,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "true",
+    "targetType": "full"
+  },
+  {
+    "id": "dk1aj_station_errors",
+    "type": "catch",
+    "z": "dk1aj_station_diagnostics",
+    "x": 800,
+    "y": 330,
+    "wires": [
+      [
+        "dk1aj_station_responses"
+      ]
+    ],
+    "name": "Read request errors",
+    "scope": [
+      "dk1aj_station_request"
+    ],
+    "uncaught": false
+  }
+]

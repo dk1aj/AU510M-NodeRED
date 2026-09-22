@@ -1,0 +1,49 @@
+{
+  "$schema": "https://schemas.elgato.com/streamdeck/plugins/manifest.json",
+  "Actions": [{
+    "Controllers": ["Keypad"],
+    "Icon": "assets/action-icon",
+    "Name": "RFPOWER +50 Watt",
+    "States": [{ "Image": "assets/key-default" }],
+    "Tooltip": "Zeigt die aktuelle Leistung und erhoeht sie beim Loslassen um 50 Watt.",
+    "UUID": "com.dk1aj.rfpower.step",
+    "UserTitleEnabled": false
+  }, {
+    "Controllers": ["Keypad"],
+    "Icon": "assets/action-icon",
+    "Name": "N1MM Tastaturwert",
+    "PropertyInspectorPath": "udp-settings.html",
+    "States": [{ "Image": "assets/key-default" }],
+    "Tooltip": "Liest den N1MM-Fokus per UDP 12060 und sendet den konfigurierten Tastaturwert an das Entry-Fenster.",
+    "UUID": "com.dk1aj.rfpower.udp-key",
+    "UserTitleEnabled": true
+  }, {
+    "Controllers": ["Keypad"],
+    "Icon": "assets/action-icon",
+    "Name": "Funkgeraet-Messwert",
+    "PropertyInspectorPath": "meter-settings.html",
+    "States": [{
+      "Image": "assets/key-default",
+      "FontSize": 14,
+      "FontStyle": "Bold",
+      "ShowTitle": true,
+      "TitleAlignment": "middle"
+    }],
+    "Tooltip": "Zeigt einen frei waehlbaren Funkgeraet- oder Verstaerker-Messwert live an.",
+    "UUID": "com.dk1aj.rfpower.meter",
+    "UserTitleEnabled": false
+  }],
+  "Author": "DK1AJ",
+  "Category": "DK1AJ",
+  "CategoryIcon": "assets/category-icon",
+  "CodePath": "plugin.js",
+  "Description": "Dynamisches RFPOWER-Bild und +50-Watt-Taster fuer Node-RED.",
+  "Icon": "assets/plugin-icon",
+  "Name": "DK1AJ RFPOWER",
+  "Nodejs": { "Version": "20" },
+  "OS": [{ "Platform": "windows", "MinimumVersion": "10" }],
+  "SDKVersion": 2,
+  "Software": { "MinimumVersion": "6.4" },
+  "UUID": "com.dk1aj.rfpower",
+  "Version": "2.0.2.0"
+}
