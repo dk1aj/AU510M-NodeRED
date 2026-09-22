@@ -38,3 +38,7 @@ node --check stream-deck-plugin/src/com.dk1aj.rfpower.sdPlugin/plugin.js
 ```
 
 Then confirm deploy has no missing-node/config errors and manually test only affected paths. Use read-only `/rfpower-watt`, `/rfpower-icon`, and `/rfpower-mainfan` first; `/rfpower-step?param=1` changes radio power. Test WebSocket meters, MAINFAN subscription, N1MM focus/key delivery, and Stream Deck actions only when their target systems are available. Do not run `npm ci` merely as a test; it rewrites installed dependencies.
+
+## AU-510M Watcher UI Versioning
+
+The separate AU-510M Auto AGC-T Watcher UI displays its current version in the `uiVersion` chip. Increment that version on every watcher UI or flow behavior change, keep the same version in `examples/05-agct-watcher.json` and the active watcher template in `flows.json`, and do not leave historical labels such as “Alt … · Neu …” in the live UI.
