@@ -50,3 +50,7 @@ For the separate AU-510M Auto AGC-T Watcher, do not deploy automatically by defa
 The live dashboard AGC-T navigation label must use the exact visible form `AGC-T WATCHER · VERSION X.Y`. Increment `X.Y` for every AGC-T watcher, meter-handling, dashboard-tab, or AGC-T UI change, and keep the version synchronized with the standalone watcher UI version.
 
 The user has authorized automatic deployment for AU-510M Auto AGC-T Watcher changes. After validation, deploy watcher changes automatically; do not wait for a separate deploy request unless the user revokes this authorization.
+
+## Deployment Interaction
+
+Do not add an extra project-level confirmation or manual approval step after the user has explicitly authorized an AU-510M Watcher deploy. Proceed with the authorized deployment after validation. This project instruction does not disable or override platform-level safety review controls.
