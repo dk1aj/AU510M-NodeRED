@@ -26,3 +26,28 @@ backups/
 
 # Common caches
 .cache/
+
+# Local station state and secrets (keep runtime files on disk)
+agct-watcher-settings.json
+.env
+.env.*
+!.env.example
+*.log
+*.bak
+*.backup
+*.pem
+*.key
+*.p12
+*.pfx
+.vscode/
+.idea/
+.nodered/
+.sessions/
+coverage/
+archive/runtime-backups/
+
+# Node-RED generated metadata and local agent environment
+.config.*
+.agents/
+.codex/
+lib/

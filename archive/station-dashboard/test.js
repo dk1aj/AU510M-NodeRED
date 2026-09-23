@@ -60,7 +60,7 @@ now += 13000;
 assert.match(feed({}).connection, /expired/);
 
 const flow = JSON.parse(fs.readFileSync(path.join(__dirname, 'dk1aj-station.flow.json')));
-const production = JSON.parse(fs.readFileSync(path.join(__dirname, '../flows.json')));
+const production = JSON.parse(fs.readFileSync(path.join(__dirname, '../../flows.json')));
 const ids = new Set(production.map(n => n.id));
 for (const n of flow) { assert(!ids.has(n.id), 'ID collision: ' + n.id); ids.add(n.id); }
 for (const n of flow) {

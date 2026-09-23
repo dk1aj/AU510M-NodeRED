@@ -4,7 +4,7 @@
 
 This is a live Node-RED user directory on DietPi/Debian x86_64. Installed Node-RED is 5.0.0 (`.config.nodes.json` reports `5.0.0-git`); the observed host runtime is Node.js 26.3.0/npm 11.16.0. `settings.js` selects `flows.json`, pretty JSON, and `process.env.PORT || 1880`. No `.env` file or documented service/start command exists.
 
-`flows.json` has 51 nodes and two enabled tabs: `rfpower-watt` (read/convert RF power) and `RFPOWER +50 Watt` (step power, icons, plugin download, and MAINFAN). Eight Function nodes contain the application logic. Dated `flows.json.bak_*` files are large historical exports, not active or test flows; `.flows.json.backup` is an editor backup. No flow is explicitly designated as a test flow, and repository files do not prove live hardware health.
+`flows.json` currently contains 82 nodes and five tabs: disabled rfpower-watt, one disabled and one enabled manual meter-list tab, the enabled 35-meter dashboard and the enabled AGC-T Watcher. Historical TEST/EXPERIMENT labels do not make active flows disposable. Runtime/editor backups are local history, not installation sources. File presence does not prove live hardware health.
 
 `stream-deck-plugin/src/com.dk1aj.rfpower.sdPlugin/` is plugin source; `releases/` contains bundles. `streamdeck-rfpower/` is a divergent 2.0.0 copy, while source is 2.0.2. Do not synchronize it blindly. `rfpower-icons/` and absolute paths under `/mnt/dietpi_userdata/node-red/` are runtime assets/contracts.
 
@@ -22,7 +22,7 @@ RF power is `percent * 5`; stepping advances by 50 W through 450 W, then wraps t
 
 ## Dashboard, State, and Dependencies
 
-FlowFuse Dashboard 1.30.2 is configured at `/dashboard` with AU-510M theme and five pages (`/au510m`, `/radio-slice`, and three profile pages), but the active export contains configuration/group nodes only—no dashboard widgets. Legacy Dashboard 3.6.6 and UI add-ons remain installed. Other locked dependencies include FlexRadio 1.2.5, resend, startup-trigger, string, ping, Wake-on-LAN, list, table, LEDs, level, multistate switch, and state inspector. Do not add, upgrade, remove, or replace nodes casually.
+FlowFuse Dashboard 1.30.2 is configured at `/dashboard` with AU-510M theme and five pages (`/au510m`, `/radio-slice`, and three profile pages), with four active ui-template widgets implementing RADIO/PA/TX/RX/EXT and AGC-T navigation. Legacy Dashboard 3.6.6 and UI add-ons remain installed. Other locked dependencies include FlexRadio 1.2.5, resend, startup-trigger, string, ping, Wake-on-LAN, list, table, LEDs, level, multistate switch, and state inspector. Do not add, upgrade, remove, or replace nodes casually.
 
 Context storage is not configured, so `global.rfpowerMainFan` is memory-only and resets on restart. `flows_cred.json`, `.flows_cred.json.backup`, and `.config.runtime.json` contain encrypted/generated credential material; never inspect, expose, overwrite, or hand-edit their values. Projects and runtime start/stop API are disabled; Function external modules are enabled. The plugin vendors `ws` 7.5.10.
 
@@ -54,3 +54,22 @@ The user has authorized automatic deployment for AU-510M Auto AGC-T Watcher chan
 ## Deployment Interaction
 
 Do not add an extra project-level confirmation or manual approval step after the user has explicitly authorized an AU-510M Watcher deploy. Proceed with the authorized deployment after validation. This project instruction does not disable or override platform-level safety review controls.
+
+## Central Watcher Version Source
+
+Maintain the watcher release only in `agct-watcher-version.json`.
+For each watcher UI, meter handling, dashboard or behavior change run
+`node scripts/version-agct-watcher.mjs --bump` once, then validate.
+The script copies that value into the watcher tab's `WATCHER_VERSION`
+environment setting in the active flow and standalone export. The core publishes
+`uiVersion`; both UIs display that status value. Do not hard-code UI versions.
+Run `node scripts/test-agct-watcher.mjs` and
+`node scripts/test-agct-dashboard.mjs` before deploying.
+
+## Repository Maintenance
+
+Use README.md and docs/ for current architecture. The separate old station prototype
+is in archive/station-dashboard/. Run `bash scripts/validate-repository.sh`.
+`node scripts/export-repository-flows.mjs` refreshes disabled copies without changing
+runtime files. Repository-only cleanup needs no version bump and must not deploy.
+Preserve AGC+ compatibility keys; AGC-only radio inventory must remain supported.
