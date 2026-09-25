@@ -73,3 +73,21 @@ is in archive/station-dashboard/. Run `bash scripts/validate-repository.sh`.
 `node scripts/export-repository-flows.mjs` refreshes disabled copies without changing
 runtime files. Repository-only cleanup needs no version bump and must not deploy.
 Preserve AGC+ compatibility keys; AGC-only radio inventory must remain supported.
+
+## Automatic deployment
+
+- After every successful code or Node-RED flow change, deploy the changes automatically.
+- Do not wait for the user to request deployment.
+- Run all relevant validation checks before deployment.
+- If validation fails, do not deploy; fix the issue first or report the blocker.
+- For Node-RED flow changes, use the existing project deployment mechanism.
+- Current standard deployment command:
+
+  ```sh
+  bash /mnt/dietpi_userdata/node-red/scripts/deploy-all-flows.sh
+  ```
+
+- After deployment, verify that the deployment completed successfully.
+- Report the deployment result briefly.
+- Do not ask the user to manually run the deploy command unless automatic deployment is technically impossible.
+- Never deploy partially validated changes.
