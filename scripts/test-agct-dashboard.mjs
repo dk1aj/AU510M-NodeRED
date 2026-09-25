@@ -62,6 +62,7 @@ for (const n of flows.filter(n=>n.type==='ui-template')) {
 assert(ui.includes('class="agct-version-footer"'));
 assert(ui.includes('Old: v{{ agctLive?.oldVersion'));assert(ui.includes('New: v{{ agctLive?.uiVersion'));assert(ui.includes('effectiveAgct?.abortReason'));assert(ui.includes('scan.requested'));assert(ui.includes('(requested '));
 assert(ui.includes('Baseline AGC'));assert(ui.includes('AGC Median'));assert(!ui.includes('Baseline AGC+'));assert(!ui.includes('AGC+ Median'));assert(!ui.includes("agcMeterName || 'AGC'"));assert(ui.includes('scan.measurements'));assert(ui.includes('scan.scanTimeSeconds'));assert(ui.includes('Messung ab 100 starten'));
+for(const label of ['AGC-T requested','AGC-T reported','LEVEL Median','LEVEL P10','LEVEL P90','LEVEL Spread','LEVEL MAD','Samples','Attempt','Restored AGC-T','AGC-T MEASURING','AGC-T ABORTED'])assert(ui.includes(label),label);
 assert(!ui.includes('<small>AGC-T WATCHER'));
 assert(ui.includes('grid-template-rows:42px 30px minmax(0,1fr) 24px'));
 // Exercise the actual click handler: it must adopt fresh radio frequency,

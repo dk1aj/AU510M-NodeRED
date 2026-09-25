@@ -9,7 +9,7 @@ if (!/^\d+\.\d+$/.test(version)) throw Error('Invalid watcher version');
 if (process.argv.includes('--bump')) {
   const [major, minor] = version.split('.').map(Number);
   config.OLD_VERSION = version;
-  config.NEW_VERSION = major + '.' + (minor + 1);
+  config.NEW_VERSION = process.argv.includes('--major') ? (major + 1) + '.0' : major + '.' + (minor + 1);
   delete config.version;
   fs.writeFileSync(file, JSON.stringify(config, null, 2) + '\n');
 }

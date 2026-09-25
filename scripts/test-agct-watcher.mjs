@@ -8,7 +8,7 @@ const get=id=>flow.find(n=>n.id===id);
 const ids=new Set(flow.map(n=>n.id));assert.equal(ids.size,flow.length);assert(flow[0].disabled);
 for(const n of flow.slice(1)){assert.equal(n.z,flow[0].id);for(const id of n.wires.flat())assert(ids.has(id));if(n.radio)assert.equal(n.radio,'7fbf2bfc9badc7d3');}
 const html=get('agct_ui_html').template;new vm.Script(html.match(/<script>([\s\S]*?)<\/script>/)[1]);
-for(const [key,value] of Object.entries({scan_start:100,coarse_step:10,fine_step:2,settle_time_ms:300,measurement_time_ms:700,minimum_samples:5,knee_threshold_db:2.0,level_stability_db:2.0}))assert.equal(Number(get('agct_core').func.match(new RegExp(key+':([0-9.]+)'))?.[1]),value,key);
+for(const [key,value] of Object.entries({scan_start:100,coarse_step:10,fine_step:2,settle_time_ms:400,measurement_time_ms:800,minimum_samples:8,target_level_samples:10,knee_threshold_db:2.0,level_stability_db:2.0}))assert.equal(Number(get('agct_core').func.match(new RegExp(key+':([0-9.]+)'))?.[1]),value,key);
 assert(html.includes('AGC-T 100'));assert(html.includes('AGC-T AUTO COMPLETE'));
 function harness(){
  let now=100000;const state=new Map(),shared=new Map(),guardState=new Map(),writes=[],events=[];
@@ -29,7 +29,7 @@ function harness(){
  h.ack();h.samples(-20);assert.equal(h.writes.at(-1).payload,'slice s 7 agc_threshold=46');h.ack();h.samples(-23);
  assert.equal(h.state().knee,46);assert.equal(h.writes.at(-1).payload,'slice s 7 agc_threshold=45');h.ack();assert.equal(h.state().state,'DONE');
  assert.deepEqual(Array.from(h.state().trace,x=>x.threshold),[100,90,80,70,60,50,40,48,46]);assert.equal(h.state().trace.length,9);assert(h.state().run.finished>=h.state().run.started);
- assert.equal(h.events.at(-1).payload.scan.measurements,9);assert.equal(h.events.at(-1).payload.scan.recommendedStart,100);assert.equal(h.events.at(-1).payload.oldVersion,'3.8');assert.equal(h.events.at(-1).payload.uiVersion,'3.9');
+ assert.equal(h.events.at(-1).payload.scan.measurements,9);assert.equal(h.events.at(-1).payload.scan.recommendedStart,100);assert.equal(h.events.at(-1).payload.oldVersion,'3.9');assert.equal(h.events.at(-1).payload.uiVersion,'4.0');
  h.send('connection/disconnected','disconnected');assert.equal(h.state().restore,null);h.send('slice/7',{active:1,in_use:1,band:20,RF_frequency:14.05,agc_threshold:45,agc_mode:'med',mode:'USB'});h.samples();h.send('control/calibrate');h.send('clock');assert.equal(h.state().run.initial,45);assert.equal(h.writes.at(-1).payload,'slice s 7 agc_threshold=100');
 }
 {
@@ -73,7 +73,37 @@ for(const stop of [{topic:'interlock',payload:{state:'TRANSMITTING'}},{topic:'sl
  const h=harness();h.boot();h.start();h.ack();h.samples();h.ack();h.send('interlock',{state:'TRANSMITTING'});const count=h.writes.length;h.send('clock');assert.equal(h.writes.length,count);h.send('interlock',{state:'RECEIVE'});assert.equal(h.writes.length,count);h.send('slice/7',{agc_threshold:90});assert.equal(h.writes.at(-1).payload,'slice s 7 agc_threshold=60');h.ack();assert.equal(h.state().restore,null);
 }
 {
- const h=harness();h.boot();h.start();h.ack();h.samples();h.ack();h.samples(-20,i=>i%2?-115:-110);assert.equal(h.state().state,'ERROR');assert.match(h.state().reason,/UNSTABLE LEVEL/);assert(Number.isFinite(h.events.at(-1).payload.scan.scanTimeSeconds));
+ const h=harness();h.boot();h.start();h.ack();h.samples(-20,i=>-115+(i%3-1)*0.5);
+ assert.equal(h.state().levelDiagnostic.classification,'STABLE');assert.equal(h.state().attempt,1);assert.equal(h.state().state,'SCAN_AGCT');
+}
+{
+ const h=harness();h.boot();h.start();h.ack();h.samples(-20,i=>i===5?-100:-115);
+ assert.equal(h.state().levelDiagnostic.classification,'STABLE');assert.equal(h.state().attempt,1);assert.equal(h.state().state,'SCAN_AGCT');
+}
+{
+ const h=harness();h.boot(91);h.start();h.ack(100);h.samples(-20,-10.6);h.ack(91);h.samples(-21.3,-11.9);
+ assert.equal(h.state().state,'SCAN_AGCT');assert.equal(h.state().knee,null);assert.equal(h.writes.at(-1).payload,'slice s 7 agc_threshold=80');
+ h.send('slice/7',{agc_threshold:91});assert.equal(h.state().state,'SCAN_AGCT');assert.equal(h.state().run.requested,90);
+ h.ack(81);assert.equal(h.state().run.requested,80);assert.equal(h.state().run.current,81);
+}
+{
+ const h=harness();h.boot();h.start();h.ack();h.samples();h.ack();
+ h.samples(-20,i=>i%2?-115:-112.5);assert.equal(h.state().phase,'RETRY');assert.equal(h.state().attempt,2);assert.equal(h.state().levelDiagnostic.classification,'BORDERLINE');
+ h.advance(500);h.send('clock');h.samples(-20,-115);assert.equal(h.state().state,'SCAN_AGCT');assert.equal(h.state().levelDiagnostic.classification,'STABLE');assert.equal(h.writes.at(-1).payload,'slice s 7 agc_threshold=80');
+}
+{
+ const h=harness();h.boot();h.start();h.ack();h.samples();h.ack();
+ for(const [attempt,wait] of [[1,0],[2,500],[3,800]]){if(wait){h.advance(wait);h.send('clock');}h.samples(-20,i=>i%2?-115:-110);assert.equal(h.state().attempt,Math.min(attempt+1,3));if(attempt<3)assert.equal(h.state().phase,'RETRY');}
+ assert.equal(h.state().state,'ERROR');assert.equal(h.state().abortReason,'UNSTABLE LEVEL');assert.equal(h.state().levelDiagnostic.classification,'UNSTABLE');
+ assert.equal(h.state().run.initial,60);assert.equal(h.state().restore.value,60);assert(Number.isFinite(h.events.at(-1).payload.scan.scanTimeSeconds));
+ h.send('slice/7',{agc_threshold:90});assert.equal(h.writes.at(-1).payload,'slice s 7 agc_threshold=60');h.ack(60);
+ assert.equal(h.state().restoredThreshold,60);assert.equal(h.state().restore,null);
+ h.send('clock');h.send('slice/7',{agc_threshold:60});assert.equal(h.events.at(-1).payload.reason,'UNSTABLE LEVEL');
+}
+{
+ const h=harness();h.boot();h.start();h.ack();h.samples();h.ack();
+ for(const wait of [0,500,800]){if(wait){h.advance(wait);h.send('clock');}h.samples(-20,-115,7);h.advance(1000);h.send('clock');}
+ assert.equal(h.state().state,'ERROR');assert.equal(h.state().abortReason,'UNSTABLE LEVEL');assert.equal(h.state().levelDiagnostic.classification,'INSUFFICIENT SAMPLES');assert.equal(h.state().attempt,3);
 }
 {
  const h=harness();h.boot();h.start();h.advance(3100);h.send('clock');assert.equal(h.state().state,'ERROR');assert.match(h.state().reason,/STALE/);

@@ -11,7 +11,7 @@ an example or archive. Repository cleanup does not deploy or restart anything.
 The 800x480 dashboard provides RADIO / PA / TX / RX / EXT and AGC-T navigation.
 It uses a direct radio connection through `node-red-contrib-flexradio`, a
 35-identity meter display backend, dynamic meter discovery, radio status handling
-and a separate Auto AGC-T Watcher, currently version 3.9.
+and a separate Auto AGC-T Watcher, currently version 4.0.
 
 - Host: DietPi/Debian x86_64; observed Node.js 26.3.0/npm 11.16.0.
 - Node-RED 5.0.0 (installed metadata also reports 5.0.0-git).
@@ -35,8 +35,8 @@ by every radio/firmware/mode. Missing/stale data is displayed explicitly.
 The watcher saves the original AGC-T, starts every calibration at 100, measures
 post-AGC `SLC/<active-slice>/AGC` and LEVEL, scans down by 10 until a 2.0 dB
 knee bracket is found, then scans only that bracket by 2. Each point uses
-300 ms settling, a 700 ms window and at least five samples per meter. LEVEL
-spread and median drift must stay within 2.0 dB. The configured final offset
+400 ms settling, an approximately 800 ms window and at least eight valid samples per meter. LEVEL
+stability uses the within-position P10–P90 spread and MAD, with up to three fresh windows. The configured final offset
 is -1. Requested and reported AGC-T are tracked separately; a one-point radio
 normalization keeps the coarse sequence at 100, 90, 80 and onward. Only actual
 measurements appear in the trace.
@@ -91,7 +91,7 @@ patch helpers are historical migrations, not a sequence to replay on the station
 For each watcher/UI/meter behavior change, run
 `node scripts/version-agct-watcher.mjs --bump` once, regenerate exports and validate.
 Both UIs obtain the version from the status payload. Repository-only cleanup
-needs no watcher version bump. The current release tracks OLD_VERSION 3.8 and NEW_VERSION 3.9 in the central version file.
+needs no watcher version bump. The current release tracks OLD_VERSION 3.9 and NEW_VERSION 4.0 in the central version file.
 
 ## Manual AGC-T test
 
