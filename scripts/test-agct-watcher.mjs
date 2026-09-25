@@ -8,7 +8,7 @@ const get=id=>flow.find(n=>n.id===id);
 const ids=new Set(flow.map(n=>n.id));assert.equal(ids.size,flow.length);assert(flow[0].disabled);
 for(const n of flow.slice(1)){assert.equal(n.z,flow[0].id);for(const id of n.wires.flat())assert(ids.has(id));if(n.radio)assert.equal(n.radio,'7fbf2bfc9badc7d3');}
 const html=get('agct_ui_html').template;new vm.Script(html.match(/<script>([\s\S]*?)<\/script>/)[1]);
-for(const [key,value] of Object.entries({scan_start:100,coarse_step:10,fine_step:2,settle_time_ms:400,measurement_time_ms:800,minimum_samples:8,target_level_samples:10,knee_threshold_db:2.0,level_stability_db:2.0}))assert.equal(Number(get('agct_core').func.match(new RegExp(key+':([0-9.]+)'))?.[1]),value,key);
+for(const [key,value] of Object.entries({scan_start:100,coarse_step:10,fine_step:2,settle_time_ms:400,measurement_time_ms:800,minimum_samples:3,target_level_samples:10,extension_time_ms:500,knee_threshold_db:2.0,level_stability_db:2.0}))assert.equal(Number(get('agct_core').func.match(new RegExp(key+':([0-9.]+)'))?.[1]),value,key);
 assert(html.includes('AGC-T 100'));assert(html.includes('AGC-T AUTO COMPLETE'));
 function harness(){
  let now=100000;const state=new Map(),shared=new Map(),guardState=new Map(),writes=[],events=[];
@@ -16,20 +16,21 @@ function harness(){
  const core=new vm.Script('(function(){'+get('agct_core').func+'})()'),guard=new vm.Script('(function(){'+get('agct_guard').func+'})()');
  function send(topic,payload,extra={}){sandbox.msg={topic,payload,...extra};sandbox.context={get:k=>state.get(k),set:(k,v)=>state.set(k,v)};const result=core.runInContext(sandbox);events.push(...(result[0]||[]));for(const cmd of result[1]||[]){sandbox.msg=cmd;sandbox.context={get:k=>guardState.get(k),set:(k,v)=>guardState.set(k,v)};const allowed=guard.runInContext(sandbox);if(allowed?._agctWrite)writes.push(allowed);}return state.get('watcher');}
  function samples(agc=-20,level=-115,n=12,source='AGC+'){for(let i=0;i<n;i++){now+=100;if(i%5===0)send('interlock',{state:'RECEIVE'});send('SLC/7/LEVEL',{unit:'dBm',value:typeof level==='function'?level(i):level});send('SLC/7/'+source,{unit:'dBm',value:typeof agc==='function'?agc(i):agc});}}
+ function window(levelValues,agc=-20){now+=400;send('clock');for(let i=0;i<8;i++){now+=100;if(i%5===0)send('interlock',{state:'RECEIVE'});if(i<levelValues.length)send('SLC/7/LEVEL',{unit:'dBm',value:levelValues[i]});send('SLC/7/AGC+',{unit:'dBm',value:agc});}}
  function boot(initial=60){send('settings/load',JSON.stringify({quietMHzByBand:{20:14.05},scanStart:50}));send('slice/7',{active:1,in_use:1,band:20,RF_frequency:14.05,agc_threshold:initial,agc_mode:'med',mode:'USB'});samples();}
  function start(){send('control/auto',true);send('control/calibrate');send('clock');}
  function ack(reported){const w=writes.at(-1);assert(w);send('', '',{...w,request:w.payload,status_code:0});send('slice/7',{agc_threshold:reported??+w.payload.split('=').at(-1)});}
- return {send,samples,boot,start,ack,writes,events,state:()=>state.get('watcher'),advance:ms=>now+=ms,shared};
+ return {send,samples,window,boot,start,ack,writes,events,state:()=>state.get('watcher'),advance:ms=>now+=ms,shared};
 }
 {
  const h=harness();h.boot();h.start();assert.equal(h.writes.at(-1).payload,'slice s 7 agc_threshold=100');assert.equal(h.state().run.initial,60);
  h.ack();h.samples();assert.equal(h.state().trace[0].threshold,100);assert.equal(h.writes.at(-1).payload,'slice s 7 agc_threshold=90');
  for(const value of [90,80,70,60,50]){h.ack();h.samples();assert.equal(h.writes.at(-1).payload,`slice s 7 agc_threshold=${value-10}`);}
- h.ack();h.samples(-23);assert.equal(h.state().run.bracket.stable,50);assert.equal(h.state().run.bracket.falling,40);assert.equal(h.writes.at(-1).payload,'slice s 7 agc_threshold=48');
- h.ack();h.samples(-20);assert.equal(h.writes.at(-1).payload,'slice s 7 agc_threshold=46');h.ack();h.samples(-23);
+ h.ack();h.samples(-20,-118);assert.equal(h.state().run.bracket.stable,50);assert.equal(h.state().run.bracket.falling,40);assert.equal(h.writes.at(-1).payload,'slice s 7 agc_threshold=48');
+ h.ack();h.samples(-20,-115);assert.equal(h.writes.at(-1).payload,'slice s 7 agc_threshold=46');h.ack();h.samples(-20,-118);
  assert.equal(h.state().knee,46);assert.equal(h.writes.at(-1).payload,'slice s 7 agc_threshold=45');h.ack();assert.equal(h.state().state,'DONE');
  assert.deepEqual(Array.from(h.state().trace,x=>x.threshold),[100,90,80,70,60,50,40,48,46]);assert.equal(h.state().trace.length,9);assert(h.state().run.finished>=h.state().run.started);
- assert.equal(h.events.at(-1).payload.scan.measurements,9);assert.equal(h.events.at(-1).payload.scan.recommendedStart,100);assert.equal(h.events.at(-1).payload.oldVersion,'3.9');assert.equal(h.events.at(-1).payload.uiVersion,'4.0');
+ assert.equal(h.events.at(-1).payload.scan.measurements,9);assert.equal(h.events.at(-1).payload.scan.recommendedStart,100);assert.equal(h.events.at(-1).payload.oldVersion,'4.0');assert.equal(h.events.at(-1).payload.uiVersion,'4.1');
  h.send('connection/disconnected','disconnected');assert.equal(h.state().restore,null);h.send('slice/7',{active:1,in_use:1,band:20,RF_frequency:14.05,agc_threshold:45,agc_mode:'med',mode:'USB'});h.samples();h.send('control/calibrate');h.send('clock');assert.equal(h.state().run.initial,45);assert.equal(h.writes.at(-1).payload,'slice s 7 agc_threshold=100');
 }
 {
@@ -40,8 +41,8 @@ function harness(){
  assert.equal(h.state().trace[1].LEVEL.median,-89.7);
  assert.equal(h.writes.at(-1).payload,'slice s 7 agc_threshold=80');
  h.send('slice/7',{agc_threshold:91});assert.equal(h.state().state,'SCAN_AGCT');
- h.ack(81);h.samples(-12.8,-89.7);assert.equal(h.state().run.stage,'FINE_SCAN');assert.equal(h.writes.at(-1).payload,'slice s 7 agc_threshold=88');
- h.ack(88);h.samples(-12.9,-89.7);assert.equal(h.state().knee,88);assert.equal(h.writes.at(-1).payload,'slice s 7 agc_threshold=87');
+ h.ack(81);h.samples(-12.8,-92.0);assert.equal(h.state().run.stage,'FINE_SCAN');assert.equal(h.writes.at(-1).payload,'slice s 7 agc_threshold=88');
+ h.ack(88);h.samples(-12.9,-92.0);assert.equal(h.state().knee,88);assert.equal(h.writes.at(-1).payload,'slice s 7 agc_threshold=87');
  h.ack(87);assert.equal(h.state().state,'DONE');assert.equal(h.state().final,87);assert.equal(h.state().slices['7'].agc_threshold,87);assert.equal(h.state().run.finished>=h.state().run.started,true);
  assert(Number.isFinite(h.events.at(-1).payload.scan.scanTimeSeconds));
 }
@@ -74,11 +75,11 @@ for(const stop of [{topic:'interlock',payload:{state:'TRANSMITTING'}},{topic:'sl
 }
 {
  const h=harness();h.boot();h.start();h.ack();h.samples(-20,i=>-115+(i%3-1)*0.5);
- assert.equal(h.state().levelDiagnostic.classification,'STABLE');assert.equal(h.state().attempt,1);assert.equal(h.state().state,'SCAN_AGCT');
+ assert.equal(h.state().levelDiagnostic.quality,'GOOD');assert.equal(h.state().trace.length,1);assert.equal(h.state().state,'SCAN_AGCT');
 }
 {
  const h=harness();h.boot();h.start();h.ack();h.samples(-20,i=>i===5?-100:-115);
- assert.equal(h.state().levelDiagnostic.classification,'STABLE');assert.equal(h.state().attempt,1);assert.equal(h.state().state,'SCAN_AGCT');
+ assert.equal(h.state().levelDiagnostic.quality,'GOOD');assert.equal(h.state().trace.length,1);assert.equal(h.state().state,'SCAN_AGCT');
 }
 {
  const h=harness();h.boot(91);h.start();h.ack(100);h.samples(-20,-10.6);h.ack(91);h.samples(-21.3,-11.9);
@@ -87,23 +88,42 @@ for(const stop of [{topic:'interlock',payload:{state:'TRANSMITTING'}},{topic:'sl
  h.ack(81);assert.equal(h.state().run.requested,80);assert.equal(h.state().run.current,81);
 }
 {
- const h=harness();h.boot();h.start();h.ack();h.samples();h.ack();
- h.samples(-20,i=>i%2?-115:-112.5);assert.equal(h.state().phase,'RETRY');assert.equal(h.state().attempt,2);assert.equal(h.state().levelDiagnostic.classification,'BORDERLINE');
- h.advance(500);h.send('clock');h.samples(-20,-115);assert.equal(h.state().state,'SCAN_AGCT');assert.equal(h.state().levelDiagnostic.classification,'STABLE');assert.equal(h.writes.at(-1).payload,'slice s 7 agc_threshold=80');
+ // Exact field regression: seven usable samples with low spread and MAD are accepted.
+ const values=[-109.70,-109.48,-109.44,-108.87,-108.60,-108.45,-108.30];
+ const h=harness();h.boot();h.start();h.ack();h.window(values);
+ const d=h.state().trace[0].LEVEL;
+ assert.equal(d.count,7);assert.equal(d.median,-108.87);assert.equal(d.p10,-109.48);assert.equal(d.p90,-108.45);
+ assert.equal(Number(d.spread.toFixed(2)),1.03);assert.equal(Number(d.mad.toFixed(2)),0.57);
+ assert.equal(d.quality,'LOW SAMPLE COUNT');assert.equal(h.state().trace.length,1);assert.equal(h.state().state,'SCAN_AGCT');
+ assert.equal(h.writes.at(-1).payload,'slice s 7 agc_threshold=90');
 }
 {
- const h=harness();h.boot();h.start();h.ack();h.samples();h.ack();
- for(const [attempt,wait] of [[1,0],[2,500],[3,800]]){if(wait){h.advance(wait);h.send('clock');}h.samples(-20,i=>i%2?-115:-110);assert.equal(h.state().attempt,Math.min(attempt+1,3));if(attempt<3)assert.equal(h.state().phase,'RETRY');}
- assert.equal(h.state().state,'ERROR');assert.equal(h.state().abortReason,'UNSTABLE LEVEL');assert.equal(h.state().levelDiagnostic.classification,'UNSTABLE');
- assert.equal(h.state().run.initial,60);assert.equal(h.state().restore.value,60);assert(Number.isFinite(h.events.at(-1).payload.scan.scanTimeSeconds));
- h.send('slice/7',{agc_threshold:90});assert.equal(h.writes.at(-1).payload,'slice s 7 agc_threshold=60');h.ack(60);
+ for(const count of [5,3]){const h=harness();h.boot();h.start();h.ack();h.window(Array(count).fill(-108.87));
+  assert.equal(h.state().trace[0].LEVEL.count,count);assert.equal(h.state().trace[0].LEVEL.quality,'LOW SAMPLE COUNT');
+  assert.equal(h.state().state,'SCAN_AGCT');assert.equal(h.writes.at(-1).payload,'slice s 7 agc_threshold=90');}
+}
+{
+ const h=harness();h.boot();h.start();h.ack();h.window([-109,-108]);h.advance(100);h.send('clock');
+ assert.equal(h.state().phase,'EXTEND');h.advance(500);h.send('clock');
+ assert.equal(h.state().trace[0].LEVEL.count,2);assert.equal(h.state().trace[0].LEVEL.quality,'LOW SAMPLE COUNT');
+ assert.equal(h.state().state,'SCAN_AGCT');assert.equal(h.writes.at(-1).payload,'slice s 7 agc_threshold=90');
+}
+{
+ const h=harness();h.boot();h.start();h.ack();h.window([-109,-108.8,-108.7,-108.6,-108.5,-108.4,-108.3,-108.2]);
+ assert.equal(h.state().trace[0].LEVEL.quality,'GOOD');
+ const noisy=harness();noisy.boot();noisy.start();noisy.ack();noisy.window([-115,-114.8,-114.5,-113.8,-113.3,-112.8,-112.3,-112]);
+ assert.equal(noisy.state().trace[0].LEVEL.quality,'NOISY');assert.equal(noisy.state().state,'SCAN_AGCT');
+ const veryNoisy=harness();veryNoisy.boot();veryNoisy.start();veryNoisy.ack();veryNoisy.window([-116,-115.5,-115,-114,-113,-112,-111,-110]);
+ assert.equal(veryNoisy.state().trace[0].LEVEL.quality,'VERY NOISY');assert.equal(veryNoisy.state().state,'SCAN_AGCT');
+}
+{
+ const h=harness();h.boot();h.start();h.ack();h.window([]);assert.equal(h.state().phase,'MEASURE');
+ h.advance(100);h.send('clock');assert.equal(h.state().phase,'EXTEND');
+ h.advance(500);h.send('clock');assert.equal(h.state().state,'ERROR');assert.equal(h.state().abortReason,'NO LIVE LEVEL SAMPLES AFTER EXTENDED WINDOW');
+ assert.equal(h.state().trace.length,0);assert.equal(h.state().restore.value,60);
+ h.send('slice/7',{agc_threshold:100});assert.equal(h.writes.at(-1).payload,'slice s 7 agc_threshold=60');h.ack(60);
  assert.equal(h.state().restoredThreshold,60);assert.equal(h.state().restore,null);
- h.send('clock');h.send('slice/7',{agc_threshold:60});assert.equal(h.events.at(-1).payload.reason,'UNSTABLE LEVEL');
-}
-{
- const h=harness();h.boot();h.start();h.ack();h.samples();h.ack();
- for(const wait of [0,500,800]){if(wait){h.advance(wait);h.send('clock');}h.samples(-20,-115,7);h.advance(1000);h.send('clock');}
- assert.equal(h.state().state,'ERROR');assert.equal(h.state().abortReason,'UNSTABLE LEVEL');assert.equal(h.state().levelDiagnostic.classification,'INSUFFICIENT SAMPLES');assert.equal(h.state().attempt,3);
+ h.send('clock');assert.equal(h.events.at(-1).payload.reason,'NO LIVE LEVEL SAMPLES AFTER EXTENDED WINDOW');
 }
 {
  const h=harness();h.boot();h.start();h.advance(3100);h.send('clock');assert.equal(h.state().state,'ERROR');assert.match(h.state().reason,/STALE/);
@@ -115,4 +135,4 @@ for(const stop of [{topic:'interlock',payload:{state:'TRANSMITTING'}},{topic:'sl
  const h=harness();h.boot();h.send('control/settings',{band:'20',quietMHz:null,scanStart:50});assert.equal(h.state().settings.quietMHzByBand['20'],14.05);
 }
 const config={id:'7fbf2bfc9badc7d3',type:'flexradio-radio'},other={id:'other',type:'tab'};const first=prepare({rev:'1',flows:[config,other]},flow);const next=prepare({rev:'2',flows:first.final},flow);assert.deepEqual(next.final.slice(0,2),[config,other]);assert.equal(next.final.length,first.final.length);
-console.log('PASS: 100 start, 10/2 scan, immediate knee stop, measured trace, TX/frequency/mode/slice abort, deferred restoration, AGC-only inventory, unstable/stale meters, rejection, settings and stable deploy IDs. No radio requests.');
+console.log('PASS: 100 start, 10/2 scan, LEVEL median knee, 7/5/3 samples, noisy quality, outlier, zero-data abort, TX/frequency/mode/slice safety, restoration, AGC-only inventory and deploy IDs. No radio requests.');
