@@ -1,68 +1,21 @@
 # Auto AGC-T Watcher
 
-Current release: 3.7. The single release source is agct-watcher-version.json;
-version-agct-watcher.mjs copies it to tab environments. Both UIs read uiVersion.
+Current release: 3.8. `agct-watcher-version.json` is the release source; the core publishes `uiVersion` to both UIs.
 
-## States
+## Scan
 
-| State | Meaning |
-|---|---|
-| IDLE | Monitoring; Auto OFF by default |
-| BAND_CHANGE | Accepted trigger and setup |
-| WAIT_RX | Await RX and consistent slice/band |
-| MEASURE_NOISE | Initial four-second window |
-| SCAN_AGCT | Start 50, settle, measure, descend by 2 and confirm reduction |
-| KNEE_FOUND | Reduction confirmed in two independent windows |
-| APPLY | Apply knee minus 1; require ACK and actual readback |
-| DONE | One-shot complete; restore prior Auto flag, not original AGC-T |
-| ERROR | Abort/failure; revoke permits; no further writes |
+Every automatic and one-shot calibration saves the current AGC-T, sets AGC-T to 100, waits 300 ms, then measures the post-AGC `SLC/<active-slice>/AGC` and `SLC/<active-slice>/LEVEL`. The AGC median at 100 is the plateau reference. The internal `AGC+` status key and optional legacy meter fallback remain for compatibility; meter inventory selects the actual post-AGC source.
 
-CHECK_NOISE, BASELINE, COARSE_SCAN, FINE_SCAN and ABORTED belong to a superseded
-prototype. Their concepts are covered by MEASURE_NOISE, SCAN_AGCT and ERROR.
-There is no coarse scan of 10, +2 final offset or 2 dB peak-to-peak stability rule.
+The coarse pass measures 100, 90, 80 and so on, never below the configured minimum. It stops at the first point whose AGC median is at least 2.0 dB below the reference while LEVEL is stable. That point and the preceding stable point bracket the knee. The fine pass measures only inside the bracket in 2-point steps and stops at its first confirmed knee. The already measured coarse falling point is used if no intermediate fine point qualifies. There is no speculative extra scan below the bracket.
 
-## Algorithm
+Every measured point gets 300 ms settling, 700 ms measurement, and at least five samples per meter. The window's LEVEL spread and its median drift from the reference must each stay within 2.0 dB. Only measured points appear in the trace. The configured final offset remains -1, bounded by the configured minimum and 100. The result displays start 100, measured knee, final AGC-T, measurement count and elapsed scan time. No band result or prior AGC-T is used as a start value.
 
-The operator chooses a free frequency, appropriate preamp and AGC speed (MED if
-uncertain). The watcher leaves preamp and mode unchanged. It implements the
-[FlexRadio manual approach](https://helpdesk.flexradio.com/hc/en-us/articles/360029494371-How-does-the-Automatic-Gain-Control-AGC-work-in-SmartSDR)
-with start 50, steps 2, 2.5-second settling and four-second median windows with at
-least 20 samples. A post-AGC median drop of 1.5 dB from the start reference is
-confirmed in another window within 1.5 dB. Final value is knee minus 1, bounded
-0–100. The fixed reference detects gradual reductions across steps.
+## Safety
 
-Peak-to-peak spread is diagnostic only. LEVEL median drift above 3 dB holds the
-threshold and is rechecked; two consecutive shifted windows abort. Unconfirmed
-dips/output increases get at most three retries. Total duration is bounded to
-eight minutes. These numerical choices are ours, not FlexRadio specifications.
+The only radio write is `slice s <active-slice> agc_threshold=<0..100>`, behind an expiring single-use RX permit. ACK is followed by `sub slice all`; matching live slice readback is required. TX, changed slice, frequency, mode, band, receive settings, stale AGC or LEVEL, unstable LEVEL and request errors abort. The saved original AGC-T is queued for restoration after an abort. Restoration waits until RX and the original slice are current; it never writes during TX or to a different active slice. A disconnected or changed slice can therefore leave restoration pending until the required live status returns. The watcher never writes frequency, mode, antenna, RF power or ATU.
 
-The actual post-AGC source is SLC/<active-slice>/AGC with dBm and post-AGC metadata,
-plus LEVEL. The internal AGC+ alias and legacy fallback remain for compatibility;
-AGC-only inventory is supported and tested. Active slice is dynamic.
+A quiet frequency must be configured and active. Settings remain in the excluded `agct-watcher-settings.json`; older persisted scan-start values are normalized to 100. Auto is OFF by default. The `start100` action remains an alias for one-shot start.
 
-## Safety and commands
+## Validation and deployment
 
-Only `slice s <slice> agc_threshold=<0..100>` can be written through the expiring
-single-use permit gate. RX and fresh meters are required. Each successful ACK
-triggers `sub slice all`. The target slice must report the requested threshold;
-ACK alone or subscription ACK alone cannot advance the scan. ACK and readback
-timeouts are distinct. No automatic repeat of the write is inferred.
-
-TX/unknown RX, stale meters, disconnect, slice/frequency/mode/receive-setting
-changes and failures abort. OFF revokes writes. **Abort does not restore original
-AGC-T**, because that would require another write during potentially unsafe state.
-The last applied value remains. No RF-power, frequency, antenna, ATU, preamp or
-AGC-mode commands are generated.
-
-Settings live in the excluded agct-watcher-settings.json. Quiet frequencies are
-preserved; older scan-start settings normalize to 50. The legacy start100 topic/API
-is an alias for the new start at 50. New UI uses start. Saving QRG does not tune
-or certify a signal-free frequency.
-
-## Validation
-
-Run scripts/test-agct-watcher.mjs and scripts/test-agct-dashboard.mjs. They cover
-fluctuating noise, knee confirmation, source changes, TX/OFF/disconnect, stale
-telemetry, command rejection, exact readback, persistence, UI and version checks.
-The root README describes the manual radio test. A full successful hardware scan
-after the 3.7 fix remains unverified. Repository cleanup performs no deployment.
+Run `node scripts/test-agct-watcher.mjs`, `node scripts/test-agct-dashboard.mjs`, and `bash scripts/validate-repository.sh`. Offline tests use synthetic meter samples and do not validate the physical knee. The full current configuration uses `bash scripts/deploy-all-flows.sh` for deployment.

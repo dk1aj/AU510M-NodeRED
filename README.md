@@ -11,7 +11,7 @@ an example or archive. Repository cleanup does not deploy or restart anything.
 The 800x480 dashboard provides RADIO / PA / TX / RX / EXT and AGC-T navigation.
 It uses a direct radio connection through `node-red-contrib-flexradio`, a
 35-identity meter display backend, dynamic meter discovery, radio status handling
-and a separate Auto AGC-T Watcher, currently version 3.7.
+and a separate Auto AGC-T Watcher, currently version 3.8.
 
 - Host: DietPi/Debian x86_64; observed Node.js 26.3.0/npm 11.16.0.
 - Node-RED 5.0.0 (installed metadata also reports 5.0.0-git).
@@ -32,23 +32,17 @@ by every radio/firmware/mode. Missing/stale data is displayed explicitly.
 
 ## AGC-T behavior
 
-The watcher follows the manual [FlexRadio procedure](https://helpdesk.flexradio.com/hc/en-us/articles/360029494371-How-does-the-Automatic-Gain-Control-AGC-work-in-SmartSDR):
-choose a free frequency, start around 50, decrease slowly, allow settling, detect
-noise reduction and finish slightly below the knee.
+The watcher saves the original AGC-T, starts every calibration at 100, measures
+post-AGC `SLC/<active-slice>/AGC` and LEVEL, scans down by 10 until a 2.0 dB
+knee bracket is found, then scans only that bracket by 2. Each point uses
+300 ms settling, a 700 ms window and at least five samples per meter. LEVEL
+spread and median drift must stay within 2.0 dB. The configured final offset
+is -1. Only actual measurements appear in the trace.
 
-Current implementation: start 50, steps 2, settling 2.5 s, four-second median
-windows, 1.5 dB noise reduction confirmed twice, final offset -1. LEVEL median
-drift over 3 dB is remeasured and aborts only when repeated. These numerical
-limits are implementation choices, not FlexRadio's specified automation.
-
-The requested coarse scan 10 / fine scan 2 / knee threshold 2 dB / final offset
-+2 / LEVEL peak-to-peak stability 2 dB describes a superseded prototype. Those
-settings are not deployed and are not reintroduced by repository cleanup.
-
-TX, stale telemetry, changed slice/frequency/mode/receive settings and command
-failures stop writes. **Abort does not restore original AGC-T**; the last applied
-value remains, avoiding another write during TX or stale state. Each command
-requires ACK and actual threshold readback; after ACK, `sub slice all` is requested.
+TX, stale telemetry, unstable LEVEL, changed slice/frequency/mode/receive settings
+and command failures abort. The original AGC-T is restored when RX and the saved
+slice are available. No restoration write occurs during TX. Every command needs
+ACK and actual threshold readback.
 
 ## Installation
 
@@ -95,21 +89,21 @@ patch helpers are historical migrations, not a sequence to replay on the station
 For each watcher/UI/meter behavior change, run
 `node scripts/version-agct-watcher.mjs --bump` once, regenerate exports and validate.
 Both UIs obtain the version from the status payload. Repository-only cleanup
-keeps version 3.7. Never deploy as part of this cleanup.
+needs no watcher version bump. This scan release is version 3.8.
 
 ## Manual AGC-T test
 
 1. Choose RF preamp and AGC speed in SmartSDR; FlexRadio suggests MED when unsure.
 2. Tune to a free frequency between stations and remain in RX.
 3. Click **QRG übernehmen**, verify the saved MHz and fresh LEVEL/AGC values.
-4. Click **Messung ab 50 starten**; observe setting 50, settling, downward steps,
-   knee confirmation, final setting and DONE.
+4. Click **Messung ab 100 starten**; observe setting 100, coarse and fine measurements,
+   knee detection, final setting and DONE.
 5. Compare audible noise reduction with the manual FlexRadio procedure.
 6. Auto AUS stops the run. Do not initiate TX solely for a test; offline tests
    cover TX/OFF/disconnect/stale-data behavior.
 
 Earlier work verified live status and deployments, but a successful full hardware
-calibration after the 3.7 readback correction has not been established. Synthetic
+calibration after the 3.8 scan update has not been established. Synthetic
 tests do not prove the audible optimum.
 
 ## Troubleshooting
@@ -118,7 +112,7 @@ tests do not prove the audible optimum.
 - Missing meter: inspect current inventory and active slice; never hard-code Slice 0.
 - ACK timeout: missing write response. Readback timeout: actual threshold failed
   to match in time despite ACK. Inspect command and slice-status logs.
-- Sustained input-noise change: repeated median shift; no further writes occur.
+- Unstable LEVEL: spread or median shift exceeds 2.0 dB; the scan aborts and restores when safe.
 - Missing dashboard values: inspect discovery, subscriptions, units and freshness.
 - Version: reload and read the AGC-T footer; source is agct-watcher-version.json.
 
