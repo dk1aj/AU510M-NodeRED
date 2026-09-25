@@ -7,10 +7,10 @@ const {parse}=require('acorn');
 const {compile}=require('@vue/compiler-dom');
 const flows=JSON.parse(fs.readFileSync('flows.json'));
 const example=JSON.parse(fs.readFileSync('examples/05-agct-watcher.json'));
-const version=JSON.parse(fs.readFileSync('agct-watcher-version.json')).version;
+const versions=JSON.parse(fs.readFileSync('agct-watcher-version.json'));const version=versions.NEW_VERSION;const oldVersion=versions.OLD_VERSION;
 for (const list of [flows,example]) {
  const core=list.find(n=>n.name==='Watcher + separated configuration');
- assert.equal(list.find(n=>n.id===core.z).env.find(e=>e.name==='WATCHER_VERSION').value,version);
+ assert.equal(list.find(n=>n.id===core.z).env.find(e=>e.name==='WATCHER_VERSION').value,version);assert.equal(list.find(n=>n.id===core.z).env.find(e=>e.name==='WATCHER_OLD_VERSION').value,oldVersion);
  for(const n of list.filter(n=>n.type==='function')) new vm.Script('(async function(){'+n.func+'})');
 }
 for(const name of ['Watcher + separated configuration','Validate UI action; forward only watcher controls','Standalone German watcher UI']){
@@ -60,6 +60,7 @@ for (const n of flows.filter(n=>n.type==='ui-template')) {
  compile(n.format.slice(n.format.indexOf('<template>')+10,n.format.lastIndexOf('</template>')),{mode:'function'});
 }
 assert(ui.includes('class="agct-version-footer"'));
+assert(ui.includes('Old: v{{ agctLive?.oldVersion'));assert(ui.includes('New: v{{ agctLive?.uiVersion'));assert(ui.includes('effectiveAgct?.abortReason'));assert(ui.includes('scan.requested'));assert(ui.includes('(requested '));
 assert(ui.includes('Baseline AGC'));assert(ui.includes('AGC Median'));assert(!ui.includes('Baseline AGC+'));assert(!ui.includes('AGC+ Median'));assert(!ui.includes("agcMeterName || 'AGC'"));assert(ui.includes('scan.measurements'));assert(ui.includes('scan.scanTimeSeconds'));assert(ui.includes('Messung ab 100 starten'));
 assert(!ui.includes('<small>AGC-T WATCHER'));
 assert(ui.includes('grid-template-rows:42px 30px minmax(0,1fr) 24px'));

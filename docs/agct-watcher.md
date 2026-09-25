@@ -1,6 +1,6 @@
 # Auto AGC-T Watcher
 
-Current release: 3.8. `agct-watcher-version.json` is the release source; the core publishes `uiVersion` to both UIs.
+Current release: 3.9. `agct-watcher-version.json` holds OLD_VERSION 3.8 and NEW_VERSION 3.9; the core publishes both from the watcher tab environment. The dashboard footer renders `Old: v3.8 | New: v3.9` from that status.
 
 ## Scan
 
@@ -8,7 +8,7 @@ Every automatic and one-shot calibration saves the current AGC-T, sets AGC-T to 
 
 The coarse pass measures 100, 90, 80 and so on, never below the configured minimum. It stops at the first point whose AGC median is at least 2.0 dB below the reference while LEVEL is stable. That point and the preceding stable point bracket the knee. The fine pass measures only inside the bracket in 2-point steps and stops at its first confirmed knee. The already measured coarse falling point is used if no intermediate fine point qualifies. There is no speculative extra scan below the bracket.
 
-Every measured point gets 300 ms settling, 700 ms measurement, and at least five samples per meter. The window's LEVEL spread and its median drift from the reference must each stay within 2.0 dB. Only measured points appear in the trace. The configured final offset remains -1, bounded by the configured minimum and 100. The result displays start 100, measured knee, final AGC-T, measurement count and elapsed scan time. No band result or prior AGC-T is used as a start value.
+Every measured point gets 300 ms settling, 700 ms measurement, and at least five samples per meter. The window's LEVEL spread and its median drift from the reference must each stay within 2.0 dB. Requested points remain 100, 90, 80 and so on even when the radio reports a point one unit higher or lower. The core tracks the requested and reported values separately, uses the reported value for measurement records, and accepts a one-point normalization during command readback. A late report within one point of the previous value does not abort the next pending command. Only measured points appear in the trace. The configured final offset remains -1, bounded by the configured minimum and 100. The result displays start 100, measured knee, final AGC-T, measurement count and elapsed scan time. ERROR keeps the original abort reason and elapsed scan time, including after restoration and later status updates. No band result or prior AGC-T is used as a start value.
 
 ## Safety
 

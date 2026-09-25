@@ -91,3 +91,20 @@ Preserve AGC+ compatibility keys; AGC-only radio inventory must remain supported
 - Report the deployment result briefly.
 - Do not ask the user to manually run the deploy command unless automatic deployment is technically impossible.
 - Never deploy partially validated changes.
+
+## Versioning and footer
+
+- Every user-visible/runtime change must increment the project version.
+- Before modifying runtime code, determine the currently deployed version.
+- Keep both OLD_VERSION and NEW_VERSION.
+- Increment the version only once per completed change set.
+- Never silently reuse the same version after a runtime change.
+- The dashboard footer must always display both versions in compact form:
+
+  `Old: vX.Y | New: vX.Y`
+
+- Never hard-code version text independently in several dashboard nodes.
+- Keep version information in one central configuration/source and render the footer from that source.
+- After the next successful version, NEW_VERSION becomes OLD_VERSION for the following change.
+- Documentation-only changes that do not affect runtime behavior do not require a runtime version increment.
+- Every final Codex report must also state Old version, New version, Deployment, Commit, and Push.

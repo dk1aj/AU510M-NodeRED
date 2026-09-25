@@ -11,7 +11,7 @@ an example or archive. Repository cleanup does not deploy or restart anything.
 The 800x480 dashboard provides RADIO / PA / TX / RX / EXT and AGC-T navigation.
 It uses a direct radio connection through `node-red-contrib-flexradio`, a
 35-identity meter display backend, dynamic meter discovery, radio status handling
-and a separate Auto AGC-T Watcher, currently version 3.8.
+and a separate Auto AGC-T Watcher, currently version 3.9.
 
 - Host: DietPi/Debian x86_64; observed Node.js 26.3.0/npm 11.16.0.
 - Node-RED 5.0.0 (installed metadata also reports 5.0.0-git).
@@ -37,7 +37,9 @@ post-AGC `SLC/<active-slice>/AGC` and LEVEL, scans down by 10 until a 2.0 dB
 knee bracket is found, then scans only that bracket by 2. Each point uses
 300 ms settling, a 700 ms window and at least five samples per meter. LEVEL
 spread and median drift must stay within 2.0 dB. The configured final offset
-is -1. Only actual measurements appear in the trace.
+is -1. Requested and reported AGC-T are tracked separately; a one-point radio
+normalization keeps the coarse sequence at 100, 90, 80 and onward. Only actual
+measurements appear in the trace.
 
 TX, stale telemetry, unstable LEVEL, changed slice/frequency/mode/receive settings
 and command failures abort. The original AGC-T is restored when RX and the saved
@@ -89,7 +91,7 @@ patch helpers are historical migrations, not a sequence to replay on the station
 For each watcher/UI/meter behavior change, run
 `node scripts/version-agct-watcher.mjs --bump` once, regenerate exports and validate.
 Both UIs obtain the version from the status payload. Repository-only cleanup
-needs no watcher version bump. This scan release is version 3.8.
+needs no watcher version bump. The current release tracks OLD_VERSION 3.8 and NEW_VERSION 3.9 in the central version file.
 
 ## Manual AGC-T test
 
@@ -103,7 +105,7 @@ needs no watcher version bump. This scan release is version 3.8.
    cover TX/OFF/disconnect/stale-data behavior.
 
 Earlier work verified live status and deployments, but a successful full hardware
-calibration after the 3.8 scan update has not been established. Synthetic
+calibration after the 3.9 normalization fix has not been established. Synthetic
 tests do not prove the audible optimum.
 
 ## Troubleshooting
