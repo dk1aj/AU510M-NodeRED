@@ -74,6 +74,32 @@ is in archive/station-dashboard/. Run `bash scripts/validate-repository.sh`.
 runtime files. Repository-only cleanup needs no version bump and must not deploy.
 Preserve AGC+ compatibility keys; AGC-only radio inventory must remain supported.
 
+## High-risk Dashboard changes
+
+FlowFuse Dashboard version in this project: 1.30.2.
+
+For every new ui-template or major dashboard component:
+
+1. Never implement the complete feature in one deployment.
+2. Use staged implementation:
+   - Stage A: empty/minimal page.
+   - Stage B: static visual layout only.
+   - Stage C: synthetic display-only data.
+   - Stage D: connect one real live value.
+   - Stage E: connect remaining live values.
+3. After **every** stage: validate, automatically deploy, verify RADIO still works, verify PA still works, verify AGC-T still works, verify AU-510M connection and live data, verify the new page, commit, and push.
+4. If any existing dashboard page stops working, stop immediately. Do not continue feature development. Restore the previous known-good commit.
+5. Existing live-data pipelines are immutable unless the task explicitly requires changing them. New dashboard features must consume existing data via branches/links; they must not insert themselves into, replace, or rewrite an existing working data path.
+6. Never create a second FlexRadio connection for a display feature.
+7. Never create duplicate meter subscriptions when the required meter already exists in the project.
+8. FlowFuse Dashboard 1.30.2 ui-template compatibility rule: when using a Vue component `<script>`, the `export default` component object must be the only JavaScript statement in that script block. Do not place `const` declarations, `let` declarations, helper functions, initialization statements, imports, or arbitrary expressions before `export default`. Put required logic inside the component object, for example in `data()`, `methods`, `computed`, `mounted`, or `beforeUnmount`.
+9. Run a validation check for the ui-template compatibility rule above before every deployment.
+10. A deployment returning HTTP 200 is not sufficient validation. Runtime validation requires existing pages and live AU-510M data to still operate.
+11. For high-risk dashboard work, create a Git checkpoint before beginning: `git status` must be clean and current `HEAD` must equal `origin/main`.
+12. Record the known-good commit hash before the first runtime modification.
+13. If rollback becomes necessary, restore only the feature changes and never destroy unrelated uncommitted work.
+14. Implement every high-risk feature in small reversible commits.
+
 ## Automatic deployment
 
 - After every successful code or Node-RED flow change, deploy the changes automatically.
