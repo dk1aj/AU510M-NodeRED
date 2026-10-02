@@ -55,11 +55,18 @@ for (const n of flows.filter(n=>n.type==='ui-template')) {
  const js=n.format.match(/<script>([\s\S]*?)<\/script>/)[1];
  check(parse(js,{ecmaVersion:'latest',sourceType:'module'}));
  const options=vm.runInNewContext(js.replace('export default','(')+')');
- assert.deepEqual(Array.from(options.data().tabs,t=>t.key),['radio','pa','tx','rx','external','agct']);
+ assert.deepEqual(Array.from(options.data().tabs,t=>t.key),['radio','pa','tx','rx','external','agct','meter']);
  assert(!n.format.includes('repeat(5,minmax(0,1fr)) 154px'));
  compile(n.format.slice(n.format.indexOf('<template>')+10,n.format.lastIndexOf('</template>')),{mode:'function'});
 }
 assert(ui.includes('class="agct-version-footer"'));
+const meterNode=flows.find(n=>n.id==='au510m_power_swr_static_ui');
+assert.equal(meterNode?.format,fs.readFileSync('meter/power-swr-static-template.vue','utf8'));
+assert.deepEqual(meterNode.wires,[[]]);
+const staticSvg=meterNode.format.match(/<svg\b[\s\S]*?<\/svg>/)?.[0];
+assert(staticSvg?.includes('FORWARD')&&staticSvg.includes('REFLECTED')&&staticSvg.includes('SWR'));
+assert(!/{{|\bv-for\b|\bv-bind\b|\bmsg\b/.test(staticSvg));
+assert(!/setInterval|setTimeout|sub meter|flexradio/i.test(meterNode.format));
 assert(ui.includes('Old: v{{ agctLive?.oldVersion'));assert(ui.includes('New: v{{ agctLive?.uiVersion'));assert(ui.includes('effectiveAgct?.abortReason'));assert(ui.includes('scan.requested'));assert(ui.includes('(requested '));
 assert(ui.includes('Baseline AGC'));assert(ui.includes('AGC Median'));assert(!ui.includes('Baseline AGC+'));assert(!ui.includes('AGC+ Median'));assert(!ui.includes("agcMeterName || 'AGC'"));assert(ui.includes('scan.measurements'));assert(ui.includes('scan.scanTimeSeconds'));assert(ui.includes('Messung ab 100 starten'));
 for(const label of ['AGC-T requested','AGC-T reported','LEVEL Quality','LEVEL Samples','LEVEL Median','LEVEL P10','LEVEL P90','LEVEL Spread','LEVEL MAD','Error / abort reason','Restored AGC-T','AGC-T MEASURING','AGC-T ABORTED'])assert(ui.includes(label),label);

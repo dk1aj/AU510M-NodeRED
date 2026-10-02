@@ -1,5 +1,9 @@
 # Meter inventory
 
+The METER dashboard tab currently shows only a static SVG Power/SWR preview.
+Its needle positions and scales do not consume any radio samples. Live meter
+subscriptions and display values remain on the existing RADIO and PA paths.
+
 This table is extracted from the active 35-meter display configuration. It lists
 configured identities, not a claim that every one is published or verified in
 every mode. Numeric IDs come from radio inventory; never copy old capture IDs.
