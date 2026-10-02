@@ -10,8 +10,9 @@ an example or archive. Repository cleanup does not deploy or restart anything.
 
 The 800x480 dashboard provides RADIO / PA / TX / RX / EXT and AGC-T navigation.
 It uses a direct radio connection through `node-red-contrib-flexradio`, a
-35-identity meter display backend, dynamic meter discovery, radio status handling
-and a separate Auto AGC-T Watcher, currently version 4.2.
+35-identity meter display backend, dynamic meter discovery, radio status handling,
+a reference-style Power / SWR cross-needle tab and a separate Auto AGC-T Watcher,
+currently version 4.3.
 
 - Host: DietPi/Debian x86_64; observed Node.js 26.3.0/npm 11.16.0.
 - Node-RED 5.0.0 (installed metadata also reports 5.0.0-git).
@@ -29,6 +30,15 @@ The verified current watcher inputs are `SLC/<active-slice>/LEVEL` and
 The internal AGC+ compatibility key and optional legacy fallback remain; an actual
 AGC+ input is not required. Not every configured dashboard identity is published
 by every radio/firmware/mode. Missing/stale data is displayed explicitly.
+
+## Power / SWR meter
+
+The METER tab uses the existing forward, reflected and SWR subscriptions. Its
+read-only display processor converts each forward/reflected dBm sample to watts
+before averaging over 500 ms. The 0–500 W and 0–100 W needles update at 10 Hz;
+SWR comes from the radio meter. RX or stale status returns the needles to rest.
+The SVG face follows [the supplied reference](docs/reference/power-swr-meter-reference.jpg).
+See [meter design](docs/power-swr-meter.md) for the geometry and validation.
 
 ## AGC-T behavior
 
@@ -92,7 +102,7 @@ patch helpers are historical migrations, not a sequence to replay on the station
 For each watcher/UI/meter behavior change, run
 `node scripts/version-agct-watcher.mjs --bump` once, regenerate exports and validate.
 Both UIs obtain the version from the status payload. Repository-only cleanup
-needs no watcher version bump. The current release tracks OLD_VERSION 4.1 and NEW_VERSION 4.2 in the central version file.
+needs no watcher version bump. The current release tracks OLD_VERSION 4.2 and NEW_VERSION 4.3 in the central version file.
 
 ## Manual AGC-T test
 
@@ -127,6 +137,7 @@ tests do not prove the audible optimum.
 | flows/ | Disabled reproducible export copies |
 | examples/ | Starter exports and canonical standalone watcher |
 | scripts/ | Deploy, validation, export, tests and historical patch helpers |
+| meter/ | Power/SWR display state, SVG source and offline test |
 | radio-status/ | Status/averaging code, tests and retained migration artifacts |
 | docs/ | Architecture, watcher, meters and cleanup decisions |
 | archive/ | Preserved station prototype and old handoff |
