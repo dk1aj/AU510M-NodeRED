@@ -4,6 +4,7 @@ import assert from 'node:assert/strict';
 import vm from 'node:vm';
 import {prepare} from './deploy-agct-watcher.mjs';
 const flow=JSON.parse(await readFile(new URL('../examples/05-agct-watcher.json',import.meta.url)));
+const versions=JSON.parse(await readFile(new URL('../agct-watcher-version.json',import.meta.url)));
 const get=id=>flow.find(n=>n.id===id);
 const ids=new Set(flow.map(n=>n.id));assert.equal(ids.size,flow.length);assert(flow[0].disabled);
 for(const n of flow.slice(1)){assert.equal(n.z,flow[0].id);for(const id of n.wires.flat())assert(ids.has(id));if(n.radio)assert.equal(n.radio,'7fbf2bfc9badc7d3');}
@@ -30,7 +31,7 @@ function harness(){
  h.ack();h.samples(-20,-115);assert.equal(h.writes.at(-1).payload,'slice s 7 agc_threshold=46');h.ack();h.samples(-20,-118);
  assert.equal(h.state().knee,46);assert.equal(h.writes.at(-1).payload,'slice s 7 agc_threshold=45');h.ack();assert.equal(h.state().state,'DONE');
  assert.deepEqual(Array.from(h.state().trace,x=>x.threshold),[100,90,80,70,60,50,40,48,46]);assert.equal(h.state().trace.length,9);assert(h.state().run.finished>=h.state().run.started);
- assert.equal(h.events.at(-1).payload.scan.measurements,9);assert.equal(h.events.at(-1).payload.scan.recommendedStart,100);assert.equal(h.events.at(-1).payload.oldVersion,'4.0');assert.equal(h.events.at(-1).payload.uiVersion,'4.1');
+ assert.equal(h.events.at(-1).payload.scan.measurements,9);assert.equal(h.events.at(-1).payload.scan.recommendedStart,100);assert.equal(h.events.at(-1).payload.oldVersion,versions.OLD_VERSION);assert.equal(h.events.at(-1).payload.uiVersion,versions.NEW_VERSION);
  h.send('connection/disconnected','disconnected');assert.equal(h.state().restore,null);h.send('slice/7',{active:1,in_use:1,band:20,RF_frequency:14.05,agc_threshold:45,agc_mode:'med',mode:'USB'});h.samples();h.send('control/calibrate');h.send('clock');assert.equal(h.state().run.initial,45);assert.equal(h.writes.at(-1).payload,'slice s 7 agc_threshold=100');
 }
 {

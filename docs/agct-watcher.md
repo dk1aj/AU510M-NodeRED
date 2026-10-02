@@ -1,6 +1,6 @@
 # Auto AGC-T Watcher
 
-Current release: 4.1. `agct-watcher-version.json` holds OLD_VERSION 4.0 and NEW_VERSION 4.1; the core publishes both from the watcher tab environment. The dashboard footer renders `Old: v4.0 | New: v4.1` from that status.
+Current release: 4.2. `agct-watcher-version.json` holds OLD_VERSION 4.1 and NEW_VERSION 4.2; the core publishes both from the watcher tab environment. The dashboard footer renders `Old: v4.1 | New: v4.2` from that status.
 
 ## Scan
 
