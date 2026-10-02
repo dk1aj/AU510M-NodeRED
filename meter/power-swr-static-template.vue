@@ -10,6 +10,8 @@
           <linearGradient id="static-meter-amber" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#8b6a4e"/><stop offset="0.52" stop-color="#c79962"/><stop offset="1" stop-color="#f1c17a"/></linearGradient>
           <radialGradient id="static-meter-glow" cx="50%" cy="94%" r="80%"><stop offset="0" stop-color="#ffe4a5" stop-opacity=".8"/><stop offset=".6" stop-color="#ffc886" stop-opacity=".18"/><stop offset="1" stop-color="#322318" stop-opacity=".25"/></radialGradient>
           <clipPath id="static-meter-face-clip"><rect x="13" y="14" width="614" height="330" rx="8"/></clipPath>
+          <path id="forward-label-arc" d="M46.23 268.8 A410 410 0 0 1 145.31 65.66" fill="none"/>
+          <path id="reflected-label-arc" d="M494.69 65.66 A410 410 0 0 1 593.77 268.8" fill="none"/>
         </defs>
         <rect x="1" y="1" width="638" height="388" rx="13" fill="#151a20" stroke="#59606a" stroke-width="2"/>
         <rect x="13" y="14" width="614" height="330" rx="8" fill="url(#static-meter-amber)" stroke="#28221b" stroke-width="3"/>
@@ -86,8 +88,8 @@
           <line x1="484.88" y1="103.5" x2="472.4" y2="113.52" stroke-width="1.8"/><text x="456.8" y="130.03" text-anchor="middle" stroke="none" font-size="13">60</text>
           <line x1="458.58" y1="74.02" x2="447.21" y2="85.28" stroke-width="1.8"/><text x="433" y="103.35" text-anchor="middle" stroke="none" font-size="13">80</text>
           <line x1="432.97" y1="50.44" x2="422.69" y2="62.69" stroke-width="1.8"/><text x="409.83" y="82.01" text-anchor="middle" stroke="none" font-size="13">100</text>
-          <text x="92" y="220" transform="rotate(-59 92 220)" text-anchor="middle" stroke="none" font-size="19" letter-spacing="1">FORWARD</text>
-          <text x="548" y="220" transform="rotate(59 548 220)" text-anchor="middle" stroke="none" font-size="19" letter-spacing="1">REFLECTED</text>
+          <text text-anchor="middle" stroke="none" font-size="19" letter-spacing="1"><textPath href="#forward-label-arc" startOffset="50%">FORWARD</textPath></text>
+          <text text-anchor="middle" stroke="none" font-size="19" letter-spacing="1"><textPath href="#reflected-label-arc" startOffset="50%">REFLECTED</textPath></text>
           <text x="153" y="71" stroke="none" font-size="14" font-weight="bold">W</text>
           <text x="477" y="71" stroke="none" font-size="14" font-weight="bold">W</text>
           <text x="411.58" y="301.84" text-anchor="middle" stroke="none" font-size="13" font-weight="bold">1.2</text>

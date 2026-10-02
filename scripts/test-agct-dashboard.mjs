@@ -65,6 +65,13 @@ assert.equal(meterNode?.format,fs.readFileSync('meter/power-swr-static-template.
 assert.deepEqual(meterNode.wires,[[]]);
 const staticSvg=meterNode.format.match(/<svg\b[\s\S]*?<\/svg>/)?.[0];
 assert(staticSvg?.includes('FORWARD')&&staticSvg.includes('REFLECTED')&&staticSvg.includes('SWR'));
+const svgIds=Array.from(staticSvg.matchAll(/\bid="([^"]+)"/g),match=>match[1]);
+assert.equal(new Set(svgIds).size,svgIds.length,'Duplicate METER SVG IDs');
+for(const [label,id] of [['FORWARD','forward-label-arc'],['REFLECTED','reflected-label-arc']]){
+ assert(staticSvg.includes(`<path id="${id}"`),`${label} label path missing`);
+ assert(staticSvg.includes(`<textPath href="#${id}" startOffset="50%">${label}</textPath>`),`${label} must use a centered textPath`);
+ assert(!new RegExp(`<text[^>]*transform=[^>]*>${label}</text>`).test(staticSvg),`${label} must not be rotated text`);
+}
 assert(!/{{|\bv-for\b|\bv-bind\b|\bmsg\b/.test(staticSvg));
 assert(!/setInterval|setTimeout|sub meter|flexradio/i.test(meterNode.format));
 assert(ui.includes('Old: v{{ agctLive?.oldVersion'));assert(ui.includes('New: v{{ agctLive?.uiVersion'));assert(ui.includes('effectiveAgct?.abortReason'));assert(ui.includes('scan.requested'));assert(ui.includes('(requested '));
