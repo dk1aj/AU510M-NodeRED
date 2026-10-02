@@ -15,10 +15,9 @@ flowchart LR
 
 Root flows.json contains 82 nodes and five tabs: disabled rfpower-watt, disabled
 and enabled manual meter-list tabs, enabled 35-meter dashboard, enabled watcher.
-Historical TEST/EXPERIMENT names do not make live paths disposable. Five ui-template
-nodes implement METER/PA/TX/RX/EXT; the PA template also owns RADIO and AGC-T.
-Browser navigation events synchronize all mounted widgets. The METER node reads
-the existing power/SWR stream and normalized TX/RX status without radio commands.
+Historical TEST/EXPERIMENT names do not make live paths disposable. Four ui-template
+nodes implement PA/TX/RX/EXT; the PA template also owns RADIO and AGC-T. Browser
+navigation events synchronize all mounted widgets.
 
 The backend resolves numeric meter IDs from inventory and preserves source units.
 FWDPWR/REFPWR dBm convert to watts with `10 ** ((dBm - 30) / 10)`. Status merges

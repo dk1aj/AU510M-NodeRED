@@ -50,12 +50,12 @@ assert.equal(validate(msg(),{get:()=>status})[1].statusCode,202);
 status.state='SCAN_AGCT';assert.equal(validate(msg(),{get:()=>status})[1].statusCode,409);
 status.state='IDLE';status.meters['AGC+'].at-=10000;assert.equal(validate(msg(),{get:()=>status})[1].statusCode,409);
 console.log('PASS: Vue options, template compilation, live methods, AGC+ status rendering, start gate, busy/stale rejection, version and export consistency.');
-// Navigation is shared by all five mounted widgets, including the new METER tab.
+// Navigation is shared by all four mounted widgets, including cross-page events.
 for (const n of flows.filter(n=>n.type==='ui-template')) {
  const js=n.format.match(/<script>([\s\S]*?)<\/script>/)[1];
  check(parse(js,{ecmaVersion:'latest',sourceType:'module'}));
- const options=vm.runInNewContext(js.replace('export default','const options =')+'\n;options');
- assert.deepEqual(Array.from(options.data().tabs,t=>t.key),['radio','meter','pa','tx','rx','external','agct']);
+ const options=vm.runInNewContext(js.replace('export default','(')+')');
+ assert.deepEqual(Array.from(options.data().tabs,t=>t.key),['radio','pa','tx','rx','external','agct']);
  assert(!n.format.includes('repeat(5,minmax(0,1fr)) 154px'));
  compile(n.format.slice(n.format.indexOf('<template>')+10,n.format.lastIndexOf('</template>')),{mode:'function'});
 }

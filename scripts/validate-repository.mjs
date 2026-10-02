@@ -6,6 +6,7 @@ import {createRequire} from 'node:module';
 const root=path.resolve(new URL('../',import.meta.url).pathname);
 const require=createRequire(import.meta.url);
 const {parse,compileTemplate}=require('@vue/compiler-sfc');
+const {parse:parseJs}=require('acorn');
 const excluded=new Set(['node_modules','.git','.npm','.agents','.codex','backups','lib']);
 function files(dir){return fs.readdirSync(dir,{withFileTypes:true}).flatMap(e=>{
  if(excluded.has(e.name)||e.name.startsWith('.config.')||e.name.startsWith('.flows')||e.name.startsWith('flows_cred')||e.name.startsWith('flows.json.bak')||e.name==='agct-watcher-settings.json'||e.name.startsWith('.env'))return [];
@@ -22,7 +23,14 @@ function visit(v,file){
  if(v.type==='ui-template'&&typeof v.format==='string'){
   const {descriptor,errors}=parse(v.format);assert.equal(errors.length,0,file);
   if(descriptor.template)assert.equal(compileTemplate({source:descriptor.template.content,filename:file,id:v.id}).errors.length,0,file);
-  if(descriptor.script)new vm.SourceTextModule(descriptor.script.content);templates++;
+  if(descriptor.script){
+   new vm.SourceTextModule(descriptor.script.content);
+   // Dashboard 1.30.2 only turns a single default-exported object into component options.
+   const ast=parseJs(descriptor.script.content,{ecmaVersion:'latest',sourceType:'module'});
+   assert(ast.body.length===1&&ast.body[0].type==='ExportDefaultDeclaration'&&ast.body[0].declaration.type==='ObjectExpression',
+    'Unsupported FlowFuse ui-template script shape: '+file+':'+v.id);
+  }
+  templates++;
  }
  for(const item of Object.values(v))if(item&&typeof item==='object')visit(item,file);
 }

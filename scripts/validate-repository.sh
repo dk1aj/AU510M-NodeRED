@@ -10,7 +10,6 @@ node --experimental-vm-modules --disable-warning=ExperimentalWarning scripts/val
 node scripts/export-repository-flows.mjs --check
 node scripts/test-agct-watcher.mjs
 node scripts/test-agct-dashboard.mjs
-node meter/test-power-swr.cjs
 node radio-status/live-test.cjs
 node radio-status/average-test.cjs
 node archive/station-dashboard/test.js

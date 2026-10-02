@@ -1,11 +1,5 @@
 # Meter inventory
 
-The analog METER tab uses the already subscribed `TX-/1/FWDPWR`,
-`TX-/2/REFPWR` and `TX-/3/SWR` identities. Its separate 500 ms display window
-converts each dBm power sample to watts before averaging; see
-[Power / SWR meter](power-swr-meter.md). The inventory below still describes the
-35 configured display identities.
-
 This table is extracted from the active 35-meter display configuration. It lists
 configured identities, not a claim that every one is published or verified in
 every mode. Numeric IDs come from radio inventory; never copy old capture IDs.
