@@ -1,15 +1,16 @@
 <template>
   <Teleport to="body">
-    <section v-if="activeTab === 'meter'" class="aurora-kiosk aurora-meter-static" data-active="true" aria-label="Simulated Power and SWR meter">
+    <section v-if="activeTab === 'meter'" class="aurora-kiosk aurora-meter-static" data-active="true" aria-label="Live forward power and test reflected power meter">
       <nav class="aurora-tabs" role="tablist" aria-label="Aurora meter pages">
         <button v-for="tab in tabs" :key="tab.key" type="button" role="tab" :aria-selected="activeTab === tab.key" @click="selectTab(tab.key)">{{ tab.label }}</button>
-        <span class="aurora-brand">AU-510M <small>DISPLAY TEST</small></span>
+        <span class="aurora-brand">AU-510M <small>FWD LIVE · REF TEST</small></span>
       </nav>
       <div class="meter-test-stage">
-        <div class="meter-test-presets" role="group" aria-label="Display-only meter presets">
+        <div class="meter-test-presets" role="group" aria-label="Synthetic reflected power presets">
+          <small>REF TEST</small>
           <button v-for="preset in testPresets" :key="preset.key" type="button" :aria-pressed="testPreset === preset.key" @click="selectTestPreset(preset.key)">{{ preset.key }}</button>
         </div>
-      <svg id="aurora-panel-meter" class="power-swr-static-svg" viewBox="0 0 640 390" role="img" aria-label="Simulated analog forward power, reflected power and SWR">
+      <svg id="aurora-panel-meter" class="power-swr-static-svg" viewBox="0 0 640 390" role="img" aria-label="Analog live forward power and test reflected power and SWR">
         <defs>
           <linearGradient id="static-meter-amber" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#8b6a4e"/><stop offset="0.52" stop-color="#c79962"/><stop offset="1" stop-color="#f1c17a"/></linearGradient>
           <radialGradient id="static-meter-glow" cx="50%" cy="94%" r="80%"><stop offset="0" stop-color="#ffe4a5" stop-opacity=".8"/><stop offset=".6" stop-color="#ffc886" stop-opacity=".18"/><stop offset="1" stop-color="#322318" stop-opacity=".25"/></radialGradient>
@@ -37,7 +38,7 @@
           <text v-for="guide in swrGuides" :key="guide.key" :x="guide.labelX" :y="guide.labelY" stroke="none" font-size="13" font-weight="bold">{{ guide.label }}</text>
         </g>
         <g aria-hidden="true">
-          <g class="meter-test-needle meter-test-forward" :style="{ transform: `rotate(${forwardWattsToAngle(testForward)}deg)`, transformOrigin: `${meterGeometry.pivots.forward.x}px ${meterGeometry.pivots.forward.y}px` }">
+          <g class="meter-test-needle meter-test-forward" :style="{ transform: `rotate(${forwardWattsToAngle(forwardWatts)}deg)`, transformOrigin: `${meterGeometry.pivots.forward.x}px ${meterGeometry.pivots.forward.y}px` }">
           <line :x1="meterGeometry.pivots.forward.x" :y1="meterGeometry.pivots.forward.y" :x2="restEndpoints.forward.x" :y2="restEndpoints.forward.y" stroke="#f3d8a5" stroke-width="5" opacity=".45"/>
           <line :x1="meterGeometry.pivots.forward.x" :y1="meterGeometry.pivots.forward.y" :x2="restEndpoints.forward.x" :y2="restEndpoints.forward.y" stroke="#171a19" stroke-width="2.7"/>
           </g>
@@ -51,14 +52,13 @@
         <rect x="19" y="350" width="602" height="30" fill="#1b2633" stroke="#5b6571"/>
         <text x="320" y="374" fill="#f2f4f5" font-family="Arial,Helvetica,sans-serif" font-size="26" font-weight="bold" text-anchor="middle" letter-spacing="3">SWR</text>
       </svg>
-        <aside class="meter-test-readout" aria-label="Synthetic meter values" aria-live="polite">
-          <strong>TEST</strong>
-          <span>FWD: <b>{{ testForward }} W</b></span>
-          <span>REF: <b>{{ testReflected.toFixed(1) }} W</b></span>
-          <span>Calculated SWR: <b>{{ testSwrText }}</b></span>
+        <aside class="meter-test-readout" aria-label="Live forward power and synthetic reflected power" aria-live="polite" data-fwd-source="LIVE" data-ref-source="TEST" data-swr-source="CALCULATED TEST" :data-forward-state="forwardState" :data-forward-watts="forwardWatts === null ? undefined : forwardWatts">
+          <span>FWD: <b class="meter-live-value">{{ forwardWattsText }} W</b><small class="meter-live-label">LIVE</small></span>
+          <span>REF: <b>{{ testReflected.toFixed(1) }} W</b><small>TEST</small></span>
+          <span>SWR: <b>{{ testSwrText }}</b><small>CALC TEST</small></span>
         </aside>
       </div>
-      <footer class="meter-static-footer"><span>TEST · NO LIVE DATA</span><span>Old: v{{ oldVersion }} | New: v{{ newVersion }}</span></footer>
+      <footer class="meter-static-footer"><span>FWD LIVE · REF / SWR TEST</span><span>Old: v{{ oldVersion }} | New: v{{ newVersion }}</span></footer>
     </section>
   </Teleport>
 </template>
@@ -215,25 +215,50 @@ export default {
         [1.0, 50.0]
       ]
     },
-    testPreset: 'ZERO', testForward: 0, testReflected: 0,
+    forwardSource: 'LIVE', reflectedSource: 'TEST',
+    liveClock: Date.now(), liveClockTimer: null, forwardTxSince: null,
+    testPreset: 'ZERO', testReflected: 0,
     testPresets: [
-      { key: 'ZERO', forward: 0, reflected: 0 },
-      { key: 'GOOD', forward: 100, reflected: 1 },
-      { key: 'MEDIUM', forward: 200, reflected: 10 },
-      { key: 'HIGH', forward: 400, reflected: 40 },
-      { key: 'FULL-SCALE', forward: 600, reflected: 120 }
+      { key: 'ZERO', reflected: 0 },
+      { key: 'GOOD', reflected: 1 },
+      { key: 'MEDIUM', reflected: 10 },
+      { key: 'HIGH', reflected: 40 },
+      { key: 'FULL-SCALE', reflected: 120 }
     ],
     tabs: [{ key: 'radio', label: 'RADIO' }, { key: 'pa', label: 'PA' }, { key: 'tx', label: 'TX' },
       { key: 'rx', label: 'RX' }, { key: 'external', label: 'EXT' }, { key: 'agct', label: 'AGC-T' }, { key: 'meter', label: 'METER' }]
   }; },
+  watch: {
+    forwardState: {
+      immediate: true,
+      flush: 'sync',
+      handler(state) { this.forwardTxSince = state === 'TX' ? this.msg?.payload?.radio?.at ?? null : null; }
+    }
+  },
   computed: {
+    forwardState() {
+      const payload = this.msg?.payload, radio = payload?.radio;
+      if (payload?.online !== true || radio?.connected !== true || !this.freshForwardTimestamp(payload.timestamp, 10000) || !this.freshForwardTimestamp(radio.at, 10000)) return 'UNKNOWN';
+      return ['RX', 'TX'].includes(radio.rxTx) ? radio.rxTx : 'UNKNOWN';
+    },
+    forwardWatts() {
+      if (this.forwardState === 'RX') return 0;
+      const sample = this.msg?.payload?.forward;
+      if (this.forwardState !== 'TX' || !sample || !Number.isFinite(sample.watts) || sample.watts < 0 || !this.freshForwardTimestamp(sample.seen, 15000) || !Number.isFinite(this.forwardTxSince) || sample.seen < this.forwardTxSince) return null;
+      return sample.watts;
+    },
+    forwardWattsText() { return this.forwardWatts === null ? '--' : Number(this.forwardWatts.toPrecision(6)).toString(); },
     restEndpoints() { return Object.fromEntries(['forward', 'reflected'].map(side => [side, this.scalePoint(side, 0, this.meterGeometry.needleLength)])); },
-    testSwr() { return this.calculatedSwr(this.testForward, this.testReflected); },
+    testSwr() { return this.calculatedSwr(this.forwardWatts, this.testReflected); },
     testSwrText() { return this.testSwr === null ? '--' : this.testSwr.toFixed(2); },
     meterScales() { return ['forward', 'reflected'].map(side => this.scaleLayout(side)); },
     swrGuides() { return [...this.meterGeometry.guideValues, Infinity].map((value, index) => this.swrGuide(value, index)); }
   },
   methods: {
+    freshForwardTimestamp(timestamp, ageLimit) {
+      const now = Math.max(this.liveClock, Date.now());
+      return Number.isFinite(timestamp) && timestamp > 0 && now - timestamp >= 0 && now - timestamp < ageLimit;
+    },
     calibratedAngle(watts, fullScale) {
       const value = Number(watts);
       const fraction = Math.min(1, Math.max(0, Number.isFinite(value) ? value / fullScale : 0));
@@ -321,7 +346,6 @@ export default {
       const preset = this.testPresets.find(item => item.key === key);
       if (!preset) return;
       this.testPreset = preset.key;
-      this.testForward = preset.forward;
       this.testReflected = preset.reflected;
     },
     selectTab(key) {
@@ -332,6 +356,7 @@ export default {
     }
   },
   mounted() {
+    this.liveClockTimer = setInterval(() => { this.liveClock = Date.now(); }, 1000);
     this.tabListener = event => { if (this.tabs.some(tab => tab.key === event.detail)) this.activeTab = event.detail; };
     window.addEventListener('aurora-800x480-tab', this.tabListener);
     try { const saved = sessionStorage.getItem('aurora-800x480-tab'); if (this.tabs.some(tab => tab.key === saved)) this.activeTab = saved; } catch (_) {}
@@ -339,7 +364,7 @@ export default {
       if (status) { this.oldVersion = status.oldVersion || '…'; this.newVersion = status.uiVersion || '…'; }
     }).catch(() => {});
   },
-  beforeUnmount() { window.removeEventListener('aurora-800x480-tab', this.tabListener); }
+  beforeUnmount() { clearInterval(this.liveClockTimer); window.removeEventListener('aurora-800x480-tab', this.tabListener); }
 }
 </script>
 <style>
@@ -356,7 +381,9 @@ export default {
 .meter-test-presets button{height:30px;padding:0;border:1px solid #405268;border-radius:4px;background:#1b2938;color:#cfdfec;font:700 9px Arial,Helvetica,sans-serif;cursor:pointer;touch-action:manipulation}
 .meter-test-presets button[aria-pressed="true"]{border-color:#63d1fa;color:#8ddfff}
 .meter-test-readout{right:0;display:grid;gap:12px;color:#adc0d1;text-align:center}
-.meter-test-readout strong{font-size:12px;letter-spacing:1px}
+.meter-test-presets small{color:#adc0d1;text-align:center;font:10px/1.4 Arial,Helvetica,sans-serif}
+.meter-test-readout small{display:block;font:9px/1.4 Arial,Helvetica,sans-serif;letter-spacing:.5px;color:#e4bd7b}
+.meter-test-readout .meter-live-label{color:#8ddfff}
 .meter-test-readout span,.meter-test-readout b{display:block}
 .meter-test-readout b{font-weight:400;color:#cfdfec}
 .meter-test-needle{transform-box:view-box;transition:transform 250ms ease-in-out}

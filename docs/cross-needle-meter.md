@@ -10,7 +10,8 @@ needle lines using guides that are loci of constant SWR. SWR does not drive a
 third needle and does not independently set either power needle.
 
 This project requires FORWARD **0–600 W**, with 600 W the hard full scale, and
-REFLECTED **0–120 W**, initially. The latter is centrally configurable. The 5:1
+REFLECTED **0–120 W**. Both ranges are centrally defined and may change only
+with explicit user approval. The 5:1
 range relationship follows the common cross-needle convention (for example
 300/60 W or 3000/600 W); it is a display range choice, not an SWR equation.
 The maintained configuration is `meterGeometry` inside `data()` of
@@ -162,13 +163,12 @@ identity, smooth transition, all presets, 600/120 endpoint labels and 800×480.
 
 ## Future AU-510M integration
 
-No live data enters this component yet. A future graphical SWR and the AU-510M
+Stage D connects only canonical processed FWDPWR. A future graphical SWR and the AU-510M
 numeric SWR should agree when derived from simultaneous Pf/Pr readings at the
 same measurement plane and with compatible averaging, units and calibration.
 Radio-provided SWR must not reposition either needle. Differences may reflect
 sample timing, averaging, detector limits or raw dBm-to-W conversion. At zero
-power the UI must not infer SWR 1 from absent measurements. Stage D is FWDPWR
-only and requires a separate request; Pr/SWR stay unconnected.
+power the UI must not infer SWR 1 from absent measurements. Stage D is FWDPWR only; Pr and radio SWR stay unconnected.
 
 ## Sources and scope
 
@@ -178,3 +178,118 @@ explains directional forward/reflected power measurement.
 covers mismatch and the infinite-reflection limit. The geometry, calibration
 and numerical validation above are project-derived, not manufacturer calibration
 claims. This display is a simulation, not a calibrated RF measurement instrument.
+
+
+## Stage D - Live FWDPWR integration
+
+Old version: 4.10; New version: 4.11. Runtime rollback checkpoint: `9d375a1`;
+permanent-rules documentation checkpoint: `acd16de`.
+
+### Inspected canonical path
+
+- Source: `7330e8695476df43`, the existing shared FlexRadio meter stream.
+- Processing: `2702052aa13cacd0`, "35-meter inventory, subscriptions and display
+  snapshots", binds the existing `TX-/1/FWDPWR` meter. Its numeric sample is
+  converted once to `row.watts = 10 ** ((raw - 30) / 10)` when the unit is dBm.
+  It publishes full meter snapshots on the existing one-second clock.
+- Bridge: `au510m_live_bridge` combines the untouched snapshot with
+  `radioStatus` from `au510m_live_state`. That existing state node normalizes
+  radio/interlock TX/RX. METER never infers TX from power.
+- Existing RADIO and PA consumer: `9ee3e94e3758b01f`, the common RADIO/PA widget.
+  RADIO's `radioCardMeter()` reads `row.watts`, gates on normalized TX/RX,
+  connection/freshness and the current TX interval, and formats whole Watts.
+  PA's `reading(row)` reads the same `row.watts` with six significant digits;
+  PA retains its existing raw/freshness presentation behavior, including RX.
+- The historical `au510m_display_average` has no incoming wires and empty
+  outputs. It is not in the working path. No live Watt averaging is performed
+  by that node; its historical dBm-mean behavior was not modified. If averaging
+  is introduced later, each sample must be converted to W before averaging.
+
+```
+existing meter stream -> existing inventory/conversion -> existing bridge
+                                                         |-> RADIO / PA (unchanged)
+                                                         |-> METER FWDPWR-only projection
+                                                             -> METER forward needle
+```
+
+The only added branch is from `au510m_live_bridge` to
+`au510m_meter_forward_only`. The latter projects the existing `row.watts` and
+`row.seen`, online/snapshot timestamps and existing normalized TX/RX state.
+It never copies REFPWR, SWR, raw dBm or other radio fields into METER, never
+converts power and never sends commands. RADIO/PA remain directly connected to
+the bridge. There are no new FlexRadio connections, subscriptions, meter lists
+or raw FWDPWR parsers.
+
+### Presentation, gating and truthfulness
+
+FORWARD source is LIVE; REFLECTED source is TEST. `forwardWatts` consumes the
+canonical projected value directly. No numeric offsets, correction factors,
+alternate conversion or extra power averaging are applied. Snapshots already
+arrive at one-second cadence; the existing 250 ms needle transition is retained.
+A low-rate one-second browser clock expires stale state even if messages stop;
+it does not smooth or fabricate power samples.
+
+The consumer uses the existing normalized RX/TX value with connection and
+freshness checks. In RX the live forward numeric display/needle returns to zero.
+In TX it requires a valid current-cycle sample (same gate as RADIO), with
+10-second snapshot/status freshness and 15-second sample freshness. A previous
+TX interval's samples cannot leak into a new interval. Missing, uninitialized,
+invalid, disconnected or stale state shows `--` and a resting needle. A new
+normalization of interlock events is not implemented.
+
+The numeric value remains the original processed Watt value, formatted to six
+significant digits like PA. For example 625 W is still 625 W; only
+`forwardWattsToAngle()` clamps the graphical sweep to the 600 W endpoint.
+Geometry/calibration, ticks, pivots, lengths, textPath arcs and SWR curves are
+unchanged from Stage C. REF remains synthetic and can be changed with the
+marked REF TEST presets. Those presets contain no forward values and cannot
+override the live needle. The optional SWR readout combines live Pf with TEST Pr
+and is explicitly marked CALC TEST; radio-provided live SWR is not connected.
+
+### Validation and next stage
+
+`scripts/test-meter-forward-live.mjs` checks projection immutability, exclusive
+FWDPWR forwarding, above-full-scale truthfulness, RX clearing, new-TX-cycle
+safety, stale/invalid/uninitialized data and TEST isolation. Existing geometry,
+watcher and dashboard tests remain required. Runtime checks compare canonical
+messages and real numeric/needle displays on RADIO, PA and METER during TX,
+then verify RX clearing, existing pages, connection freshness and 800×480.
+
+Stage D ends after successful deployment, live validation, commit and push.
+The next permitted stage is **REFPWR only**. Live SWR comparison is a later
+stage, after both live power needles are proven.
+
+### Stage-D result — 3 October 2026
+
+All repository, Function/Vue compatibility, geometry and live-forward tests
+passed. Isolated browser fixtures verified missing/invalid inputs, REF TEST
+isolation, RX clearing and numeric 625 W with the needle clamped at 600 W;
+these fixtures never entered the live Node-RED/radio path.
+
+Automatic deployment succeeded with 84 nodes, revision
+`58527e1a7f1433cd82b270768a734ee8618f584e7e4e6edd8eb79dc7207ccded`.
+In three simultaneous real Dashboard browser sessions, operator TX produced
+canonical FWDPWR 115.61122421920993 W: RADIO displayed 116 W, PA 115.611 W and
+METER 115.611 W. The forward needle measured 21.947448° on the unchanged
+calibration. Two matching TX observations and the subsequent RX transition
+were recorded: RADIO/METER returned to 0 W and the forward needle to rest.
+No transmit or power command was sent by the tests. One operating power level
+was observed; above-range behavior was checked offline rather than forcing
+higher transmitter power.
+
+The control test initially assumed RX throughout; another actual TX transition
+invalidated that test assumption. The test was corrected to accept the actual
+normalized RX/TX state and require canonical live forward values. The previously
+passed real TX/needle/RX observations were retained; the corrected final
+control, provenance and freshness checks also passed. 153 live METER messages
+matched the RADIO/PA canonical message values exactly. No runtime compensation
+or feature-code change was made in response to the test assumption.
+
+Existing FWDPWR, REFPWR and SWR rows remained fresh; PA reported 12/12 live
+meters. AGC-T and advancing AU-510M LEVEL/AGC+ timestamps passed. The 800×480
+instrument, full-scale labels, textPaths, controls, navigation and footer were
+verified without clipping or scrolling. The known initial RADIO/AGC-T
+`radioStatus` console error appeared once per browser context (three contexts);
+no additional initialization/template errors were observed. METER itself had
+no errors. Permanent-rule commit `acd16de` was separately pushed without a
+version change or deployment. Stage D stops here; REFPWR-only is next.

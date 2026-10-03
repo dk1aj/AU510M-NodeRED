@@ -94,17 +94,10 @@ close(state.reflectedWattsToAngle(60), -50);
 assert(state.scaleLayout('reflected').labels.some(label => label.watts === 60));
 assert(state.swrCurvePoints(Infinity).every(point => point.forward <= 60 && point.reflected <= 60));
 geometry.REFLECTED_FULL_SCALE_W = 120;
-// Exercise all exact Part-B presets; none may carry an independent SWR.
-{
- const cases = [['ZERO', 0, 0, null], ['GOOD', 100, 1, 1.2222222222222223], ['MEDIUM', 200, 10, 1.5760143110525873], ['HIGH', 400, 40, 1.924950591148529], ['FULL-SCALE', 600, 120, 2.618033988749895]];
- for (const [key, forward, reflected, expected] of cases) {
-  state.selectTestPreset(key);
-  assert.deepEqual([state.testPreset, state.testForward, state.testReflected], [key, forward, reflected]);
-  assert(!Object.hasOwn(state.testPresets.find(preset => preset.key === key), 'swr'));
-  if (expected === null) { assert.equal(state.testSwr, null); assert.equal(state.testSwrText, '--'); }
-  else { close(state.testSwr, expected); console.log(`${key}: SWR ${state.testSwrText}; curve distance ${verifyIntersection(forward, reflected, expected).toFixed(6)} SVG units`); }
- }
- state.selectTestPreset('INVALID'); assert.equal(state.testPreset, 'FULL-SCALE');
+// Physical Stage-C cases remain offline geometry tests after live Stage D.
+for (const [forward, reflected, expected] of [[100,1,1.2222222222222223],[200,10,1.5760143110525873],[400,40,1.924950591148529],[600,120,2.618033988749895]]) {
+ close(state.calculatedSwr(forward, reflected), expected);
+ verifyIntersection(forward, reflected, expected);
 }
 assert(fs.existsSync('docs/cross-needle-meter.md'));
 console.log('PASS: 600/120 W canonical calibration, ticks, SWR physics, ray intersection, generated guides, distance tolerance and invalid input safety.');

@@ -1,6 +1,6 @@
 # METER Stage C — mathematically defined simulation
 
-Current version pair: OLD_VERSION 4.9 / NEW_VERSION 4.10, maintained in
+Completed Stage-C version pair: OLD_VERSION 4.9 / NEW_VERSION 4.10, maintained in
 `agct-watcher-version.json`. Known-good checkpoint before this change: `e3e7053`.
 The earlier v4.8/v4.9 wording in the incoming request was stale; the completed
 v4.9 simulation was already deployed and pushed, so this correction receives
@@ -52,3 +52,5 @@ RADIO, PA (12/12 live meters), AGC-T and AU-510M freshness checks passed;
 TX/RX/EXT also opened. No new browser errors or METER command requests occurred.
 The known RADIO/AGC-T LOAD error remains a pre-existing baseline finding. Stage C ends here; Stage D is FWDPWR only and requires a
 separate request. REFPWR/SWR stay unconnected to METER.
+
+Stage D now consumes live FWDPWR only; see [Stage D](cross-needle-meter.md#stage-d---live-fwdpwr-integration). Stage-C validation above remains historical.

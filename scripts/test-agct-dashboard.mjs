@@ -72,12 +72,13 @@ for(const [label,id] of [['FORWARD','forward-label-arc'],['REFLECTED','reflected
  assert(staticSvg.includes(`<textPath href="#${id}" startOffset="50%">${label}</textPath>`),`${label} must use a centered textPath`);
  assert(!new RegExp(`<text[^>]*transform=[^>]*>${label}</text>`).test(staticSvg),`${label} must not be rotated text`);
 }
-assert(!/\bmsg\b|this\.send|TX-\/|FWDPWR|REFPWR/.test(meterNode.format), 'Synthetic values must stay local');
+assert(!/this\.send|REFPWR|TX-\//.test(meterNode.format), 'METER receives only projected FWDPWR and normalized state');
 await import('./test-cross-needle-meter.mjs');
 assert.match(meterNode.format,/transition:transform 250ms ease-in-out/);
 assert.match(meterNode.format,/transformOrigin:.*meterGeometry\.pivots\.forward/);
 assert.match(meterNode.format,/transformOrigin:.*meterGeometry\.pivots\.reflected/);
-assert(!/setInterval|setTimeout|sub meter|flexradio/i.test(meterNode.format));
+assert(!/sub meter|flexradio|setTimeout/i.test(meterNode.format));
+await import('./test-meter-forward-live.mjs');
 assert(ui.includes('Old: v{{ agctLive?.oldVersion'));assert(ui.includes('New: v{{ agctLive?.uiVersion'));assert(ui.includes('effectiveAgct?.abortReason'));assert(ui.includes('scan.requested'));assert(ui.includes('(requested '));
 assert(ui.includes('Baseline AGC'));assert(ui.includes('AGC Median'));assert(!ui.includes('Baseline AGC+'));assert(!ui.includes('AGC+ Median'));assert(!ui.includes("agcMeterName || 'AGC'"));assert(ui.includes('scan.measurements'));assert(ui.includes('scan.scanTimeSeconds'));assert(ui.includes('Messung ab 100 starten'));
 for(const label of ['AGC-T requested','AGC-T reported','LEVEL Quality','LEVEL Samples','LEVEL Median','LEVEL P10','LEVEL P90','LEVEL Spread','LEVEL MAD','Error / abort reason','Restored AGC-T','AGC-T MEASURING','AGC-T ABORTED'])assert(ui.includes(label),label);
