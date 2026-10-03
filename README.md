@@ -16,7 +16,8 @@ Power/SWR display with a fixed printed multi-range scale, mathematically generat
 live canonical FWDPWR on the FORWARD needle, live canonical radio SWR in the
 red numeric box and test-only reflected presets. REFPWR is not connected to METER.
 The central METER auto-range uses canonical live FWDPWR and exact hysteresis
-for 20 W / 200 W / 2 kW. Printed labels remain fixed; RX retains the last range.
+for 20 W / 200 W / 2 kW. Printed labels remain fixed; RX retains the last range. METER offers the
+classic-warm, dark-room-uplight and graphite-dark SVG/CSS face themes.
 See [cross-needle geometry](docs/cross-needle-meter.md).
 
 - Host: DietPi/Debian x86_64; observed Node.js 26.3.0/npm 11.16.0.

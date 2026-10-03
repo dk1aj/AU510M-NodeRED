@@ -49,6 +49,11 @@ assert.equal(state.activeRange,2000);
 assert.equal(state.forwardWattsToAngle(state.forwardWatts),state.calibratedAngle(625,2000));
 assert.equal(state.forwardWattsToAngle(2500),50,'Only angle clamps');
 assert.equal(result.payload.forward.watts, 625);
+update({...result.payload,forward:{watts:2500,seen:base}});
+assert.equal(state.forwardWatts,2500);
+assert.equal(state.forwardBoxText,'2.5 kW');
+assert.equal(state.forwardWattsToAngle(state.forwardWatts),50);
+update(result.payload);
 for (const preset of state.testPresets) {
  state.selectTestPreset(preset.key);
  assert.equal(state.forwardWatts, 625, 'TEST controls cannot override live forward power');
@@ -130,4 +135,4 @@ assert.match(source, /class="meter-live-value"[^\n]*>{{ forwardBoxText }}<\/text
 assert.match(source, /class="meter-swr-value"[^\n]*>{{ liveSwrText }}<\/text>/);
 assert(!source.includes('<span>FWD:'));
 assert(!/CALC TEST|CALCULATED TEST|{{\s*testSwr/.test(source));
-console.log('PASS: canonical FWDPWR branch, immutable shared input, no REF leakage, independent canonical live SWR, truthful >600 W numeric value, RX reset, TX-cycle/stale/invalid safety and TEST isolation.');
+console.log('PASS: canonical FWDPWR branch, immutable shared input, no REF leakage, independent canonical live SWR, truthful over-range numeric value, RX reset, TX-cycle/stale/invalid safety and TEST isolation.');

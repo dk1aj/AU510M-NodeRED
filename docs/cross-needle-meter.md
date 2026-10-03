@@ -80,8 +80,8 @@ compactly formatted. Both numeric boxes contain values only.
 | dark-room-uplight | docs/reference/pwr-meter-dark-room-uplight.png | Warm illumination from below, amber face and controlled readable contrast. |
 | graphite-dark | docs/reference/pwr-meter-graphite-dark.png | Dark graphite face, pale warm scales, muted copper curves and subtle lower illumination. |
 
-Recreate styling natively in SVG/CSS, with one central definition in the existing
-Vue component. No bitmap background, external image or other reference is used.
+Styling is implemented natively in SVG/CSS, with one central `themeDefinitions`
+object in the existing Vue component. No bitmap background, external image or other reference is used.
 Themes share one geometry, data model, range state and fixed scale. A compact
 selector defaults to classic-warm and remembers the current browser/session.
 Theme selection changes styling only; no radio commands or messages are sent.
@@ -101,3 +101,33 @@ breaks, restore only this task's runtime changes and redeploy known-good flows.
 Implement in reversible stages: central range/fixed face first, presentation
 and theme selector next. The user requires one v4.13 bump for the whole task;
 all stages in this change set share the same centrally published release.
+
+## Completed v4.13 validation
+
+Repository checks, Vue compatibility, all exact threshold/boundary tests and
+shared-source tests passed. Offline browser checks verified fixed labels/curves,
+identical normalized needle positions at 10/20, 100/200 and 1000/2000, direct
+transitions, all-range RX retention, and truthful 2.5 kW above analog full scale.
+The normalized model preserves every sampled previous arc/curve point to
+less than 1e-8 SVG units. No independent geometry or range selector was added.
+
+All three themes passed individual deployed-browser checks at 800×480, including
+text bounds, selector/session retention, navigation, footer and no scrollbars.
+RADIO, PA, AGC-T, METER and actual AU-510M LEVEL/AGC+ updates continued to work.
+Only the documented initial RADIO error occurred once in each browser context;
+no additional template/runtime error was observed.
+
+Actual TX examples: 3.944573020752785 W was shown as RADIO 4 W, PA 3.94457 W,
+METER 3.9 W, with SWR 2.84 in all three views. At 4.539416166502032 W, RADIO
+showed 5 W, PA 4.53942 W and METER 4.5 W; all SWR displays showed 1.58. These
+are normal formatting differences of the same canonical samples. The 20 W
+range was active, and the latter needle angle 23.81952 degrees matched the
+calibrated mapping. RX returned the forward value/needle to zero and SWR to --,
+retaining 20 W in all three themes. REF TEST controls preserved live forward
+power and the central range. 8619 projected messages matched their originating
+RADIO/PA snapshot values, sample timestamps and SWR availability.
+
+The actual station transmission exercised 20 W range; 200 W and 2 kW were
+validated offline with the exact project selector and UI mapping. No radio
+power or TX control command was issued. The release was bumped once; staged
+range and theme deployments both use the same v4.13 release.

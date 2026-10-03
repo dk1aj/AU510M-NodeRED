@@ -1,6 +1,6 @@
 <template>
   <Teleport to="body">
-    <section v-if="activeTab === 'meter'" class="aurora-kiosk aurora-meter-static" data-active="true" aria-label="Live forward power and test reflected power meter">
+    <section v-if="activeTab === 'meter'" class="aurora-kiosk aurora-meter-static" :data-meter-theme="selectedTheme" :style="{ '--meter-value': theme.text }" data-active="true" aria-label="Live forward power and test reflected power meter">
       <nav class="aurora-tabs" role="tablist" aria-label="Aurora meter pages">
         <button v-for="tab in tabs" :key="tab.key" type="button" role="tab" :aria-selected="activeTab === tab.key" @click="selectTab(tab.key)">{{ tab.label }}</button>
         <span class="aurora-brand">AU-510M <small>LIVE · REF TEST</small></span>
@@ -12,16 +12,16 @@
         </div>
       <svg id="aurora-panel-meter" class="power-swr-static-svg" viewBox="0 0 640 390" role="img" aria-label="Analog live forward power and test reflected power and SWR">
         <defs>
-          <linearGradient id="static-meter-amber" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#8b6a4e"/><stop offset="0.52" stop-color="#c79962"/><stop offset="1" stop-color="#f1c17a"/></linearGradient>
-          <radialGradient id="static-meter-glow" cx="50%" cy="94%" r="80%"><stop offset="0" stop-color="#ffe4a5" stop-opacity=".8"/><stop offset=".6" stop-color="#ffc886" stop-opacity=".18"/><stop offset="1" stop-color="#322318" stop-opacity=".25"/></radialGradient>
+          <linearGradient id="static-meter-amber" x1="0" y1="0" x2="0" y2="1"><stop offset="0" :stop-color="theme.face[0]"/><stop offset="0.52" :stop-color="theme.face[1]"/><stop offset="1" :stop-color="theme.face[2]"/></linearGradient>
+          <radialGradient id="static-meter-glow" cx="50%" cy="94%" r="80%"><stop offset="0" :stop-color="theme.glow" :stop-opacity="theme.glowOpacity"/><stop offset=".6" :stop-color="theme.glow" :stop-opacity="theme.glowOpacity * .22"/><stop offset="1" :stop-color="theme.frame" stop-opacity=".12"/></radialGradient>
           <clipPath id="static-meter-face-clip"><rect x="13" y="14" width="614" height="330" rx="8"/></clipPath>
           <path id="forward-label-arc" d="M46.23 268.8 A410 410 0 0 1 145.31 65.66" fill="none"/>
           <path id="reflected-label-arc" d="M494.69 65.66 A410 410 0 0 1 593.77 268.8" fill="none"/>
         </defs>
-        <rect x="1" y="1" width="638" height="388" rx="13" fill="#151a20" stroke="#59606a" stroke-width="2"/>
-        <rect x="13" y="14" width="614" height="330" rx="8" fill="url(#static-meter-amber)" stroke="#28221b" stroke-width="3"/>
+        <rect x="1" y="1" width="638" height="388" rx="13" :fill="theme.frame" :stroke="theme.frameEdge" stroke-width="2"/>
+        <rect x="13" y="14" width="614" height="330" rx="8" fill="url(#static-meter-amber)"  :stroke="theme.edge" stroke-width="3"/>
         <rect x="13" y="14" width="614" height="330" rx="8" fill="url(#static-meter-glow)"/>
-        <text class="meter-range-value" x="320" y="39" fill="#f2f4f5" font-family="Arial,Helvetica,sans-serif" font-size="14" font-weight="600" text-anchor="middle">{{ activeRangeText }}</text>
+        <text class="meter-range-value" x="320" y="39" :fill="theme.ink" font-family="Arial,Helvetica,sans-serif" font-size="14" font-weight="600" text-anchor="middle">{{ activeRangeText }}</text>
         <g class="meter-top-value meter-forward-box" data-fwd-source="LIVE" aria-label="Live forward power">
           <rect x="24" y="22" width="90" height="34" rx="4" fill="#1b2633" stroke="#5bcdf2" stroke-width="2"/>
           <text class="meter-live-value" x="69" y="39" :font-size="forwardBoxText.length > 5 ? 24 * 5 / forwardBoxText.length : 24">{{ forwardBoxText }}</text>
@@ -30,10 +30,10 @@
           <rect x="526" y="22" width="90" height="34" rx="4" fill="#1b2633" stroke="#ed6666" stroke-width="2"/>
           <text class="meter-swr-value" x="571" y="39" :font-size="liveSwrText.length > 5 ? 26 * 5 / liveSwrText.length : 26">{{ liveSwrText }}</text>
         </g>
-        <g class="meter-swr-guides" clip-path="url(#static-meter-face-clip)" fill="none" stroke="#7b5036" stroke-width="1">
+        <g class="meter-swr-guides" clip-path="url(#static-meter-face-clip)" fill="none" :stroke="theme.curve" :opacity="theme.curveOpacity" stroke-width="1">
           <path v-for="guide in swrGuides" :key="guide.key" :data-swr="guide.label" :d="guide.path"/>
         </g>
-        <g fill="#292a24" stroke="#292a24" font-family="Georgia,serif">
+        <g :fill="theme.ink" :stroke="theme.ink" font-family="Georgia,serif">
           <g v-for="scale in meterScales" :key="scale.side" :data-scale="scale.side">
             <path :d="scale.outer" fill="none" stroke-width="2.3"/>
             <path :d="scale.inner" fill="none" stroke-width=".8"/>
@@ -48,21 +48,28 @@
         </g>
         <g aria-hidden="true">
           <g class="meter-test-needle meter-test-forward" :style="{ transform: `rotate(${forwardWattsToAngle(forwardWatts)}deg)`, transformOrigin: `${meterGeometry.pivots.forward.x}px ${meterGeometry.pivots.forward.y}px` }">
-          <line :x1="meterGeometry.pivots.forward.x" :y1="meterGeometry.pivots.forward.y" :x2="restEndpoints.forward.x" :y2="restEndpoints.forward.y" stroke="#f3d8a5" stroke-width="5" opacity=".45"/>
-          <line :x1="meterGeometry.pivots.forward.x" :y1="meterGeometry.pivots.forward.y" :x2="restEndpoints.forward.x" :y2="restEndpoints.forward.y" stroke="#171a19" stroke-width="2.7"/>
+          <line :x1="meterGeometry.pivots.forward.x" :y1="meterGeometry.pivots.forward.y" :x2="restEndpoints.forward.x" :y2="restEndpoints.forward.y"  :stroke="theme.needleHighlight" stroke-width="5" opacity=".45"/>
+          <line :x1="meterGeometry.pivots.forward.x" :y1="meterGeometry.pivots.forward.y" :x2="restEndpoints.forward.x" :y2="restEndpoints.forward.y" :stroke="theme.needle" stroke-width="2.7"/>
           </g>
           <g class="meter-test-needle meter-test-reflected" :style="{ transform: `rotate(${reflectedWattsToAngle(testReflected)}deg)`, transformOrigin: `${meterGeometry.pivots.reflected.x}px ${meterGeometry.pivots.reflected.y}px` }">
-          <line :x1="meterGeometry.pivots.reflected.x" :y1="meterGeometry.pivots.reflected.y" :x2="restEndpoints.reflected.x" :y2="restEndpoints.reflected.y" stroke="#f3d8a5" stroke-width="5" opacity=".45"/>
-          <line :x1="meterGeometry.pivots.reflected.x" :y1="meterGeometry.pivots.reflected.y" :x2="restEndpoints.reflected.x" :y2="restEndpoints.reflected.y" stroke="#171a19" stroke-width="2.7"/>
+          <line :x1="meterGeometry.pivots.reflected.x" :y1="meterGeometry.pivots.reflected.y" :x2="restEndpoints.reflected.x" :y2="restEndpoints.reflected.y"  :stroke="theme.needleHighlight" stroke-width="5" opacity=".45"/>
+          <line :x1="meterGeometry.pivots.reflected.x" :y1="meterGeometry.pivots.reflected.y" :x2="restEndpoints.reflected.x" :y2="restEndpoints.reflected.y" :stroke="theme.needle" stroke-width="2.7"/>
           </g>
-          <circle :cx="meterGeometry.pivots.forward.x" :cy="meterGeometry.pivots.forward.y" r="5" fill="#24221e" stroke="#95704a"/>
-          <circle :cx="meterGeometry.pivots.reflected.x" :cy="meterGeometry.pivots.reflected.y" r="5" fill="#24221e" stroke="#95704a"/>
+          <circle :cx="meterGeometry.pivots.forward.x" :cy="meterGeometry.pivots.forward.y" r="5" :fill="theme.pivot" :stroke="theme.pivotEdge"/>
+          <circle :cx="meterGeometry.pivots.reflected.x" :cy="meterGeometry.pivots.reflected.y" r="5" :fill="theme.pivot" :stroke="theme.pivotEdge"/>
         </g>
-        <rect x="19" y="350" width="602" height="30" fill="#1b2633" stroke="#5b6571"/>
-        <text x="320" y="374" fill="#f2f4f5" font-family="Arial,Helvetica,sans-serif" font-size="26" font-weight="bold" text-anchor="middle" letter-spacing="3">SWR</text>
+        <rect x="19" y="350" width="602" height="30" :fill="theme.bar" :stroke="theme.frameEdge"/>
+        <text x="320" y="374" :fill="theme.text" font-family="Arial,Helvetica,sans-serif" font-size="26" font-weight="bold" text-anchor="middle" letter-spacing="3">SWR</text>
       </svg>
         <aside class="meter-test-readout" aria-label="Live forward power and synthetic reflected power" aria-live="polite" data-fwd-source="LIVE" data-ref-source="TEST" data-swr-source="LIVE" :data-active-range="activeRange" :data-forward-state="forwardState" :data-forward-watts="forwardWatts === null ? undefined : forwardWatts">
           <span>REF: <b>{{ testReflected.toFixed(1) }} W</b><small>TEST</small></span>
+          <label class="meter-theme-select">FACE
+            <select v-model="selectedTheme" @change="saveTheme" aria-label="METER face theme">
+              <option value="classic-warm">Classic</option>
+              <option value="dark-room-uplight">Uplight</option>
+              <option value="graphite-dark">Graphite</option>
+            </select>
+          </label>
         </aside>
       </div>
       <footer class="meter-static-footer"><span>FWD / SWR LIVE · REF TEST</span><span>Old: v{{ oldVersion }} | New: v{{ newVersion }}</span></footer>
@@ -73,6 +80,12 @@
 export default {
   data() { return {
     activeTab: 'radio', tabListener: null, oldVersion: '…', newVersion: '…',
+    selectedTheme: 'classic-warm',
+    themeDefinitions: {
+      'classic-warm': { face: ['#ded2b1','#fff8e6','#e6d8b9'], frame: '#22292e', frameEdge: '#68706f', edge: '#77715e', glow: '#fff8df', glowOpacity: .24, ink: '#252a2d', curve: '#a65d48', curveOpacity: .88, needle: '#171c1e', needleHighlight: '#fff9e6', pivot: '#252b2d', pivotEdge: '#9a8663', bar: '#22292e', text: '#f1efe5' },
+      'dark-room-uplight': { face: ['#9b825f','#b28c59','#dfa965'], frame: '#1a2127', frameEdge: '#525b60', edge: '#5d5141', glow: '#fff0a0', glowOpacity: .66, ink: '#172027', curve: '#914e36', curveOpacity: .92, needle: '#151b1e', needleHighlight: '#fff0c6', pivot: '#222a2c', pivotEdge: '#ac8853', bar: '#1e252b', text: '#fff0c9' },
+      'graphite-dark': { face: ['#15191b','#242523','#1c2022'], frame: '#141a1e', frameEdge: '#4f575b', edge: '#444d50', glow: '#a47453', glowOpacity: .18, ink: '#e1d4b4', curve: '#c18a69', curveOpacity: .92, needle: '#e5d9bb', needleHighlight: '#fff2cf', pivot: '#1a2327', pivotEdge: '#b8a07c', bar: '#141b1f', text: '#e8dbbe' }
+    },
     meterGeometry: {
       FORWARD_MODEL_MAX: 1, REFLECTED_MODEL_MAX: .2,
       FORWARD_PRINTED_MAX: 20, REFLECTED_TEST_FULL_SCALE_W: 120,
@@ -244,6 +257,7 @@ export default {
     }
   },
   computed: {
+    theme() { return this.themeDefinitions[this.selectedTheme] || this.themeDefinitions['classic-warm']; },
     activeRange() { return [20, 200, 2000].includes(this.msg?.payload?.activeRange) ? this.msg.payload.activeRange : 20; },
     activeRangeText() { return this.activeRange === 2000 ? '2 kW' : `${this.activeRange} W`; },
     forwardState() {
@@ -276,6 +290,7 @@ export default {
     swrGuides() { return [...this.meterGeometry.guideValues, Infinity].map((value, index) => this.swrGuide(value, index)); }
   },
   methods: {
+    saveTheme() { try { sessionStorage.setItem('aurora-meter-face-theme', this.selectedTheme); } catch (_) {} },
     freshForwardTimestamp(timestamp, ageLimit) {
       const now = Math.max(this.liveClock, Date.now());
       return Number.isFinite(timestamp) && timestamp > 0 && now - timestamp >= 0 && now - timestamp < ageLimit;
@@ -378,6 +393,7 @@ export default {
     }
   },
   mounted() {
+    try { const saved = sessionStorage.getItem('aurora-meter-face-theme'); if (Object.hasOwn(this.themeDefinitions, saved)) this.selectedTheme = saved; } catch (_) {}
     this.liveClockTimer = setInterval(() => { this.liveClock = Date.now(); }, 1000);
     this.tabListener = event => { if (this.tabs.some(tab => tab.key === event.detail)) this.activeTab = event.detail; };
     window.addEventListener('aurora-800x480-tab', this.tabListener);
@@ -405,9 +421,11 @@ export default {
 .meter-test-readout{right:0;display:grid;gap:12px;color:#adc0d1;text-align:center}
 .meter-test-presets small{color:#adc0d1;text-align:center;font:10px/1.4 Arial,Helvetica,sans-serif}
 .meter-test-readout small{display:block;font:9px/1.4 Arial,Helvetica,sans-serif;letter-spacing:.5px;color:#e4bd7b}
-.meter-top-value text{fill:#f2f4f5;font-family:Arial,Helvetica,sans-serif;font-weight:700;text-anchor:middle;dominant-baseline:central}
+.meter-top-value text{fill:var(--meter-value,#f2f4f5);font-family:Arial,Helvetica,sans-serif;font-weight:700;text-anchor:middle;dominant-baseline:central}
 .meter-test-readout span,.meter-test-readout b{display:block}
 .meter-test-readout b{font-weight:400;color:#cfdfec}
+.meter-theme-select{display:grid;gap:3px;font:9px/1.4 Arial,Helvetica,sans-serif;color:#adc0d1}
+.meter-theme-select select{width:68px;height:25px;padding:2px;border:1px solid #526678;border-radius:4px;background:#1b2837;color:#edf4fa;font:10px Arial,Helvetica,sans-serif}
 .meter-test-needle{transform-box:view-box;transition:transform 250ms ease-in-out}
 .power-swr-static-svg{display:block;justify-self:center;width:auto;max-width:100%;height:100%;min-height:0;filter:drop-shadow(0 2px 5px #05080b)}
 .meter-static-footer{display:flex;justify-content:space-between;align-items:center;padding:0 8px;border-top:1px solid #405268;color:#8ddfff;font:700 12px/20px Arial,Helvetica,sans-serif;white-space:nowrap}
