@@ -62,3 +62,13 @@ The shared browser/test tooling under /tmp/meter-stage-c-tools was retained.
 No npm install/cache-clean operation, service restart, version bump or runtime
 deployment was performed. The v4.19 handoff retains the validation summary;
 its temporary screenshots and ad hoc test scripts are no longer on disk.
+
+## Backup-Deduplizierung — 2026-10-03
+
+Nach separatem Auftrag wurden 49 Backup-/Archivdateien inventarisiert und
+fünf identische ältere Watcher-Snapshots entfernt (276 KiB belegter Speicher).
+44 Dateien einschließlich des aktuellen, inhaltlich identischen v4.19-Recovery-
+Backups bleiben erhalten. Einzigartige historische Stände und geschütztes
+Material wurden nicht entfernt. Vollständiges Inventar, Lösch-/Behaltepaare und
+Aufbewahrungsprinzip: [Backup-Bereinigung](backup-cleanup-2026-10-03.md).
+Keine Runtime-Änderung, kein Versionssprung und kein Deployment.
