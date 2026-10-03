@@ -435,3 +435,45 @@ mapping and live SWR. No automatic range selection, switching thresholds,
 range indicator or new printed face is implemented. The next runtime change
 requires the authoritative range-state node/path or an explicit specification
 from the user; thresholds and hysteresis must never be guessed.
+
+
+## Theme references inspected and range stop condition reconfirmed
+
+Only the three specified repository images were inspected for this task:
+
+| Theme ID | Exact reference | SVG/CSS visual direction |
+| --- | --- | --- |
+| classic-warm | docs/reference/pwr-meter-classic-warm.png | Ivory/cream face, dark charcoal bezel, high-contrast dark print, restrained shadows and depth; fine muted red SWR curves and blue scale accent. |
+| dark-room-uplight | docs/reference/pwr-meter-dark-room-uplight.png | Dark amber upper face with warm illumination rising from below; dark printed scales, controlled highlights and subtle needle shadow. |
+| gr | docs/reference/pwr-meter-graphite-dark.png | Charcoal/graphite face and bezel, warm pale scales and numbers, restrained copper SWR curves, faint blue accent and subtle lower illumination. |
+
+The references use the same visual density and printed multi-range face,
+with curved FORWARD/REFLECTED labels and slender needles. They supply styling
+only: image pixels, apparent reference needle readings and drawn curves must
+not replace live measurements or the canonical mathematical geometry. Implement
+one central palette/presentation definition in the existing Vue component,
+not three instruments. A compact selector defaults to classic-warm and may
+remember selection in browser/session storage. Shared printed labels, ticks,
+range mapping, calibration, geometry and live-data paths remain independent
+of theme selection. These are requirements, not implemented features.
+
+The canonical range-source audit was repeated, including actual Node-RED
+context values. No active 20/200/2000 W range field was found in:
+- Global context or the enabled-flow context keys.
+- Stored radio state: `/context/node/au510m_live_state/radio` (slices, meters,
+  interlock, connection, heartbeat, epoch and subscriptions).
+- Stored normalized radio and meter payloads in `au510m_live_bridge`.
+- Stored inventory/rows in `2702052aa13cacd0`, the existing meter backend.
+- Current live RADIO fields or the METER projection.
+
+Canonical automatic range source remains **NOT FOUND**. The user's explicit
+STOP condition therefore prevents this task's runtime implementation. No
+thresholds, hysteresis, range state, range indication, fixed base-scale rewrite
+or theme selector was invented or deployed. FWDPWR and live radio SWR, the
+current REF test controls and all established live pages remain unchanged.
+The planned release is v4.13 from v4.12; it has not been created.
+
+The new references are untracked user files, and deletion of the older reference
+image was already present at task start. These existing changes are preserved.
+Only AGENTS.md and this documentation were edited. No commit or push is made
+because this task explicitly requires successful runtime validation first.

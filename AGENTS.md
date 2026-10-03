@@ -174,9 +174,16 @@ hysteresis. The deployed v4.12 still has the legacy 600/120 W mapping pending a
 canonical range source; 600 W is not a permanent requirement for the new design.
 The REFLECTED 120 W geometry remains unchanged unless separately authorized.
 
-All themes (classic-warm, dark-room-uplight and gr/graphite) share the same fixed
-printed scale, range logic, calibration and needle geometry; themes change
-visual styling only. Canonical geometry documentation is docs/cross-needle-meter.md.
+The exact theme identifiers are classic-warm, dark-room-uplight and gr. All
+share the same fixed printed scale, range logic, calibration and needle geometry;
+themes change visual styling only. Implement one central theme definition inside
+the existing Vue component; never duplicate data paths, geometry, range logic
+or subscriptions. Recreate the themes natively in SVG/CSS, with classic-warm as
+the default and one compact selector. Use only these repository references:
+- classic-warm: docs/reference/pwr-meter-classic-warm.png
+- dark-room-uplight: docs/reference/pwr-meter-dark-room-uplight.png
+- gr: docs/reference/pwr-meter-graphite-dark.png
+Do not use bitmap faces, web images or other references. Canonical geometry documentation is docs/cross-needle-meter.md.
 Scale ticks, needle movement and SWR curves must use the same canonical
 power-to-angle geometry/calibration model. Never independently approximate SWR
 curves or redraw them by eye.
