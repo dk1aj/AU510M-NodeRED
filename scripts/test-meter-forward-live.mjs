@@ -47,12 +47,12 @@ assert.equal(state.forwardWatts, 625);
 assert.equal(state.forwardWattsText, '625');
 assert.equal(state.activeRange,2000);
 assert.equal(state.forwardWattsToAngle(state.forwardWatts),state.calibratedAngle(625,2000));
-assert.equal(state.forwardWattsToAngle(2500),50,'Only angle clamps');
+assert.equal(state.forwardWattsToAngle(2500),state.meterGeometry.sweep,'Only angle clamps');
 assert.equal(result.payload.forward.watts, 625);
 update({...result.payload,forward:{watts:2500,seen:base}});
 assert.equal(state.forwardWatts,2500);
 assert.equal(state.forwardBoxText,'2.5 kW');
-assert.equal(state.forwardWattsToAngle(state.forwardWatts),50);
+assert.equal(state.forwardWattsToAngle(state.forwardWatts),state.meterGeometry.sweep);
 update(result.payload);
 for (const preset of state.testPresets) {
  state.selectTestPreset(preset.key);

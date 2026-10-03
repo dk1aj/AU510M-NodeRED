@@ -24,21 +24,21 @@ assert.equal(geometry.FORWARD_MODEL_MAX, 1);
 assert.equal(geometry.REFLECTED_MODEL_MAX,.2);
 const close = (actual, expected, tolerance = 1e-7) => assert(Math.abs(actual - expected) <= tolerance, `${actual} != ${expected}`);
 for (const [q, angle] of geometry.calibration) {
- close(modelForward(q), angle);
- close(modelReflected(q * .2), -angle);
+ close(modelForward(q), angle * geometry.sweep / 50);
+ close(modelReflected(q * .2), -angle * geometry.sweep / 50);
 }
 for (const [method, max, sign] of [[modelForward, 1, 1], [modelReflected, .2, -1]]) {
- close(method(0), 0); close(method(max), 50 * sign);
- close(method(-1), 0); close(method(max + 100), 50 * sign);
+ close(method(0), 0); close(method(max), geometry.sweep * sign);
+ close(method(-1), 0); close(method(max + 100), geometry.sweep * sign);
  close(method(NaN), 0); close(method(Infinity), 0);
 }
-// The old nonlinear ticks are normalized and rescaled, not replaced by a linear scale.
-close(modelForward(.2), 22.36067977);
+// Preserve the nonlinear normalized calibration; rescale its angular sweep.
+close(modelForward(.2), 22.36067977 * geometry.sweep / 50);
 for (const scale of state.meterScales) {
  const pivot = geometry.pivots[scale.side];
  for (const tick of scale.ticks) {
   const degrees = Math.atan2(tick.start.y - pivot.y, tick.start.x - pivot.x) * 180 / Math.PI;
-  const expected = scale.side === 'forward' ? modelForward(tick.watts) - 180 : modelReflected(tick.watts);
+  const expected = scale.side === 'forward' ? modelForward(tick.watts) + geometry.zeroTilt - 180 : modelReflected(tick.watts) - geometry.zeroTilt;
   close(((degrees - expected + 540) % 360) - 180, 0);
   close(Math.hypot(tick.start.x - pivot.x, tick.start.y - pivot.y), geometry.outerRadius);
  }
@@ -47,8 +47,9 @@ for (const scale of state.meterScales) {
 for (const pair of [[0, 0], [-1, 0], [10, -1], [10, 10], [10, 11], [NaN, 1], [10, Infinity]]) assert.equal(state.calculatedSwr(...pair), null);
 close(state.calculatedSwr(100, 0), 1);
 assert(state.calculatedSwr(100, 99.999) > 100000);
-assert.equal(state.needleIntersection(0, 0), null);
-assert.equal(state.needleIntersection(0, 1e-15), null);
+// At zero both tilted rays meet behind the covered SWR bar, not in the usable field.
+assert(state.needleIntersection(0, 0).y > geometry.face.bottom);
+
 assert.equal(state.needleIntersection(1.001, .001), null);
 assert.equal(state.needleIntersection(.1, .201), null);
 function distanceToCurve(point, curve) {
@@ -66,7 +67,7 @@ function verifyIntersection(forward, reflected, swr) {
  assert(point);
  // Independent residual check against both original needle lines.
  for (const [side, power] of [['forward', forward], ['reflected', reflected]]) {
-  const pivot = geometry.pivots[side], angle = (side === 'forward' ? modelForward(power) + 180 : modelReflected(power)) * Math.PI / 180;
+  const pivot = geometry.pivots[side], angle = (side === 'forward' ? modelForward(power) + geometry.zeroTilt + 180 : modelReflected(power) - geometry.zeroTilt) * Math.PI / 180;
   close((point.x - pivot.x) * Math.sin(angle) - (point.y - pivot.y) * Math.cos(angle), 0);
  }
  const curve = state.swrCurvePoints(swr);
@@ -83,24 +84,57 @@ for (const swr of [...geometry.guideValues, Infinity]) {
  for (const point of curve) {
   assert(point.forward > 0 && point.forward <= 1 && point.reflected <= .2);
   close(point.reflected / point.forward, ratio);
-  assert(point.t >= 0 && point.t <= 378 && point.s >= 0 && point.s <= 378);
+  assert(point.t >= 0 && point.t <= geometry.needleLength && point.s >= 0 && point.s <= geometry.needleLength);
   if (swr !== Infinity) close(state.calculatedSwr(point.forward, point.reflected), swr);
   else assert(point.forward <= .2);
  }
  const max = Math.min(1, .2 / ratio);
- for (const fraction of [.12345, .33333, .56789, .91234, 1]) verifyIntersection(max * fraction, max * fraction * ratio, swr);
+ let checked = 0;
+ for (const fraction of [.12345, .33333, .56789, .91234, 1]) {
+  const point = state.needleIntersection(max * fraction, max * fraction * ratio);
+  if (point && point.y >= geometry.swrFieldTop && point.y <= geometry.face.bottom) {
+   verifyIntersection(max * fraction, max * fraction * ratio, swr); checked++;
+  }
+ }
+ assert(checked >= 2, `SWR ${swr} must have independently verified usable intersections`);
 }
 // Configurable reflected full scale must propagate through geometry.
 geometry.REFLECTED_MODEL_MAX = .1;
-close(modelReflected(.1), -50);
+close(modelReflected(.1), -geometry.sweep);
 assert(state.scaleLayout('reflected').labels.some(label => label.watts === .1));
 assert(state.swrCurvePoints(Infinity).every(point => point.forward <= .1 && point.reflected <= .1));
 geometry.REFLECTED_MODEL_MAX = .2;
 // Physical Stage-C cases remain offline geometry tests after live Stage D.
 for (const [forward, reflected, expected] of [[100,1,1.2222222222222223],[200,10,1.5760143110525873],[400,40,1.924950591148529],[600,120,2.618033988749895]]) {
  close(state.calculatedSwr(forward, reflected), expected);
- verifyIntersection(forward/600, reflected/600, expected);
+ const point = state.needleIntersection(forward/600, reflected/600);
+ if (point && point.y >= geometry.swrFieldTop && point.y <= geometry.face.bottom) verifyIntersection(forward/600, reflected/600, expected);
 }
 assert(fs.existsSync('docs/cross-needle-meter.md'));
 for(const range of [20,200,2000]) {state.msg={payload:{activeRange:range}}; close(state.forwardWattsToAngle(range/2),state.calibratedAngle(.5,1)); assert.equal(state.activeRangeText,range===2000?'2 kW':range+' W');}
 console.log('PASS: normalized canonical calibration, ticks, SWR physics, ray intersection, generated guides, distance tolerance and invalid input safety.');
+
+// Reference reconstruction: common upper crossing, concealed pivots, readable fixed scale.
+assert(geometry.pivots.forward.x > geometry.pivots.reflected.x);
+assert(geometry.pivots.forward.y > geometry.face.bottom);
+assert(geometry.pivots.reflected.y > geometry.face.bottom);
+for (const side of ['forward','reflected']) {
+ const max = side === 'forward' ? geometry.FORWARD_MODEL_MAX : geometry.REFLECTED_MODEL_MAX;
+ for (let i=0; i<=300; i++) {
+  const tip = state.scalePoint(side,max*i/300,geometry.needleLength);
+  assert(tip.x > geometry.face.left && tip.x < geometry.face.right && tip.y > geometry.face.top && tip.y < geometry.face.bottom);
+ }
+}
+const a = state.scalePoint('forward',.554,geometry.outerRadius);
+const b = state.scalePoint('reflected',.554*.2,geometry.outerRadius);
+assert(Math.abs(a.x-b.x)<5 && a.y<100 && b.y<100, 'Printed scales must cross in the upper central field');
+const referenceScales = JSON.stringify(state.meterScales), referenceGuides = JSON.stringify(state.swrGuides);
+for (const theme of ['classic-warm','dark-room-uplight','graphite-dark']) {
+ state.selectedTheme = theme;
+ for (const range of [20,200,2000]) {
+  state.msg={payload:{activeRange:range}};
+  assert.equal(JSON.stringify(state.meterScales),referenceScales);
+  assert.equal(JSON.stringify(state.swrGuides),referenceGuides);
+ }
+}
+console.log('PASS: reference proportions, upper scale crossing, concealed pivots, full-sweep needle bounds and identical fixed geometry across themes/ranges.');

@@ -14,14 +14,14 @@
         <defs>
           <linearGradient id="static-meter-amber" x1="0" y1="0" x2="0" y2="1"><stop offset="0" :stop-color="theme.face[0]"/><stop offset="0.52" :stop-color="theme.face[1]"/><stop offset="1" :stop-color="theme.face[2]"/></linearGradient>
           <radialGradient id="static-meter-glow" cx="50%" cy="94%" r="80%"><stop offset="0" :stop-color="theme.glow" :stop-opacity="theme.glowOpacity"/><stop offset=".6" :stop-color="theme.glow" :stop-opacity="theme.glowOpacity * .22"/><stop offset="1" :stop-color="theme.frame" stop-opacity=".12"/></radialGradient>
-          <clipPath id="static-meter-face-clip"><rect x="13" y="14" width="614" height="330" rx="8"/></clipPath>
-          <path id="forward-label-arc" d="M46.23 268.8 A410 410 0 0 1 145.31 65.66" fill="none"/>
-          <path id="reflected-label-arc" d="M494.69 65.66 A410 410 0 0 1 593.77 268.8" fill="none"/>
+          <clipPath id="static-meter-face-clip"><rect x="13" y="14" width="614" height="364" rx="8"/></clipPath>
+          <path id="forward-label-arc" :d="labelArc('forward')" fill="none"/>
+          <path id="reflected-label-arc" :d="labelArc('reflected')" fill="none"/>
         </defs>
         <rect x="1" y="1" width="638" height="388" rx="13" :fill="theme.frame" :stroke="theme.frameEdge" stroke-width="2"/>
-        <rect x="13" y="14" width="614" height="330" rx="8" fill="url(#static-meter-amber)"  :stroke="theme.edge" stroke-width="3"/>
-        <rect x="13" y="14" width="614" height="330" rx="8" fill="url(#static-meter-glow)"/>
-        <text class="meter-range-value" x="320" y="39" :fill="theme.ink" font-family="Arial,Helvetica,sans-serif" font-size="14" font-weight="600" text-anchor="middle">{{ activeRangeText }}</text>
+        <rect x="13" y="14" width="614" height="364" rx="8" fill="url(#static-meter-amber)"  :stroke="theme.edge" stroke-width="3"/>
+        <rect x="13" y="14" width="614" height="364" rx="8" fill="url(#static-meter-glow)"/>
+        <text class="meter-range-value" x="320" y="27" :fill="theme.ink" font-family="Arial,Helvetica,sans-serif" font-size="14" font-weight="600" text-anchor="middle">{{ activeRangeText }}</text>
         <g class="meter-top-value meter-forward-box" data-fwd-source="LIVE" aria-label="Live forward power">
           <rect x="24" y="22" width="90" height="34" rx="4" fill="#1b2633" stroke="#5bcdf2" stroke-width="2"/>
           <text class="meter-live-value" x="69" y="39" :font-size="forwardBoxText.length > 5 ? 24 * 5 / forwardBoxText.length : 24">{{ forwardBoxText }}</text>
@@ -35,31 +35,29 @@
         </g>
         <g :fill="theme.ink" :stroke="theme.ink" font-family="Georgia,serif">
           <g v-for="scale in meterScales" :key="scale.side" :data-scale="scale.side">
-            <path :d="scale.outer" fill="none" stroke-width="2.3"/>
+            <path :d="scale.outer" fill="none" stroke-width="1.7"/>
             <path :d="scale.inner" fill="none" stroke-width=".8"/>
-            <line v-for="tick in scale.ticks" :key="tick.watts" :data-watts="tick.watts" :x1="tick.start.x" :y1="tick.start.y" :x2="tick.end.x" :y2="tick.end.y" :stroke-width="tick.major ? 1.8 : .65"/>
-            <text v-for="label in scale.labels" :key="label.watts" :x="label.x" :y="label.y + (label.watts === 0 ? meterGeometry.zeroLabelBaseline : meterGeometry.labelBaseline)" text-anchor="middle" stroke="none" font-size="13">{{ label.printed }}</text>
+            <line v-for="tick in scale.ticks" :key="tick.watts" :data-watts="tick.watts" :x1="tick.start.x" :y1="tick.start.y" :x2="tick.end.x" :y2="tick.end.y" :stroke-width="tick.major ? 1.4 : .6"/>
+            <text v-for="label in scale.labels" :key="label.watts" :x="label.x" :y="label.y + (label.watts === 0 ? meterGeometry.zeroLabelBaseline : meterGeometry.labelBaseline)" text-anchor="middle" stroke="none" font-family="Arial,Helvetica,sans-serif" font-size="13">{{ label.printed }}</text>
           </g>
-          <text text-anchor="middle" stroke="none" font-size="19" letter-spacing="1"><textPath href="#forward-label-arc" startOffset="50%">FORWARD</textPath></text>
-          <text text-anchor="middle" stroke="none" font-size="19" letter-spacing="1"><textPath href="#reflected-label-arc" startOffset="50%">REFLECTED</textPath></text>
-          <text x="153" y="71" stroke="none" font-size="14" font-weight="bold">W</text>
-          <text x="477" y="71" stroke="none" font-size="14" font-weight="bold">W</text>
+          <text text-anchor="middle" stroke="none" font-size="19" font-family="Arial,Helvetica,sans-serif" font-weight="600" letter-spacing=".5"><textPath href="#forward-label-arc" startOffset="50%">FORWARD</textPath></text>
+          <text text-anchor="middle" stroke="none" font-size="19" font-family="Arial,Helvetica,sans-serif" font-weight="600" letter-spacing=".5"><textPath href="#reflected-label-arc" startOffset="50%">REFLECTED</textPath></text>
+          <text x="166" y="42" stroke="none" font-size="14" font-weight="bold">W</text>
+          <text x="461" y="42" stroke="none" font-size="14" font-weight="bold">W</text>
           <text v-for="guide in swrGuides" :key="guide.key" :x="guide.labelX" :y="guide.labelY" stroke="none" font-size="13" font-weight="bold">{{ guide.label }}</text>
         </g>
-        <g aria-hidden="true">
+        <g aria-hidden="true" clip-path="url(#static-meter-face-clip)">
           <g class="meter-test-needle meter-test-forward" :style="{ transform: `rotate(${forwardWattsToAngle(forwardWatts)}deg)`, transformOrigin: `${meterGeometry.pivots.forward.x}px ${meterGeometry.pivots.forward.y}px` }">
-          <line :x1="meterGeometry.pivots.forward.x" :y1="meterGeometry.pivots.forward.y" :x2="restEndpoints.forward.x" :y2="restEndpoints.forward.y"  :stroke="theme.needleHighlight" stroke-width="5" opacity=".45"/>
-          <line :x1="meterGeometry.pivots.forward.x" :y1="meterGeometry.pivots.forward.y" :x2="restEndpoints.forward.x" :y2="restEndpoints.forward.y" :stroke="theme.needle" stroke-width="2.7"/>
+          <path :d="needleBlade('forward')" :fill="theme.needle" :stroke="theme.needleHighlight" stroke-width=".45"/>
           </g>
           <g class="meter-test-needle meter-test-reflected" :style="{ transform: `rotate(${reflectedWattsToAngle(testReflected)}deg)`, transformOrigin: `${meterGeometry.pivots.reflected.x}px ${meterGeometry.pivots.reflected.y}px` }">
-          <line :x1="meterGeometry.pivots.reflected.x" :y1="meterGeometry.pivots.reflected.y" :x2="restEndpoints.reflected.x" :y2="restEndpoints.reflected.y"  :stroke="theme.needleHighlight" stroke-width="5" opacity=".45"/>
-          <line :x1="meterGeometry.pivots.reflected.x" :y1="meterGeometry.pivots.reflected.y" :x2="restEndpoints.reflected.x" :y2="restEndpoints.reflected.y" :stroke="theme.needle" stroke-width="2.7"/>
+          <path :d="needleBlade('reflected')" :fill="theme.needle" :stroke="theme.needleHighlight" stroke-width=".45"/>
           </g>
           <circle :cx="meterGeometry.pivots.forward.x" :cy="meterGeometry.pivots.forward.y" r="5" :fill="theme.pivot" :stroke="theme.pivotEdge"/>
           <circle :cx="meterGeometry.pivots.reflected.x" :cy="meterGeometry.pivots.reflected.y" r="5" :fill="theme.pivot" :stroke="theme.pivotEdge"/>
         </g>
-        <rect x="19" y="350" width="602" height="30" :fill="theme.bar" :stroke="theme.frameEdge"/>
-        <text x="320" y="374" :fill="theme.text" font-family="Arial,Helvetica,sans-serif" font-size="26" font-weight="bold" text-anchor="middle" letter-spacing="3">SWR</text>
+        <path class="meter-lower-bar" d="M24 350 L216 350 Q320 330 424 350 L616 350 L616 378 L24 378 Z" :fill="theme.bar" :stroke="theme.frameEdge" stroke-width=".7"/>
+        <text x="320" y="370" :fill="theme.text" font-family="Arial,Helvetica,sans-serif" font-size="23" font-weight="bold" text-anchor="middle" letter-spacing="3">SWR</text>
       </svg>
         <aside class="meter-test-readout" aria-label="Live forward power and synthetic reflected power" aria-live="polite" data-fwd-source="LIVE" data-ref-source="TEST" data-swr-source="LIVE" :data-active-range="activeRange" :data-forward-state="forwardState" :data-forward-watts="forwardWatts === null ? undefined : forwardWatts">
           <span>REF: <b>{{ testReflected.toFixed(1) }} W</b><small>TEST</small></span>
@@ -89,15 +87,17 @@ export default {
     meterGeometry: {
       FORWARD_MODEL_MAX: 1, REFLECTED_MODEL_MAX: .2,
       FORWARD_PRINTED_MAX: 20, REFLECTED_TEST_FULL_SCALE_W: 120,
-      pivots: { forward: { x: 450, y: 340 }, reflected: { x: 190, y: 340 } },
-      needleLength: 378, outerRadius: 378, innerRadius: 360, labelRadius: 342,
-      labelBaseline: 4, zeroLabelBaseline: -6,
-      face: { left: 13, right: 627, top: 14, bottom: 344 },
-      parallelEpsilon: 1e-9, tickDivisions: 24, curveSamples: 1200,
-      labels: { forward: [0, 1/4, 1/2, 3/4, 1],
-        reflected: [0, 1/24, 1/12, 1/6, 1/3, 1/2, 2/3, 5/6, 1] },
-      guideValues: [1.2, 1.5, 2, 3, 5, 8],
-      guideLabelFractions: [.65, .67, .68, .75, .85, .80, .85],
+      pivots: { forward: { x: 430, y: 380 }, reflected: { x: 210, y: 380 } },
+      needleLength: 329, outerRadius: 330, innerRadius: 319, labelRadius: 347,
+      zeroTilt: 8, sweep: 84, legendRadius: 367,
+      labelBaseline: 4, zeroLabelBaseline: 4,
+      face: { left: 13, right: 627, top: 14, bottom: 353 },
+      swrFieldTop: 135,
+      parallelEpsilon: 1e-9, tickDivisions: 80, curveSamples: 1200,
+      labels: { forward: [0, .05, .1, .15, .2, .25, .3, .35, .4, .45, .5, .7, .8, .9, 1],
+        reflected: [0, .05, .1, .2, .3, .5, .8, 1] },
+      guideValues: [1.2, 1.5, 2, 3, 5],
+      guideLabelFractions: [.63, .66, .68, .71, .74, .76],
       calibration: [
         [0.0, 0.0],
         [0.0001, 0.5],
@@ -290,6 +290,16 @@ export default {
     swrGuides() { return [...this.meterGeometry.guideValues, Infinity].map((value, index) => this.swrGuide(value, index)); }
   },
   methods: {
+    labelArc(side) {
+      const max = side === 'forward' ? this.meterGeometry.FORWARD_MODEL_MAX : this.meterGeometry.REFLECTED_MODEL_MAX;
+      const points = Array.from({ length: 80 }, (_, i) => this.scalePoint(side, max * (.015 + .28 * i / 79), this.meterGeometry.legendRadius));
+      return this.pointsToPath(side === 'reflected' ? points.reverse() : points);
+    },
+    needleBlade(side) {
+      const p = this.meterGeometry.pivots[side], d = this.needleDirection(side, 0);
+      const point = (distance, width) => ({ x: p.x + distance * d.x - width * d.y, y: p.y + distance * d.y + width * d.x });
+      return this.pointsToPath([point(-7, .9), point(14, 1.1), point(this.meterGeometry.needleLength, 0), point(14, -1.1), point(-7, -.9)]) + ' Z';
+    },
     saveTheme() { try { sessionStorage.setItem('aurora-meter-face-theme', this.selectedTheme); } catch (_) {} },
     freshForwardTimestamp(timestamp, ageLimit) {
       const now = Math.max(this.liveClock, Date.now());
@@ -303,10 +313,10 @@ export default {
         const [q1, a1] = points[i];
         if (fraction <= q1) {
           const [q0, a0] = points[i - 1];
-          return a0 + (fraction - q0) * (a1 - a0) / (q1 - q0);
+          return (a0 + (fraction - q0) * (a1 - a0) / (q1 - q0)) * this.meterGeometry.sweep / 50;
         }
       }
-      return points[points.length - 1][1];
+      return this.meterGeometry.sweep;
     },
     forwardWattsToAngle(watts) {
       return this.calibratedAngle(watts, this.activeRange);
@@ -316,7 +326,7 @@ export default {
     },
     needleDirection(side, watts) {
       const max = side === 'forward' ? this.meterGeometry.FORWARD_MODEL_MAX : this.meterGeometry.REFLECTED_MODEL_MAX;
-      const angle = (side === 'forward' ? 1 : -1) * this.calibratedAngle(watts, max) * Math.PI / 180;
+      const angle = (side === 'forward' ? 1 : -1) * (this.meterGeometry.zeroTilt + this.calibratedAngle(watts, max)) * Math.PI / 180;
       return side === 'forward' ? { x: -Math.cos(angle), y: -Math.sin(angle) } : { x: Math.cos(angle), y: Math.sin(angle) };
     },
     scalePoint(side, watts, radius) {
@@ -332,7 +342,7 @@ export default {
       const powers = [...new Set([...Array.from({ length: geometry.tickDivisions + 1 }, (_, i) => i * max / geometry.tickDivisions), ...labels.map(item => item.watts)])].sort((a, b) => a - b);
       const ticks = powers.map(watts => {
         const major = labels.some(label => Math.abs(label.watts - watts) < 1e-6);
-        return { watts, major, start: this.scalePoint(side, watts, geometry.outerRadius), end: this.scalePoint(side, watts, geometry.outerRadius - (major ? 16 : 7)) };
+        return { watts, major, start: this.scalePoint(side, watts, geometry.outerRadius), end: this.scalePoint(side, watts, geometry.outerRadius - (major ? 14 : 6)) };
       });
       const arc = radius => this.pointsToPath(Array.from({ length: 101 }, (_, i) => this.scalePoint(side, i * max / 100, radius)));
       return { side, ticks, labels, outer: arc(geometry.outerRadius), inner: arc(geometry.innerRadius) };
@@ -367,7 +377,7 @@ export default {
         const forward = max * i / geometry.curveSamples;
         const reflected = Math.min(geometry.REFLECTED_MODEL_MAX, forward * ratio);
         const point = this.needleIntersection(forward, reflected);
-        if (point && point.x >= geometry.face.left && point.x <= geometry.face.right && point.y >= geometry.face.top && point.y <= geometry.face.bottom) points.push(point);
+        if (point && point.x >= geometry.face.left && point.x <= geometry.face.right && point.y >= geometry.swrFieldTop && point.y <= geometry.face.bottom) points.push(point);
       }
       return points;
     },

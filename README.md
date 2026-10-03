@@ -99,7 +99,7 @@ patch helpers are historical migrations, not a sequence to replay on the station
 For each watcher/UI/meter behavior change, run
 `node scripts/version-agct-watcher.mjs --bump` once, regenerate exports and validate.
 Both UIs obtain the version from the status payload. Repository-only cleanup
-needs no watcher version bump. The METER display test tracks OLD_VERSION 4.12 and NEW_VERSION 4.13 in the central version file.
+needs no watcher version bump. The METER display test tracks OLD_VERSION 4.13 and NEW_VERSION 4.14 in the central version file.
 
 ## Manual AGC-T test
 

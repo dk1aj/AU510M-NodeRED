@@ -163,8 +163,10 @@ changes only the power-to-angle mapping, not the visible scale labels.
 Use one fixed printed FORWARD scale (for example 0–20) at shared tick positions:
 20 W reads directly, 200 W multiplies printed values by 10, and 2 kW by 100.
 Never dynamically replace, redraw or animate scale labels, or create separate
-meter faces per range. Preserve pivots, arcs, ticks, calibration and FORWARD
-textPath. The actual live numeric power remains truthful without multipliers.
+meter faces per range. Keep the single shared pivots, arcs, ticks, calibration
+and FORWARD textPath fixed across automatic ranges and themes. The explicitly authorized
+v4.14 reference reconstruction replaces the former generic SVG geometry.
+The actual live numeric power remains truthful without multipliers.
 Show one small active-range indicator separately from the live power box.
 
 The project has no AU-510M-provided 20/200/2000 W range state. The canonical
@@ -177,7 +179,9 @@ immediately. Start at 20 W. RX, zero, unavailable, stale or invalid data retain
 the last range; evaluate again on a fresh positive sample during TX. Use the
 existing normalized TX/RX and current-TX-interval validity gates. No additional
 thresholds, timing rules or independent theme selectors are allowed.
-The REFLECTED 120 W geometry remains unchanged unless separately authorized.
+The REFLECTED synthetic 120 W test span remains unchanged. The v4.14
+reference reconstruction explicitly authorizes new shared physical geometry;
+it does not authorize live REFPWR integration.
 
 The exact theme identifiers are classic-warm, dark-room-uplight and graphite-dark. All
 share the same fixed printed scale, range logic, calibration and needle geometry;
