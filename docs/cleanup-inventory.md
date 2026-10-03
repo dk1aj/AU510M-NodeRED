@@ -1,6 +1,7 @@
 # Cleanup inventory
 
-Inventory date: 2026-09-23. Decisions preserve the live installation.
+Inventory updated: 2026-10-03. Decisions preserve the live installation.
+Current runtime: v4.19; maintained version source: agct-watcher-version.json.
 
 | Classification | Files | Decision |
 |---|---|---|
@@ -11,7 +12,8 @@ Inventory date: 2026-09-23. Decisions preserve the live installation.
 | KEEP | AGENTS.md, .github/agents/ | Project instructions |
 | ARCHIVE | station-dashboard/ -> archive/station-dashboard/ | Separate unused disabled prototype, retained whole |
 | ARCHIVE | CODEX_HANDOVER.md -> archive/CODEX_HANDOVER-2026-09-22.md | Historical handoff replaced with current pointer |
-| REMOVE | none | Nothing proven both disposable and unnecessary |
+| REMOVE | .npm/_cacache/, .npm/_logs/ | Rebuildable npm cache and old npm logs; no npm process was active |
+| REMOVE | /tmp/meter-v416 through /tmp/meter-v419, /tmp/document-v419.py | Own temporary browser previews, screenshots and edit/check scripts; results preserved in the v4.19 handoff |
 | DO NOT COMMIT | agct-watcher-settings.json | Local state; removed from tracking, preserved on disk |
 | DO NOT COMMIT | flows_cred*, .flows_cred*, .config.runtime.*, .config.users.* | Protected Node-RED material; values not inspected |
 | DO NOT COMMIT | node_modules/, .npm/, caches, .env*, keys, logs, temporary files | Local/generated or potentially secret |
@@ -39,12 +41,24 @@ possible secret. Authentication configuration is not changed.
 
 ## Documentation conflicts and remaining work
 
-The requested coarse/fine prototype, +2 offset, fixed 2 dB range criterion,
-prototype state names and restore-on-abort are inconsistent with version 3.7.
-Document the actual behavior instead of changing it during cleanup. AGC+ is not
-a required radio input, but its internal compatibility key/fallback remains;
-removing it would change behavior and is out of scope.
+The former coarse/fine prototype and version-3.7 cleanup notes are historical.
+Current watcher behavior is documented in [agct-watcher.md](agct-watcher.md):
+start 100, coarse steps 10, fine steps 2, configured final offset -1.
+AGC+ is not a required radio input; its compatibility key/fallback remains.
+No behavior was changed during cleanup.
 
 Review old plugin copies/releases and migration tools separately before removal.
 Establish a documented full hardware calibration and service procedure. No license
 was found; only the owner should select a project license. No remote URL is invented.
+
+## Completed workspace cleanup — 2026-10-03
+
+Git was clean before cleanup. No untracked non-ignored project files were found.
+Removed approximately 114 MiB of allocated cache/log and own temporary-preview
+storage (about 105 MiB inside the workspace; the rest under /tmp).
+No installed dependency, active flow, asset, backup, release bundle, archive,
+credential/configuration material or local watcher setting was removed.
+The shared browser/test tooling under /tmp/meter-stage-c-tools was retained.
+No npm install/cache-clean operation, service restart, version bump or runtime
+deployment was performed. The v4.19 handoff retains the validation summary;
+its temporary screenshots and ad hoc test scripts are no longer on disk.
