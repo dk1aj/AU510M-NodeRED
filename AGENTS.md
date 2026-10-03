@@ -134,3 +134,97 @@ For every new ui-template or major dashboard component:
 - After the next successful version, NEW_VERSION becomes OLD_VERSION for the following change.
 - Documentation-only changes that do not affect runtime behavior do not require a runtime version increment.
 - Every final Codex report must also state Old version, New version, Deployment, Commit, and Push.
+
+## METER / CROSS-NEEDLE PERMANENT RULES
+
+### 1. Canonical live meter data
+
+The existing working RADIO/PA meter paths are authoritative. RADIO already uses
+FWDPWR and SWR; PA already uses FWDPWR, REFPWR and SWR. METER must reuse these
+existing processed values as a new consumer branching from the working path.
+Never reroute RADIO or PA through METER. Never create a second FlexRadio
+connection, duplicate meter subscriptions (including TX-/1/FWDPWR,
+TX-/2/REFPWR or TX-/3/SWR), or an independent duplicate dBm-to-W conversion when
+the canonical processed Watt value already exists.
+
+### 2. AU-510M canonical meters
+
+The canonical underlying meters are TX-/1/FWDPWR, TX-/2/REFPWR and TX-/3/SWR.
+Where conversion is required, W = 10 ^ ((dBm - 30) / 10). Convert every dBm
+sample to Watts FIRST, then average Watts. Never average dBm first and convert
+afterward.
+
+### 3. Cross-needle geometry
+
+METER is a real cross-needle Power/SWR instrument. Permanent full-scale values
+are FORWARD 0–600 W and REFLECTED 0–120 W. Neither may change without explicit
+user approval. Canonical geometry documentation is docs/cross-needle-meter.md.
+Scale ticks, needle movement and SWR curves must use the same canonical
+power-to-angle geometry/calibration model. Never independently approximate SWR
+curves or redraw them by eye.
+
+### 4. SWR mathematics
+
+Use rho = sqrt(Pr / Pf), SWR = (1 + rho) / (1 - rho), and
+Pr = Pf * ((SWR - 1) / (SWR + 1))^2. The graphical needle intersection must
+remain consistent with the mathematically generated SWR curves.
+
+### 5. Visual rules
+
+The primary target is 800×480 landscape: no scrollbar, no clipping, navigation
+and footer visible, and the complete meter face visible. FORWARD and REFLECTED
+must use SVG <textPath> following their curved scale arcs, never rotated normal
+text. Preserve the classic analog-meter appearance unless explicitly requested
+otherwise.
+
+### 6. FlowFuse Dashboard 1.30.2
+
+For ui-template Vue scripts, export default { ... } must be the ONLY top-level
+JavaScript statement. No top-level const, let, function, import or initialization
+expressions. All component logic belongs inside that object. Validate this
+before every deployment involving ui-template changes.
+
+### 7. Staged live integration
+
+Static cross-needle geometry, mathematical SWR geometry and synthetic needle
+validation are completed. Required live integration order is FWDPWR only, then
+REFPWR only, then SWR comparison/validation after both power needles are proven.
+Never connect multiple new live METER values in one stage unless explicitly
+requested. After every stage validate, deploy, live-check existing pages,
+commit, push and verify a clean working tree. Do not proceed until the current
+stage is confirmed working.
+
+### 8. Existing page protection
+
+Never modify RADIO, PA or AGC-T pages or their data paths incidentally. If a
+METER change breaks an existing page, STOP, revert the current METER change,
+restore the last known-good state and redeploy before continuing.
+
+### 9. TX/RX state
+
+Never infer TX from RF power. Use the existing normalized radio/interlock TX/RX
+state. In RX, the live FORWARD needle must return to zero, and the live REFLECTED
+needle must also return to zero once connected. Stale TX power must not remain
+displayed.
+
+### 10. Live-data integrity
+
+Never substitute screenshot, reference-image or synthetic values for actual
+AU-510M measurements. Synthetic values are allowed only in explicitly marked
+TEST/SIMULATION modes. Displayed live numbers must remain truthful. Needles may
+clamp at full scale; numeric values must not be altered by graphical clamping.
+
+### 11. Version / deploy / Git
+
+For each runtime change state the Old version, increment the central version
+once, state the New version, validate, automatically deploy when technically
+possible, perform live runtime checks, commit only after successful runtime
+validation, push to origin/main, verify HEAD == origin/main and a clean working
+tree. Documentation-only changes require no runtime deployment.
+
+### 12. Known existing issue
+
+The documented RADIO/AGC-T initialization issue is separate from METER work.
+Do not opportunistically modify it during unrelated METER development. Any
+additional initialization or template error introduced by a new change is a
+regression.
