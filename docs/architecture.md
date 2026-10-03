@@ -4,7 +4,10 @@
 flowchart LR
  R[FlexRadio AU-510M] --> F[node-red-contrib-flexradio]
  F --> N[Status and meter normalization]
- N --> D[800x480 dashboard]
+ N --> B[Existing processed meters and radio status bridge]
+ B --> D[800x480 RADIO / PA / TX / RX / EXT dashboard]
+ B --> P[METER-only projection]
+ P --> M[Live cross-needle METER]
  F --> W[AGC-T watcher]
  W --> S[Status cache and HTTP API]
  S --> D
@@ -13,16 +16,21 @@ flowchart LR
  G --> F
 ```
 
-Root flows.json contains 82 nodes and five tabs: disabled rfpower-watt, disabled
+Root flows.json contains 84 nodes and five tabs: disabled rfpower-watt, disabled
 and enabled manual meter-list tabs, enabled 35-meter dashboard, enabled watcher.
-Historical TEST/EXPERIMENT names do not make live paths disposable. Four ui-template
-nodes implement PA/TX/RX/EXT; the PA template also owns RADIO and AGC-T. Browser
-navigation events synchronize all mounted widgets.
+Historical TEST/EXPERIMENT names do not make live paths disposable. Five ui-template
+nodes implement PA/TX/RX/EXT and METER; the PA template also owns RADIO and AGC-T.
+Browser navigation events synchronize all mounted widgets. METER is an additional
+consumer of the existing processed values, not an intermediate RADIO/PA path.
 
 The backend resolves numeric meter IDs from inventory and preserves source units.
 FWDPWR/REFPWR dBm convert to watts with `10 ** ((dBm - 30) / 10)`. Status merges
 partial slice updates, selects the unique active slice and uses interlock for
-RX/TX. Display averaging does not feed the watcher's raw measurements.
+RX/TX. Each dBm power sample converts to Watts before Watt averaging. Display
+averaging does not feed the watcher's raw measurements. The METER projection
+retains the historical ID `au510m_meter_forward_only` and forwards live FWDPWR,
+REFPWR, SWR and normalized TX/RX to `au510m_power_swr_static_ui`. It owns the
+one shared 20/200/2000 W range selector. See [meter geometry](cross-needle-meter.md).
 
 Watcher routes: GET /agct-watcher, GET /agct-watcher/status,
 POST /agct-watcher/control. Settings controls are same-origin checked and write
@@ -50,3 +58,7 @@ Root flows.json remains authoritative. flows/dashboard.json is a dependency-clos
 copy with its tab disabled. flows/agct-watcher.json mirrors the disabled example
 and reuses the shared radio config. Exporting does not deploy. Historical migration
 scripts must not be replayed over the current UI.
+
+The current deployed snapshot and validation limits are recorded in the
+[v4.19 handoff](handoff-2026-10-03-v4.19.md). Runtime version values are maintained
+only in agct-watcher-version.json and published by watcher status.

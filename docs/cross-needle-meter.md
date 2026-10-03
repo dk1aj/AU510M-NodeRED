@@ -1,13 +1,14 @@
 # Cross-needle RF Power/SWR meter
 
-Current correction: Old v4.14 / New v4.15. Pre-change checkpoint: `8aff39a`.
+Current deployed snapshot: [v4.19 handoff](handoff-2026-10-03-v4.19.md).
+The maintained version pair is in `agct-watcher-version.json`.
 
 ## Canonical data and range
 
 The shared FlexRadio stream `7330e8695476df43` feeds meter processing
 `2702052aa13cacd0`. `au510m_live_bridge` supplies RADIO/PA consumer
 `9ee3e94e3758b01f` and projection `au510m_meter_forward_only`.
-FWDPWR and visible SWR reuse existing processed samples; no new connection,
+FWDPWR, REFPWR and visible SWR reuse existing processed samples; no new connection,
 subscription, parser, dBm conversion or TX/RX normalization is introduced.
 The central active range is received as `payload.activeRange`, shared by all
 browsers and themes. Its existing thresholds and validity gates are unchanged:
@@ -83,7 +84,10 @@ The former TEST buttons are removed from the live UI. Both needles have full-wid
 shafts with opposite black/white contours for legibility near zero, at their
 crossing and over scale lines. Light faces use black cores with white outlines;
 graphite uses white cores with black outlines. Both share the central theme
-definition. Centerlines, tips, pivots and power-to-angle calibration are unchanged.
+definition. The outline has stroke width 2.8 and the core 0.65 SVG units;
+both share the full-width blade. Centerlines, tips, pivots and power-to-angle
+calibration are unchanged. The centered lower-bar label is DK1AJ. The upper
+red numeric box continues to show measured live radio SWR.
 
 Both needles return to zero in RX. Disconnected, unknown, stale, invalid or
 previous-TX samples display -- and rest at zero. REFPWR validity is independent
@@ -109,10 +113,12 @@ reflected-power scale limits and are unchanged.
 Repository checks cover shared calibration, exact range boundaries, invalid/
 stale/RX gates, truthful numeric display, ray residuals, generated guide distance
 below 0.25 SVG units and fixed geometry across all themes/ranges. Range-linked
-TEST values and the physical SWR-3 examples 5/50/500 W are verified independently.
+offline normalized samples and the physical SWR-3 examples 5/50/500 W are verified independently.
 Rendered REF angles must equal guide-model angles for Pr/R; only over-range
-angles clamp. Physical kiosk/touch and fresh TX/RX acceptance remain separate
-open observations, not inferred from automated Chromium checks.
+angles clamp. Live TX/nonzero REF and subsequent RX were observed for the
+v4.16 integration. Later style/label releases passed RX browser checks and
+isolated synthetic previews; they are not new live TX acceptance. Physical
+kiosk/touch acceptance remains open. See the current handoff for evidence.
 
 ## Reference Geometry Study
 
@@ -140,12 +146,13 @@ Reconstruction uses one 640×390 viewBox, with approximate right/left pivots
 near-quarter-circle sweep. These are design parameters, not falsely precise
 measurements from pixels. Keep the existing normalized calibration shape,
 rescaled to the new sweep, and regenerate every guide from ray intersections.
-Printed FORWARD values remain fixed 0–20. REF remains explicitly synthetic. All three references print 0–4 with
+Printed FORWARD values remain fixed 0–20. Both needles now use live power.
+All three references print REFLECTED 0–4 with
 shared ×1/×10/×100 interpretation, matching the FORWARD 0–20 base scale.
 The bitmap's decorative guide strokes are not copied. The mathematical fan
 must be generated from the same calibration used for ticks and needles.
 
-## Completed v4.15 runtime checks
+## Historical v4.15 runtime checks
 
 Automatic deployment and subsequent RADIO/PA/AGC-T/METER checks passed with
 fresh AU-510M data. Deployed flows match the repository; all three themes were
@@ -153,4 +160,6 @@ checked at 800×480 with fixed printed scales. Only the documented initial
 RADIO error occurred, with no additional regression. Physical kiosk/touch and
 fresh TX/RX comparison remain pending. The user explicitly requested saving
 this current state as a documented commit checkpoint.
-See [v4.15 handoff](handoff-2026-10-03-v4.15.md) for evidence and next steps.
+See the [historical v4.15 handoff](handoff-2026-10-03-v4.15.md) for that
+release's evidence. Current behavior and remaining checks are recorded in the
+[v4.19 handoff](handoff-2026-10-03-v4.19.md).

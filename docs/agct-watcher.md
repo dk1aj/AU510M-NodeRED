@@ -1,6 +1,11 @@
 # Auto AGC-T Watcher
 
-Current release: 4.15. `agct-watcher-version.json` holds OLD_VERSION 4.14 and NEW_VERSION 4.15; the core publishes both from the watcher tab environment. The dashboard footer renders `Old: v4.14 | New: v4.15` from that status.
+`agct-watcher-version.json` is the maintained release source, holding OLD_VERSION
+and NEW_VERSION. The version script copies them to watcher tab environment
+settings; the core publishes both in status. Both UIs render that status and the
+footer `Old: vX.Y | New: vX.Y`. METER/UI releases share this version without
+changing watcher calibration behavior. The current deployed snapshot is
+[v4.19](handoff-2026-10-03-v4.19.md).
 
 ## Scan
 
@@ -19,3 +24,5 @@ A quiet frequency must be configured and active. Settings remain in the excluded
 ## Validation and deployment
 
 Run `node scripts/test-agct-watcher.mjs`, `node scripts/test-agct-dashboard.mjs`, and `bash scripts/validate-repository.sh`. Offline tests use synthetic meter samples and do not validate the physical knee. The full current configuration uses `bash scripts/deploy-all-flows.sh` for deployment.
+
+Documentation-only updates do not bump the runtime version or deploy.

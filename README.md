@@ -19,7 +19,10 @@ return to zero in RX and reject stale samples from preceding TX intervals.
 The central METER auto-range uses canonical live FWDPWR and exact hysteresis
 for 20 W / 200 W / 2 kW. Printed labels remain fixed; RX retains the last range. METER offers the
 classic-warm, dark-room-uplight and graphite-dark SVG/CSS face themes.
-See [cross-needle geometry](docs/cross-needle-meter.md).
+Both needles use black/white contours for maximum contrast. The lower central
+meter label is DK1AJ; the red box remains the live radio SWR reading.
+See [cross-needle geometry](docs/cross-needle-meter.md) and the
+[current v4.19 handoff](docs/handoff-2026-10-03-v4.19.md).
 
 - Host: DietPi/Debian x86_64; observed Node.js 26.3.0/npm 11.16.0.
 - Node-RED 5.0.0 (installed metadata also reports 5.0.0-git).
@@ -50,7 +53,7 @@ is -1. Requested and reported AGC-T are tracked separately; a one-point radio
 normalization keeps the coarse sequence at 100, 90, 80 and onward. Only actual
 measurements appear in the trace.
 
-TX, stale telemetry, unstable LEVEL, changed slice/frequency/mode/receive settings
+TX, stale telemetry, missing measurement samples, changed slice/frequency/mode/receive settings
 and command failures abort. The original AGC-T is restored when RX and the saved
 slice are available. No restoration write occurs during TX. Every command needs
 ACK and actual threshold readback.
@@ -86,7 +89,8 @@ These checks are offline and do not deploy. Refresh disabled repository exports:
 node scripts/export-repository-flows.mjs
 ```
 
-For a separately authorized future station deployment:
+Runtime changes are validated and deployed automatically under the project
+authorization in AGENTS.md. The standard deployment command is:
 
 ```sh
 bash scripts/deploy-all-flows.sh
@@ -99,8 +103,8 @@ patch helpers are historical migrations, not a sequence to replay on the station
 
 For each watcher/UI/meter behavior change, run
 `node scripts/version-agct-watcher.mjs --bump` once, regenerate exports and validate.
-Both UIs obtain the version from the status payload. Repository-only cleanup
-needs no watcher version bump. The central version file maintains the OLD_VERSION and NEW_VERSION pair displayed in the footer.
+Both UIs obtain the version from the status payload. Documentation-only changes
+and repository-only cleanup need no runtime version bump or deployment. The central version file maintains the OLD_VERSION and NEW_VERSION pair displayed in the footer.
 
 ## Manual AGC-T test
 
@@ -123,7 +127,7 @@ tests do not prove the audible optimum.
 - Missing meter: inspect current inventory and active slice; never hard-code Slice 0.
 - ACK timeout: missing write response. Readback timeout: actual threshold failed
   to match in time despite ACK. Inspect command and slice-status logs.
-- Unstable LEVEL: spread or median shift exceeds 2.0 dB; the scan aborts and restores when safe.
+- LEVEL quality: spread, MAD and sample count are diagnostic; noisy samples do not block the scan. Zero usable samples after the extended window abort it.
 - Missing dashboard values: inspect discovery, subscriptions, units and freshness.
 - Version: reload and read the AGC-T footer; source is agct-watcher-version.json.
 
