@@ -3,7 +3,7 @@
     <section v-if="activeTab === 'meter'" class="aurora-kiosk aurora-meter-static" data-active="true" aria-label="Live forward power and test reflected power meter">
       <nav class="aurora-tabs" role="tablist" aria-label="Aurora meter pages">
         <button v-for="tab in tabs" :key="tab.key" type="button" role="tab" :aria-selected="activeTab === tab.key" @click="selectTab(tab.key)">{{ tab.label }}</button>
-        <span class="aurora-brand">AU-510M <small>FWD LIVE · REF TEST</small></span>
+        <span class="aurora-brand">AU-510M <small>LIVE · REF TEST</small></span>
       </nav>
       <div class="meter-test-stage">
         <div class="meter-test-presets" role="group" aria-label="Synthetic reflected power presets">
@@ -21,6 +21,14 @@
         <rect x="1" y="1" width="638" height="388" rx="13" fill="#151a20" stroke="#59606a" stroke-width="2"/>
         <rect x="13" y="14" width="614" height="330" rx="8" fill="url(#static-meter-amber)" stroke="#28221b" stroke-width="3"/>
         <rect x="13" y="14" width="614" height="330" rx="8" fill="url(#static-meter-glow)"/>
+        <g class="meter-top-value meter-forward-box" data-fwd-source="LIVE" aria-label="Live forward power">
+          <rect x="24" y="22" width="90" height="34" rx="4" fill="#1b2633" stroke="#5bcdf2" stroke-width="2"/>
+          <text class="meter-live-value" x="69" y="39" :font-size="forwardBoxText.length > 5 ? 24 * 5 / forwardBoxText.length : 24">{{ forwardBoxText }}</text>
+        </g>
+        <g class="meter-top-value meter-swr-box" data-swr-source="LIVE" aria-label="Live radio SWR">
+          <rect x="526" y="22" width="90" height="34" rx="4" fill="#1b2633" stroke="#ed6666" stroke-width="2"/>
+          <text class="meter-swr-value" x="571" y="39" :font-size="liveSwrText.length > 5 ? 26 * 5 / liveSwrText.length : 26">{{ liveSwrText }}</text>
+        </g>
         <g class="meter-swr-guides" clip-path="url(#static-meter-face-clip)" fill="none" stroke="#7b5036" stroke-width="1">
           <path v-for="guide in swrGuides" :key="guide.key" :data-swr="guide.label" :d="guide.path"/>
         </g>
@@ -52,13 +60,11 @@
         <rect x="19" y="350" width="602" height="30" fill="#1b2633" stroke="#5b6571"/>
         <text x="320" y="374" fill="#f2f4f5" font-family="Arial,Helvetica,sans-serif" font-size="26" font-weight="bold" text-anchor="middle" letter-spacing="3">SWR</text>
       </svg>
-        <aside class="meter-test-readout" aria-label="Live forward power and synthetic reflected power" aria-live="polite" data-fwd-source="LIVE" data-ref-source="TEST" data-swr-source="CALCULATED TEST" :data-forward-state="forwardState" :data-forward-watts="forwardWatts === null ? undefined : forwardWatts">
-          <span>FWD: <b class="meter-live-value">{{ forwardWattsText }} W</b><small class="meter-live-label">LIVE</small></span>
+        <aside class="meter-test-readout" aria-label="Live forward power and synthetic reflected power" aria-live="polite" data-fwd-source="LIVE" data-ref-source="TEST" data-swr-source="LIVE" :data-forward-state="forwardState" :data-forward-watts="forwardWatts === null ? undefined : forwardWatts">
           <span>REF: <b>{{ testReflected.toFixed(1) }} W</b><small>TEST</small></span>
-          <span>SWR: <b>{{ testSwrText }}</b><small>CALC TEST</small></span>
         </aside>
       </div>
-      <footer class="meter-static-footer"><span>FWD LIVE · REF / SWR TEST</span><span>Old: v{{ oldVersion }} | New: v{{ newVersion }}</span></footer>
+      <footer class="meter-static-footer"><span>FWD / SWR LIVE · REF TEST</span><span>Old: v{{ oldVersion }} | New: v{{ newVersion }}</span></footer>
     </section>
   </Teleport>
 </template>
@@ -247,10 +253,21 @@ export default {
       if (this.forwardState !== 'TX' || !sample || !Number.isFinite(sample.watts) || sample.watts < 0 || !this.freshForwardTimestamp(sample.seen, 15000) || !Number.isFinite(this.forwardTxSince) || sample.seen < this.forwardTxSince) return null;
       return sample.watts;
     },
-    forwardWattsText() { return this.forwardWatts === null ? '--' : Number(this.forwardWatts.toPrecision(6)).toString(); },
+    forwardWattsText() {
+      const watts = this.forwardWatts;
+      if (watts === null) return '--';
+      return watts >= 10 ? Math.round(watts).toString() : Number(watts.toFixed(1)).toString();
+    },
+    forwardBoxText() { return this.forwardWatts === null ? '--' : `${this.forwardWattsText} W`; },
     restEndpoints() { return Object.fromEntries(['forward', 'reflected'].map(side => [side, this.scalePoint(side, 0, this.meterGeometry.needleLength)])); },
     testSwr() { return this.calculatedSwr(this.forwardWatts, this.testReflected); },
-    testSwrText() { return this.testSwr === null ? '--' : this.testSwr.toFixed(2); },
+    // RADIO's existing SWR validity: TX only, fresh canonical sample in this TX interval.
+    liveSwr() {
+      const sample = this.msg?.payload?.swr;
+      if (this.forwardState !== 'TX' || !sample || sample.available !== true || !Number.isFinite(sample.value) || !this.freshForwardTimestamp(sample.seen, 15000) || !Number.isFinite(this.forwardTxSince) || sample.seen < this.forwardTxSince) return null;
+      return sample.value;
+    },
+    liveSwrText() { return this.liveSwr === null ? '--' : this.liveSwr.toFixed(2); },
     meterScales() { return ['forward', 'reflected'].map(side => this.scaleLayout(side)); },
     swrGuides() { return [...this.meterGeometry.guideValues, Infinity].map((value, index) => this.swrGuide(value, index)); }
   },
@@ -383,7 +400,7 @@ export default {
 .meter-test-readout{right:0;display:grid;gap:12px;color:#adc0d1;text-align:center}
 .meter-test-presets small{color:#adc0d1;text-align:center;font:10px/1.4 Arial,Helvetica,sans-serif}
 .meter-test-readout small{display:block;font:9px/1.4 Arial,Helvetica,sans-serif;letter-spacing:.5px;color:#e4bd7b}
-.meter-test-readout .meter-live-label{color:#8ddfff}
+.meter-top-value text{fill:#f2f4f5;font-family:Arial,Helvetica,sans-serif;font-weight:700;text-anchor:middle;dominant-baseline:central}
 .meter-test-readout span,.meter-test-readout b{display:block}
 .meter-test-readout b{font-weight:400;color:#cfdfec}
 .meter-test-needle{transform-box:view-box;transition:transform 250ms ease-in-out}

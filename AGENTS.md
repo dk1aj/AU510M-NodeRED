@@ -187,8 +187,10 @@ before every deployment involving ui-template changes.
 ### 7. Staged live integration
 
 Static cross-needle geometry, mathematical SWR geometry and synthetic needle
-validation are completed. Required live integration order is FWDPWR only, then
-REFPWR only, then SWR comparison/validation after both power needles are proven.
+validation are completed. Required needle integration order is FWDPWR only, then REFPWR only, followed by
+comparison/validation of the cross-needle geometry. The visible numeric SWR field
+always consumes canonical live radio SWR, even while the REF needle is synthetic;
+this explicit display requirement takes precedence over the earlier SWR staging interpretation.
 Never connect multiple new live METER values in one stage unless explicitly
 requested. After every stage validate, deploy, live-check existing pages,
 commit, push and verify a clean working tree. Do not proceed until the current
@@ -228,3 +230,23 @@ The documented RADIO/AGC-T initialization issue is separate from METER work.
 Do not opportunistically modify it during unrelated METER development. Any
 additional initialization or template error introduced by a new change is a
 regression.
+
+
+## METER SWR DISPLAY RULE
+
+If METER displays an SWR value, that value must always come from the canonical
+live AU-510M SWR path already used by RADIO and PA: `TX-/3/SWR`. Reuse the same
+existing processed live SWR value without adding a FlexRadio connection, SWR
+subscription, independent parser or duplicate normalization path.
+
+Never display calculated, synthetic or test SWR in the normal visible SWR field,
+including SWR derived from synthetic REF or mixed live/synthetic sources.
+Calculated SWR is allowed only for internal geometry validation, offline tests,
+SWR curve verification and development assertions. It must never replace the
+radio measurement in the visible red box, side panel or temporary readout.
+
+If no valid live SWR is available, display `--`; never substitute a calculated
+value or force 1.00. Reuse existing RADIO SWR validity behavior, including its
+TX/RX gate. During intermediate development the REF needle may remain TEST,
+but it must never influence visible numeric SWR. The visible METER SWR field
+is a LIVE RADIO VALUE ONLY.

@@ -72,7 +72,7 @@ for(const [label,id] of [['FORWARD','forward-label-arc'],['REFLECTED','reflected
  assert(staticSvg.includes(`<textPath href="#${id}" startOffset="50%">${label}</textPath>`),`${label} must use a centered textPath`);
  assert(!new RegExp(`<text[^>]*transform=[^>]*>${label}</text>`).test(staticSvg),`${label} must not be rotated text`);
 }
-assert(!/this\.send|REFPWR|TX-\//.test(meterNode.format), 'METER receives only projected FWDPWR and normalized state');
+assert(!/this\.send|REFPWR|TX-\//.test(meterNode.format), 'METER receives projected FWDPWR, live SWR and normalized state');
 await import('./test-cross-needle-meter.mjs');
 assert.match(meterNode.format,/transition:transform 250ms ease-in-out/);
 assert.match(meterNode.format,/transformOrigin:.*meterGeometry\.pivots\.forward/);

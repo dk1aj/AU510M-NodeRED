@@ -11,10 +11,10 @@ an example or archive. Repository cleanup does not deploy or restart anything.
 The 800x480 dashboard provides RADIO / PA / TX / RX / EXT / AGC-T and METER navigation.
 It uses a direct radio connection through `node-red-contrib-flexradio`, a
 35-identity meter display backend, dynamic meter discovery, radio status handling
-and a separate Auto AGC-T Watcher, currently version 4.11. METER is an SVG
+and a separate Auto AGC-T Watcher, currently version 4.12. METER is an SVG
 Power/SWR display test with 600/120 W scales, mathematically generated SWR guides,
-live canonical FWDPWR on the FORWARD needle and test-only reflected presets.
-REFPWR and radio SWR are not connected to METER.
+live canonical FWDPWR on the FORWARD needle, live canonical radio SWR in the
+red numeric box and test-only reflected presets. REFPWR is not connected to METER.
 See [cross-needle geometry](docs/cross-needle-meter.md).
 
 - Host: DietPi/Debian x86_64; observed Node.js 26.3.0/npm 11.16.0.
@@ -96,7 +96,7 @@ patch helpers are historical migrations, not a sequence to replay on the station
 For each watcher/UI/meter behavior change, run
 `node scripts/version-agct-watcher.mjs --bump` once, regenerate exports and validate.
 Both UIs obtain the version from the status payload. Repository-only cleanup
-needs no watcher version bump. The METER display test tracks OLD_VERSION 4.10 and NEW_VERSION 4.11 in the central version file.
+needs no watcher version bump. The METER display test tracks OLD_VERSION 4.11 and NEW_VERSION 4.12 in the central version file.
 
 ## Manual AGC-T test
 

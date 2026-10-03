@@ -293,3 +293,95 @@ verified without clipping or scrolling. The known initial RADIO/AGC-T
 no additional initialization/template errors were observed. METER itself had
 no errors. Permanent-rule commit `acd16de` was separately pushed without a
 version change or deployment. Stage D stops here; REFPWR-only is next.
+
+
+## Numeric top boxes (v4.12)
+
+The initial calculated TEST-SWR display described here was superseded by the
+canonical live-SWR correction below within the same uncommitted change set.
+
+Old version: 4.11; New version: 4.12. Known-good checkpoint: `12beeca`.
+The v4.11 template had no top boxes; the user authorized adding two boxes
+without changing the existing meter geometry. Both are 90×34 SVG units at
+(24,22) and (526,22), near the outer left/right face edges, above the needle sweeps.
+
+The cyan box displays only canonical live FWDPWR plus W. At least 10 W rounds
+to whole Watts; lower powers display at most one decimal. RX displays 0 W;
+unavailable data displays -- without a unit. Formatting never changes the
+underlying Watt value. A 625 W sample displays 625 W while the needle clamps
+at its unchanged 600 W limit. The duplicate side-panel FWD readout is removed.
+
+The red box displays only the existing calculated TEST SWR, with two decimals
+or -- for invalid conditions. REF remains synthetic, controlled by the existing
+TEST presets. Source attributes and the footer retain the LIVE / TEST distinction.
+No REFPWR or radio SWR is connected. RADIO, PA, AGC-T, shared data handling,
+needle calibration, curves, pivots and textPath arcs are unchanged.
+
+Validation status for this change:
+- Repository validation, Vue compatibility, unchanged shared flow paths and
+  unchanged geometry passed. Both complete needle sweeps clear the new boxes.
+- Browser checks at 800×480 passed: RX reset, invalid inputs, all REF presets,
+  compact formatting and truthful 625 W with a 600 W needle limit. Final text
+  bounds also passed for 0, 4.2, 124, 487, 625 and 10000 W.
+- Final validated configuration deployed successfully. RADIO, PA, METER RX and
+  AGC-T worked; actual LEVEL/AGC+ updates advanced. Only the documented existing
+  RADIO initialization issue was observed; no additional runtime errors.
+- No operator TX was observed during the five-minute final observation window.
+  The simultaneous live TX comparison and subsequent RX return are pending.
+  Commit and push must wait for that successful check.
+
+The user subsequently requested positioning only within the same uncommitted
+v4.12 change set: both boxes moved to the outer edges, at (24,22) and (526,22).
+Their 90×34 dimensions and vertical alignment are preserved. Only four horizontal
+SVG coordinates changed; the component script, CSS, data paths and other flow
+nodes are identical to the previously deployed v4.12 configuration. No version
+bump, commit or push was performed, as explicitly requested.
+
+After the edge adjustment, repository validation and browser checks at 800×480
+passed. Equal frame margins, text bounds, scales, ticks, labels, textPaths, SWR
+curves and both complete needle sweeps were checked for overlap. The configuration
+was redeployed successfully and matched the validated local flows. RADIO, PA,
+METER RX and AGC-T worked with fresh AU-510M data; no additional runtime errors
+were observed beyond the documented initial RADIO error. TX comparison, commit
+and push remain pending.
+
+
+## Correction: visible SWR is canonical live radio SWR (same v4.12 change set)
+
+The user superseded the earlier calculated TEST-SWR display requirement. This
+correction is now permanent in AGENTS.md. The red numeric box consumes the
+already processed `TX-/3/SWR` row from the same existing RADIO/PA bridge as
+FWDPWR. The existing projection adds only value, sample timestamp and availability
+for SWR. There is no new radio connection, subscription, parser or normalization.
+RADIO/PA and their pipelines remain unchanged. METER follows RADIO's TX-cycle
+and freshness validity: RX or unavailable live SWR displays --. PA retains its
+existing raw-meter presentation in RX.
+
+All visible calculated SWR has been removed, including the side-panel SWR.
+Calculations remain internal for offline geometry checks only. REF presets
+continue to control the synthetic reflected needle and never alter live SWR.
+The blue FWDPWR box, both box positions/sizes, geometry and scales are preserved.
+Footer: FWD / SWR LIVE · REF TEST. Old v4.11 / New v4.12 remain unchanged because
+the complete v4.12 change set has not yet passed TX validation or been committed.
+
+Final corrected v4.12 validation completed successfully:
+- All repository checks passed, including Vue compatibility, canonical live
+  SWR equality against existing RADIO/PA methods and synthetic REF isolation.
+- 800×480 layout and numeric bounds passed. No additional template errors were
+  observed; the three browser contexts each showed the documented existing
+  RADIO initialization error once.
+- Actual operator TX produced 76.5596606911257 W: RADIO 77 W, PA 76.5597 W,
+  METER 77 W. RADIO/PA/METER SWR all showed 1.41. The live FORWARD needle
+  measured 17.85915 degrees, matching its unchanged canonical calibration.
+- A lower actual TX sample (0.010232929922807547 W) also agreed: RADIO/METER
+  0 W, PA 0.0102329 W, and SWR 1 / 1 / 1.00. Formatting accounts for these
+  differences; no correction factors are applied.
+- RX after TX reset the FORWARD needle and value to zero; RADIO and METER SWR
+  returned to --. Synthetic REF controls preserved canonical forward power
+  and the independent live-SWR display.
+- 3161 projected messages matched their originating canonical RADIO/PA
+  snapshots exactly, including SWR value, availability and timestamp.
+- Existing PA, AGC-T and fresh AU-510M LEVEL/AGC+ data continued to operate.
+
+The earlier pending-TX notes above describe intermediate historical states;
+the complete corrected v4.12 change set now passes the required TX validation.
