@@ -72,7 +72,46 @@ for(const [label,id] of [['FORWARD','forward-label-arc'],['REFLECTED','reflected
  assert(staticSvg.includes(`<textPath href="#${id}" startOffset="50%">${label}</textPath>`),`${label} must use a centered textPath`);
  assert(!new RegExp(`<text[^>]*transform=[^>]*>${label}</text>`).test(staticSvg),`${label} must not be rotated text`);
 }
-assert(!/{{|\bv-for\b|\bv-bind\b|\bmsg\b/.test(staticSvg));
+assert(!/\bmsg\b|this\.send|TX-\/|FWDPWR|REFPWR/.test(meterNode.format), 'Synthetic values must stay local');
+// Exercise the real preset handlers and verify alignment with unchanged scale ticks.
+{
+ const script=meterNode.format.match(/<script>([\s\S]*?)<\/script>/)[1];
+ const ast=parse(script,{ecmaVersion:'latest',sourceType:'module'});
+ assert.equal(ast.body.length,1);
+ assert.equal(ast.body[0].type,'ExportDefaultDeclaration');
+ assert.equal(ast.body[0].declaration.type,'ObjectExpression');
+ const options=vm.runInNewContext(script.replace('export default','(')+')');
+ const state={...options.data()};
+ for(const [name,fn] of Object.entries(options.methods)) state[name]=fn.bind(state);
+ const presets=[['ZERO',0,0,1],['LOW',50,1,1.33],['MEDIUM',150,5,1.45],['HIGH',300,20,1.70],['FULL',500,100,2.62]];
+ for(const [key,fwd,ref,swr] of presets){
+  state.selectTestPreset(key);
+  assert.deepEqual([state.testPreset,state.testForward,state.testReflected,state.testSwr],[key,fwd,ref,swr]);
+  const f=state.forwardWattsToAngle(fwd),r=state.reflectedWattsToAngle(ref);
+  assert(f>=0&&f<=50&&r<=0&&r>=-50);
+  const fx=450-378*Math.cos(f*Math.PI/180),fy=340-378*Math.sin(f*Math.PI/180);
+  const rx=190+378*Math.cos(r*Math.PI/180),ry=340+378*Math.sin(r*Math.PI/180);
+  assert(fx>=13&&fx<=627&&fy>=14&&fy<=344&&rx>=13&&rx<=627&&ry>=14&&ry<=344);
+ }
+ state.selectTestPreset('INVALID');assert.equal(state.testPreset,'FULL');
+ for(const [method,max,sign] of [['forwardWattsToAngle',500,1],['reflectedWattsToAngle',100,-1]]){
+  assert.equal(Math.abs(state[method](-10)),0);
+  assert.equal(state[method](max+10),50*sign);
+  assert.equal(Math.abs(state[method](NaN)),0);
+  assert.equal(Math.abs(state[method](Infinity)),0);
+ }
+ // Published tick positions must agree to within SVG coordinate rounding.
+ for(const [watts,x,y] of [[0,72,340],[100,100.42,196.2],[200,128.13,141.81],[300,155.12,103.5],[400,181.42,74.02],[500,207.03,50.44]]){
+  const a=state.forwardWattsToAngle(watts)*Math.PI/180;
+  assert(Math.abs(450-378*Math.cos(a)-x)<0.01);
+  assert(Math.abs(340-378*Math.sin(a)-y)<0.01);
+  assert(Math.abs(state.forwardWattsToAngle(watts)+state.reflectedWattsToAngle(watts/5))<1e-10);
+ }
+ assert.match(meterNode.format,/transition:transform 250ms ease-in-out/);
+ assert.match(meterNode.format,/transform-origin:450px 340px/);
+ assert.match(meterNode.format,/transform-origin:190px 340px/);
+ console.log('PASS: local synthetic presets, both scale mappings, clamping, needle geometry and single-export compatibility.');
+}
 assert(!/setInterval|setTimeout|sub meter|flexradio/i.test(meterNode.format));
 assert(ui.includes('Old: v{{ agctLive?.oldVersion'));assert(ui.includes('New: v{{ agctLive?.uiVersion'));assert(ui.includes('effectiveAgct?.abortReason'));assert(ui.includes('scan.requested'));assert(ui.includes('(requested '));
 assert(ui.includes('Baseline AGC'));assert(ui.includes('AGC Median'));assert(!ui.includes('Baseline AGC+'));assert(!ui.includes('AGC+ Median'));assert(!ui.includes("agcMeterName || 'AGC'"));assert(ui.includes('scan.measurements'));assert(ui.includes('scan.scanTimeSeconds'));assert(ui.includes('Messung ab 100 starten'));
