@@ -118,10 +118,8 @@ for (const range of [20,200,2000]) {
  const pf=range*.3,pr=pf/4;
  verifyIntersection(pf/range,pr/range,3);
  close(state.reflectedWattsToAngle(pr),modelReflected(pr/range));
- for (const preset of state.testPresets) {
-  state.selectTestPreset(preset.key);
-  close(state.testReflected,preset.fraction*range*4/20);
-  close(state.reflectedWattsToAngle(state.testReflected),-state.calibratedAngle(preset.fraction,1));
+ for (const fraction of [0,.01,.1,1/3,1]) {
+  close(state.reflectedWattsToAngle(fraction*range*4/20),-state.calibratedAngle(fraction,1));
  }
 }
 assert(fs.existsSync('docs/cross-needle-meter.md'));

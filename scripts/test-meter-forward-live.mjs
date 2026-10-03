@@ -18,7 +18,8 @@ const input = { payload: { section: 'pa', online: true, timestamp: base, rows: [
 const original = structuredClone(input);
 const result = select(input);
 assert.deepEqual(input, original, 'Existing RADIO/PA message must not mutate');
-assert.deepEqual(Object.keys(result.payload).sort(), ['activeRange', 'forward', 'online', 'radio', 'swr', 'timestamp']);
+assert.deepEqual(Object.keys(result.payload).sort(), ['activeRange', 'forward', 'online', 'radio', 'reflected', 'swr', 'timestamp']);
+assert.deepEqual(result.payload.reflected, { watts: 99, seen: base });
 assert.deepEqual(result.payload.forward, { watts: 625, seen: base });
 assert.deepEqual(result.payload.swr, { value: 4, seen: base, available: true });
 assert.deepEqual(result.payload.radio, { connected: true, at: base, rxTx: 'TX' });
@@ -38,7 +39,7 @@ function update(payload, at = state.liveClock) {
  if (before !== after) options.watch.forwardState.handler.call(state, after);
 }
 assert.equal(state.forwardSource, 'LIVE');
-assert.equal(state.reflectedSource, 'TEST');
+assert.equal(state.reflectedSource, 'LIVE');
 assert.equal(state.forwardWatts, null);
 assert.equal(state.forwardWattsText, '--');
 assert.equal(state.forwardBoxText, '--');
@@ -54,14 +55,9 @@ assert.equal(state.forwardWatts,2500);
 assert.equal(state.forwardBoxText,'2.5 kW');
 assert.equal(state.forwardWattsToAngle(state.forwardWatts),state.meterGeometry.sweep);
 update(result.payload);
-for (const preset of state.testPresets) {
- state.selectTestPreset(preset.key);
- assert.equal(state.forwardWatts, 625, 'TEST controls cannot override live forward power');
- assert.equal(state.testReflected, preset.fraction * state.reflectedFullScaleWatts);
- assert.equal(state.liveSwrText, '4.00', 'Synthetic REF cannot influence visible live SWR');
- assert(!Object.hasOwn(preset, 'forward'));
-}
-assert.equal(state.testSwr, state.calculatedSwr(625, state.testReflected));
+assert.equal(state.reflectedWatts, 99);
+assert.equal(state.reflectedWattsText, '99 W');
+assert.equal(state.liveSwrText, '4.00');
 for (const value of [null, undefined, NaN, Infinity, 'invalid', '1.47']) {
  update({ ...result.payload, swr: { value, seen: base, available: true } });
  assert.equal(state.liveSwrText, '--');
@@ -126,7 +122,7 @@ assert.equal(state.forwardWattsToAngle(state.forwardWatts), 0);
 assert.match(source, /setInterval\([^\n]+1000\)/);
 assert.match(source, /clearInterval\(this.liveClockTimer\)/);
 assert.match(source, /data-fwd-source="LIVE"/);
-assert.match(source, /data-ref-source="TEST"/);
+assert.match(source, /data-ref-source="LIVE"/);
 assert.match(source, /data-swr-source="LIVE"/);
 assert(!/10\s*\*\*|Math\.pow|sub meter|REFPWR|TX-\//.test(source));
 assert.match(source, /class="meter-top-value meter-forward-box/);
@@ -135,4 +131,51 @@ assert.match(source, /class="meter-live-value"[^\n]*>{{ forwardBoxText }}<\/text
 assert.match(source, /class="meter-swr-value"[^\n]*>{{ liveSwrText }}<\/text>/);
 assert(!source.includes('<span>FWD:'));
 assert(!/CALC TEST|CALCULATED TEST|{{\s*testSwr/.test(source));
-console.log('PASS: canonical FWDPWR branch, immutable shared input, no REF leakage, independent canonical live SWR, truthful over-range numeric value, RX reset, TX-cycle/stale/invalid safety and TEST isolation.');
+// REF uses canonical Watts without deriving power from SWR or FWDPWR.
+update(result.payload, base);
+assert.equal(state.reflectedWatts, 99);
+assert.equal(state.reflectedWattsToAngle(state.reflectedWatts), -state.calibratedAngle(99, 400));
+for (const value of [null, undefined, NaN, Infinity, 'invalid', '123', -1]) {
+ update({ ...result.payload, reflected: { watts: value, seen: base } }, base);
+ assert.equal(state.reflectedWatts, null);
+ assert.equal(state.reflectedWattsText, '--');
+ assert.equal(Math.abs(state.reflectedWattsToAngle(state.reflectedWatts)), 0);
+ assert.equal(state.liveSwrText, '4.00');
+ assert.equal(state.forwardWatts, 625);
+}
+update({ ...result.payload, forward: { watts: null, seen: base }, swr: { value: null, seen: base, available: false } }, base);
+assert.equal(state.reflectedWatts, 99, 'REF validity is independent of FWD/SWR');
+assert.equal(state.liveSwrText, '--', 'Live SWR never falls back to calculated SWR');
+for (const seen of [base - 16000, base + 1, null]) {
+ update({ ...result.payload, reflected: { watts: 12, seen } }, base);
+ assert.equal(state.reflectedWatts, null);
+}
+for (const range of [20, 200, 2000]) {
+ const watts = range * .1;
+ update({ ...result.payload, activeRange: range, reflected: { watts, seen: base } }, base);
+ assert.equal(state.reflectedWatts, watts);
+ assert.equal(state.reflectedWattsToAngle(watts), -state.calibratedAngle(.5, 1));
+}
+update({ ...result.payload, reflected: { watts: 501.234, seen: base } }, base);
+assert.equal(state.reflectedWatts, 501.234);
+assert.equal(state.reflectedWattsText, '501.23 W');
+assert.equal(state.reflectedWattsToAngle(state.reflectedWatts), -state.meterGeometry.sweep);
+update({ ...result.payload, radio: { ...result.payload.radio, rxTx: 'RX' } }, base);
+assert.equal(state.reflectedWatts, 0);
+assert.equal(Math.abs(state.reflectedWattsToAngle(state.reflectedWatts)), 0);
+assert.equal(state.reflectedWattsText, '0 W');
+update({ ...result.payload, timestamp: base + 100, radio: { ...result.payload.radio, at: base + 100 } }, base + 100);
+assert.equal(state.reflectedWatts, null, 'New TX interval rejects previous TX REF samples');
+update({ ...result.payload, timestamp: base + 200, reflected: { watts: 2.5, seen: base + 200 }, radio: { ...result.payload.radio, at: base + 200 } }, base + 200);
+assert.equal(state.reflectedWatts, 2.5);
+state.liveClock = base + 11000;
+assert.equal(state.reflectedWatts, null, 'Clock expiry resets REF without a new message');
+for (const overrides of [{online: false}, {radio: {...result.payload.radio, connected: false}}, {radio: {...result.payload.radio, rxTx: 'UNKNOWN'}}]) {
+ update({ ...result.payload, ...overrides }, base);
+ assert.equal(state.reflectedWatts, null);
+ assert.equal(Math.abs(state.reflectedWattsToAngle(state.reflectedWatts)), 0);
+}
+assert(!/testReflected|testPresets|selectTestPreset/.test(source), 'Live REF cannot use synthetic presets');
+const changedNodes = flows.filter(n => ['au510m_meter_forward_only', 'au510m_power_swr_static_ui'].includes(n.id));
+assert(!/10\s*\*\*|Math\.pow|sub meter/.test(JSON.stringify(changedNodes)), 'Reuse existing Watt conversion/subscriptions');
+console.log('PASS: canonical FWDPWR/REFPWR branch, immutable input, independent live SWR, shared range/geometry, truthful over-range numbers, RX reset and TX-cycle/stale/invalid safety for both needles.');

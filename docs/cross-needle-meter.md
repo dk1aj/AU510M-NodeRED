@@ -74,17 +74,19 @@ with Pf at most 0.8R because Pr must stay within 0.2R. Ray reach may limit the
 visible guide further. A clamped needle is not an accurate over-range SWR
 intersection; it must not be used to replace the canonical numeric SWR.
 
-## TEST reflected needle and live numeric SWR
+## Live reflected needle and numeric SWR
 
-REF live integration is still outside this correction. ZERO, GOOD, MEDIUM,
-HIGH and FULL-SCALE are explicit TEST presets storing dimensionless fractions
-0, 0.01, 0.1, 1/3 and 1 of the current reflected span. Their numeric TEST
-readout changes with the central range; their normalized needle positions
-remain the same. They never send radio commands or alter live FWDPWR/SWR.
+Both needles consume existing processed PA Watt values through the METER-only
+branch: `TX-/1/FWDPWR` and `TX-/2/REFPWR`. No conversion or subscription is added.
+REFLECTED uses the same central range and canonical geometry as FORWARD.
+The former TEST buttons are removed from the live UI.
 
+Both needles return to zero in RX. Disconnected, unknown, stale, invalid or
+previous-TX samples display -- and rest at zero. REFPWR validity is independent
+of FWDPWR and SWR validity; numeric values are never graphically clamped.
 The visible red box always uses canonical `TX-/3/SWR` with RADIO's existing
-TX-cycle/freshness gates; RX/unavailable shows --. Calculated SWR is allowed
-only for internal geometry validation. RX forward power/needle returns to zero.
+TX-cycle/freshness gates; RX/unavailable shows --. Calculated SWR remains
+restricted to internal geometry validation.
 
 ## Removed obsolete assumptions
 
