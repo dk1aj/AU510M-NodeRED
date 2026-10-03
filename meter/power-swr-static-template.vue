@@ -48,7 +48,7 @@
           <path :d="needleBlade('forward')" :fill="theme.needle" :stroke="theme.needleHighlight" stroke-width=".45"/>
           </g>
           <g class="meter-test-needle meter-test-reflected" :style="{ transform: `rotate(${reflectedWattsToAngle(reflectedWatts)}deg)`, transformOrigin: `${meterGeometry.pivots.reflected.x}px ${meterGeometry.pivots.reflected.y}px` }">
-          <path :d="needleBlade('reflected')" :fill="theme.needle" :stroke="theme.needleHighlight" stroke-width=".45"/>
+          <path :d="needleBlade('reflected')" :fill="theme.reflectedNeedle" :stroke="theme.reflectedNeedleEdge" stroke-width=".65"/>
           </g>
           <circle :cx="meterGeometry.pivots.forward.x" :cy="meterGeometry.pivots.forward.y" r="5" :fill="theme.pivot" :stroke="theme.pivotEdge"/>
           <circle :cx="meterGeometry.pivots.reflected.x" :cy="meterGeometry.pivots.reflected.y" r="5" :fill="theme.pivot" :stroke="theme.pivotEdge"/>
@@ -77,9 +77,9 @@ export default {
     activeTab: 'radio', tabListener: null, oldVersion: '…', newVersion: '…',
     selectedTheme: 'classic-warm',
     themeDefinitions: {
-      'classic-warm': { face: ['#ded2b1','#fff8e6','#e6d8b9'], frame: '#22292e', frameEdge: '#68706f', edge: '#77715e', glow: '#fff8df', glowOpacity: .24, ink: '#252a2d', curve: '#a65d48', curveOpacity: .88, needle: '#171c1e', needleHighlight: '#fff9e6', pivot: '#252b2d', pivotEdge: '#9a8663', bar: '#22292e', text: '#f1efe5' },
-      'dark-room-uplight': { face: ['#9b825f','#b28c59','#dfa965'], frame: '#1a2127', frameEdge: '#525b60', edge: '#5d5141', glow: '#fff0a0', glowOpacity: .66, ink: '#172027', curve: '#914e36', curveOpacity: .92, needle: '#151b1e', needleHighlight: '#fff0c6', pivot: '#222a2c', pivotEdge: '#ac8853', bar: '#1e252b', text: '#fff0c9' },
-      'graphite-dark': { face: ['#15191b','#242523','#1c2022'], frame: '#141a1e', frameEdge: '#4f575b', edge: '#444d50', glow: '#a47453', glowOpacity: .18, ink: '#e1d4b4', curve: '#c18a69', curveOpacity: .92, needle: '#e5d9bb', needleHighlight: '#fff2cf', pivot: '#1a2327', pivotEdge: '#b8a07c', bar: '#141b1f', text: '#e8dbbe' }
+      'classic-warm': { reflectedNeedle: '#8b231b', reflectedNeedleEdge: '#39100d', face: ['#ded2b1','#fff8e6','#e6d8b9'], frame: '#22292e', frameEdge: '#68706f', edge: '#77715e', glow: '#fff8df', glowOpacity: .24, ink: '#252a2d', curve: '#a65d48', curveOpacity: .88, needle: '#171c1e', needleHighlight: '#fff9e6', pivot: '#252b2d', pivotEdge: '#9a8663', bar: '#22292e', text: '#f1efe5' },
+      'dark-room-uplight': { reflectedNeedle: '#701b13', reflectedNeedleEdge: '#2d100b', face: ['#9b825f','#b28c59','#dfa965'], frame: '#1a2127', frameEdge: '#525b60', edge: '#5d5141', glow: '#fff0a0', glowOpacity: .66, ink: '#172027', curve: '#914e36', curveOpacity: .92, needle: '#151b1e', needleHighlight: '#fff0c6', pivot: '#222a2c', pivotEdge: '#ac8853', bar: '#1e252b', text: '#fff0c9' },
+      'graphite-dark': { reflectedNeedle: '#ffaf82', reflectedNeedleEdge: '#381c12', face: ['#15191b','#242523','#1c2022'], frame: '#141a1e', frameEdge: '#4f575b', edge: '#444d50', glow: '#a47453', glowOpacity: .18, ink: '#e1d4b4', curve: '#c18a69', curveOpacity: .92, needle: '#e5d9bb', needleHighlight: '#fff2cf', pivot: '#1a2327', pivotEdge: '#b8a07c', bar: '#141b1f', text: '#e8dbbe' }
     },
     meterGeometry: {
       FORWARD_MODEL_MAX: 1,
@@ -295,6 +295,8 @@ export default {
     needleBlade(side) {
       const p = this.meterGeometry.pivots[side], d = this.needleDirection(side, 0);
       const point = (distance, width) => ({ x: p.x + distance * d.x - width * d.y, y: p.y + distance * d.y + width * d.x });
+      // A full-width REF shaft remains legible near zero; its centerline and tip are unchanged.
+      if (side === 'reflected') return this.pointsToPath([point(-7, 1.4), point(14, 1.6), point(this.meterGeometry.needleLength - 10, 1.1), point(this.meterGeometry.needleLength, 0), point(this.meterGeometry.needleLength - 10, -1.1), point(14, -1.6), point(-7, -1.4)]) + ' Z';
       return this.pointsToPath([point(-7, .9), point(14, 1.1), point(this.meterGeometry.needleLength, 0), point(14, -1.1), point(-7, -.9)]) + ' Z';
     },
     saveTheme() { try { sessionStorage.setItem('aurora-meter-face-theme', this.selectedTheme); } catch (_) {} },
