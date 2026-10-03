@@ -156,9 +156,27 @@ afterward.
 
 ### 3. Cross-needle geometry
 
-METER is a real cross-needle Power/SWR instrument. Permanent full-scale values
-are FORWARD 0–600 W and REFLECTED 0–120 W. Neither may change without explicit
-user approval. Canonical geometry documentation is docs/cross-needle-meter.md.
+METER is a real cross-needle Power/SWR instrument. The cross-needle METER uses a
+fixed printed multi-range scale. Automatic 20 W / 200 W / 2 kW range selection
+changes only the power-to-angle mapping, not the visible scale labels.
+
+Use one fixed printed FORWARD scale (for example 0–20) at shared tick positions:
+20 W reads directly, 200 W multiplies printed values by 10, and 2 kW by 100.
+Never dynamically replace, redraw or animate scale labels, or create separate
+meter faces per range. Preserve pivots, arcs, ticks, calibration and FORWARD
+textPath. The actual live numeric power remains truthful without multipliers.
+Show one small active-range indicator separately from the live power box.
+
+Before implementing range-dependent mapping, find and reuse the existing
+canonical active 20/200/2000 W range state. If none is available, report NOT FOUND
+and stop runtime work; never infer switching thresholds from power or invent
+hysteresis. The deployed v4.12 still has the legacy 600/120 W mapping pending a
+canonical range source; 600 W is not a permanent requirement for the new design.
+The REFLECTED 120 W geometry remains unchanged unless separately authorized.
+
+All themes (classic-warm, dark-room-uplight and gr/graphite) share the same fixed
+printed scale, range logic, calibration and needle geometry; themes change
+visual styling only. Canonical geometry documentation is docs/cross-needle-meter.md.
 Scale ticks, needle movement and SWR curves must use the same canonical
 power-to-angle geometry/calibration model. Never independently approximate SWR
 curves or redraw them by eye.

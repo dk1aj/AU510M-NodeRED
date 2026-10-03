@@ -9,9 +9,10 @@ only on Pf; the REFLECTED angle only on Pr. Read SWR at the intersection of the
 needle lines using guides that are loci of constant SWR. SWR does not drive a
 third needle and does not independently set either power needle.
 
-This project requires FORWARD **0–600 W**, with 600 W the hard full scale, and
-REFLECTED **0–120 W**. Both ranges are centrally defined and may change only
-with explicit user approval. The 5:1
+The currently deployed v4.12 uses legacy FORWARD **0–600 W** and REFLECTED
+**0–120 W**. These describe the existing runtime, not the new permanent FORWARD
+range requirement. The corrected fixed-scale design is documented below; its
+runtime implementation is stopped until a canonical active range source exists. The 5:1
 range relationship follows the common cross-needle convention (for example
 300/60 W or 3000/600 W); it is a display range choice, not an SWR equation.
 The maintained configuration is `meterGeometry` inside `data()` of
@@ -93,8 +94,11 @@ angle inputs go to rest. SWR uses the original powers, not clamped readings.
 
 All scale marks, scale arcs, needle rotations and SWR-curve sample directions
 use these same methods. No independent tick mapping or decorative SWR paths
-remain. Watt labels and tick divisions belong to the same configuration. A
-change to reflected full scale updates its labels, directions and SWR guides.
+remain. In the legacy runtime, Watt labels and tick divisions belong to the same
+static configuration. For the corrected multi-range design, printed FORWARD
+labels and tick positions are fixed independently of the active range. Changing
+20/200/2000 W range must never regenerate or relabel the printed scale. REFLECTED
+geometry and its labels are outside this range correction.
 
 ## Proper line/ray intersection
 
@@ -385,3 +389,49 @@ Final corrected v4.12 validation completed successfully:
 
 The earlier pending-TX notes above describe intermediate historical states;
 the complete corrected v4.12 change set now passes the required TX validation.
+
+
+## Fixed printed multi-range scale: requirement and source audit
+
+The cross-needle METER uses a fixed printed multi-range scale. Automatic
+20 W / 200 W / 2 kW range selection changes only the power-to-angle mapping,
+not the visible scale labels. This supersedes the former permanent 600 W
+FORWARD range requirement; historical 600/120 W validation results above still
+describe the deployed v4.12 implementation.
+
+Use one shared set of physical tick positions and fixed printed values, for
+example 0–20. Interpret them directly for 20 W, ×10 for 200 W and ×100 for
+2000 W. No runtime relabeling, animation of labels or separate range-specific
+faces is permitted. Once a canonical range state exists, normalize live Pf by
+that active full scale and apply the existing calibrated geometry. Preserve
+needle pivot, arcs, tick positions and FORWARD textPath.
+
+Indicate the single active range separately with secondary text: 20 W, 200 W
+or 2 kW. Numeric FWDPWR must always show the actual measured power directly,
+for example 8.4 W, 86 W, 640 W or 1.35 kW. All themes (classic-warm,
+dark-room-uplight, gr/graphite) must share the same fixed printed values, range
+logic, calibration and geometry; only visual styling may differ. Visible SWR
+continues to use canonical live radio SWR exclusively.
+
+Canonical active range source: **NOT FOUND** in the inspected project and
+existing live interfaces. The audit checked:
+- Active and disabled flow Function/template/configuration definitions for
+  active range, power range, meter range, full scale and 20/200/2000 W state.
+- The existing normalized radio-state node `au510m_live_state`, bridge
+  `au510m_live_bridge` and RADIO/PA live payload at
+  `/dashboard/_debug/datastore/9ee3e94e3758b01f`. Its radio fields contain no
+  active meter range. FWDPWR is a measurement, not an active range state.
+- METER's existing projection `au510m_meter_forward_only` and its live payload:
+  forward, swr, online, timestamp and radio; no range field.
+- Current repository source/documentation and installed FlexRadio integration.
+
+Only one METER Vue component is implemented. The three theme images under
+`docs/reference/` are references; they do not implement theme selection or
+automatic range state. Thus shared theme behavior cannot yet be verified.
+
+Per the user's explicit stop instruction, this correction changes rules and
+documentation only. Runtime v4.12 retains its current printed labels, 600/120 W
+mapping and live SWR. No automatic range selection, switching thresholds,
+range indicator or new printed face is implemented. The next runtime change
+requires the authoritative range-state node/path or an explicit specification
+from the user; thresholds and hysteresis must never be guessed.

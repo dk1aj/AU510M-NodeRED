@@ -15,6 +15,11 @@ and a separate Auto AGC-T Watcher, currently version 4.12. METER is an SVG
 Power/SWR display test with 600/120 W scales, mathematically generated SWR guides,
 live canonical FWDPWR on the FORWARD needle, live canonical radio SWR in the
 red numeric box and test-only reflected presets. REFPWR is not connected to METER.
+The new required FORWARD design uses one fixed printed multi-range scale for
+20 W / 200 W / 2 kW; range selection changes only needle mapping. Its runtime
+implementation is stopped because no canonical active-range state was found.
+The deployed v4.12 remains on its existing 600/120 W geometry. See
+[range requirements and source audit](docs/cross-needle-meter.md#fixed-printed-multi-range-scale-requirement-and-source-audit).
 See [cross-needle geometry](docs/cross-needle-meter.md).
 
 - Host: DietPi/Debian x86_64; observed Node.js 26.3.0/npm 11.16.0.
