@@ -79,9 +79,11 @@ intersection; it must not be used to replace the canonical numeric SWR.
 Both needles consume existing processed PA Watt values through the METER-only
 branch: `TX-/1/FWDPWR` and `TX-/2/REFPWR`. No conversion or subscription is added.
 REFLECTED uses the same central range and canonical geometry as FORWARD.
-The former TEST buttons are removed from the live UI. REFLECTED has a full-width
-shaft and theme-specific contrasting fill/edge colors for legibility near zero;
-its centerline, tip, pivot and power-to-angle calibration are unchanged.
+The former TEST buttons are removed from the live UI. Both needles have full-width
+shafts with opposite black/white contours for legibility near zero, at their
+crossing and over scale lines. Light faces use black cores with white outlines;
+graphite uses white cores with black outlines. Both share the central theme
+definition. Centerlines, tips, pivots and power-to-angle calibration are unchanged.
 
 Both needles return to zero in RX. Disconnected, unknown, stale, invalid or
 previous-TX samples display -- and rest at zero. REFPWR validity is independent
