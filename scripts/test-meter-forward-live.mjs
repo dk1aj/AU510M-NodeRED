@@ -57,7 +57,7 @@ update(result.payload);
 for (const preset of state.testPresets) {
  state.selectTestPreset(preset.key);
  assert.equal(state.forwardWatts, 625, 'TEST controls cannot override live forward power');
- assert.equal(state.testReflected, preset.reflected);
+ assert.equal(state.testReflected, preset.fraction * state.reflectedFullScaleWatts);
  assert.equal(state.liveSwrText, '4.00', 'Synthetic REF cannot influence visible live SWR');
  assert(!Object.hasOwn(preset, 'forward'));
 }

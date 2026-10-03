@@ -19,9 +19,13 @@ for (const [name, fn] of Object.entries(options.methods)) state[name] = fn.bind(
 for (const [name, fn] of Object.entries(options.computed)) Object.defineProperty(state, name, { get: () => fn.call(state) });
 const geometry = state.meterGeometry;
 const modelForward = value => state.calibratedAngle(value,geometry.FORWARD_MODEL_MAX);
-const modelReflected = value => -state.calibratedAngle(value,geometry.REFLECTED_MODEL_MAX);
+const modelReflected = value => -state.calibratedAngle(value,state.reflectedModelMax);
 assert.equal(geometry.FORWARD_MODEL_MAX, 1);
-assert.equal(geometry.REFLECTED_MODEL_MAX,.2);
+assert.equal(state.reflectedModelMax,.2);
+assert.equal(geometry.FORWARD_PRINTED_MAX,20);
+assert.equal(geometry.REFLECTED_PRINTED_MAX,4);
+assert.equal(JSON.stringify(state.scaleLayout('reflected').labels.map(label => label.printed)),JSON.stringify([0,.2,.4,.6,.8,1,1.2,1.6,2,3.6,4]));
+assert(!Object.hasOwn(geometry,'REFLECTED_TEST_FULL_SCALE_W'));
 const close = (actual, expected, tolerance = 1e-7) => assert(Math.abs(actual - expected) <= tolerance, `${actual} != ${expected}`);
 for (const [q, angle] of geometry.calibration) {
  close(modelForward(q), angle * geometry.sweep / 50);
@@ -99,16 +103,26 @@ for (const swr of [...geometry.guideValues, Infinity]) {
  assert(checked >= 2, `SWR ${swr} must have independently verified usable intersections`);
 }
 // Configurable reflected full scale must propagate through geometry.
-geometry.REFLECTED_MODEL_MAX = .1;
+geometry.REFLECTED_PRINTED_MAX = 2;
 close(modelReflected(.1), -geometry.sweep);
 assert(state.scaleLayout('reflected').labels.some(label => label.watts === .1));
 assert(state.swrCurvePoints(Infinity).every(point => point.forward <= .1 && point.reflected <= .1));
-geometry.REFLECTED_MODEL_MAX = .2;
-// Physical Stage-C cases remain offline geometry tests after live Stage D.
-for (const [forward, reflected, expected] of [[100,1,1.2222222222222223],[200,10,1.5760143110525873],[400,40,1.924950591148529],[600,120,2.618033988749895]]) {
- close(state.calculatedSwr(forward, reflected), expected);
- const point = state.needleIntersection(forward/600, reflected/600);
- if (point && point.y >= geometry.swrFieldTop && point.y <= geometry.face.bottom) verifyIntersection(forward/600, reflected/600, expected);
+geometry.REFLECTED_PRINTED_MAX = 4;
+// Physical SWR examples use the same active-range normalization for both needles.
+for (const range of [20,200,2000]) {
+ state.msg={payload:{activeRange:range}};
+ close(state.reflectedFullScaleWatts,range*4/20);
+ const forward=range, reflected=forward*((3-1)/(3+1))**2;
+ close(reflected,range/4); close(state.calculatedSwr(forward,reflected),3);
+ close(state.reflectedWattsToAngle(reflected),-geometry.sweep); // Real over-range, angle only clamps.
+ const pf=range*.3,pr=pf/4;
+ verifyIntersection(pf/range,pr/range,3);
+ close(state.reflectedWattsToAngle(pr),modelReflected(pr/range));
+ for (const preset of state.testPresets) {
+  state.selectTestPreset(preset.key);
+  close(state.testReflected,preset.fraction*range*4/20);
+  close(state.reflectedWattsToAngle(state.testReflected),-state.calibratedAngle(preset.fraction,1));
+ }
 }
 assert(fs.existsSync('docs/cross-needle-meter.md'));
 for(const range of [20,200,2000]) {state.msg={payload:{activeRange:range}}; close(state.forwardWattsToAngle(range/2),state.calibratedAngle(.5,1)); assert.equal(state.activeRangeText,range===2000?'2 kW':range+' W');}
@@ -119,7 +133,7 @@ assert(geometry.pivots.forward.x > geometry.pivots.reflected.x);
 assert(geometry.pivots.forward.y > geometry.face.bottom);
 assert(geometry.pivots.reflected.y > geometry.face.bottom);
 for (const side of ['forward','reflected']) {
- const max = side === 'forward' ? geometry.FORWARD_MODEL_MAX : geometry.REFLECTED_MODEL_MAX;
+ const max = side === 'forward' ? geometry.FORWARD_MODEL_MAX : state.reflectedModelMax;
  for (let i=0; i<=300; i++) {
   const tip = state.scalePoint(side,max*i/300,geometry.needleLength);
   assert(tip.x > geometry.face.left && tip.x < geometry.face.right && tip.y > geometry.face.top && tip.y < geometry.face.bottom);

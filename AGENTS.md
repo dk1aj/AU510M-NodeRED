@@ -179,9 +179,13 @@ immediately. Start at 20 W. RX, zero, unavailable, stale or invalid data retain
 the last range; evaluate again on a fresh positive sample during TX. Use the
 existing normalized TX/RX and current-TX-interval validity gates. No additional
 thresholds, timing rules or independent theme selectors are allowed.
-The REFLECTED synthetic 120 W test span remains unchanged. The v4.14
-reference reconstruction explicitly authorizes new shared physical geometry;
-it does not authorize live REFPWR integration.
+The reference faces print FORWARD 0–20 and REFLECTED 0–4 with shared
+range multipliers ×1/×10/×100. Derive reflected normalization from that
+printed ratio: Pr / (activeRange * 4/20). Never use a permanent reflected
+Watt maximum or independent range selector. Both powers must normalize
+against the same active FORWARD range before SWR ray intersection.
+REF remains TEST until separately authorized live REFPWR integration;
+TEST presets are normalized fractions, not fixed Watt limits.
 
 The exact theme identifiers are classic-warm, dark-room-uplight and graphite-dark. All
 share the same fixed printed scale, range logic, calibration and needle geometry;

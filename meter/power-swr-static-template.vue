@@ -60,7 +60,7 @@
         <text x="320" y="370" :fill="theme.text" font-family="Arial,Helvetica,sans-serif" font-size="23" font-weight="bold" text-anchor="middle" letter-spacing="3">SWR</text>
       </svg>
         <aside class="meter-test-readout" aria-label="Live forward power and synthetic reflected power" aria-live="polite" data-fwd-source="LIVE" data-ref-source="TEST" data-swr-source="LIVE" :data-active-range="activeRange" :data-forward-state="forwardState" :data-forward-watts="forwardWatts === null ? undefined : forwardWatts">
-          <span>REF: <b>{{ testReflected.toFixed(1) }} W</b><small>TEST</small></span>
+          <span>REF: <b>{{ Number(testReflected.toFixed(2)) }} W</b><small>TEST</small></span>
           <label class="meter-theme-select">FACE
             <select v-model="selectedTheme" @change="saveTheme" aria-label="METER face theme">
               <option value="classic-warm">Classic</option>
@@ -85,8 +85,8 @@ export default {
       'graphite-dark': { face: ['#15191b','#242523','#1c2022'], frame: '#141a1e', frameEdge: '#4f575b', edge: '#444d50', glow: '#a47453', glowOpacity: .18, ink: '#e1d4b4', curve: '#c18a69', curveOpacity: .92, needle: '#e5d9bb', needleHighlight: '#fff2cf', pivot: '#1a2327', pivotEdge: '#b8a07c', bar: '#141b1f', text: '#e8dbbe' }
     },
     meterGeometry: {
-      FORWARD_MODEL_MAX: 1, REFLECTED_MODEL_MAX: .2,
-      FORWARD_PRINTED_MAX: 20, REFLECTED_TEST_FULL_SCALE_W: 120,
+      FORWARD_MODEL_MAX: 1,
+      FORWARD_PRINTED_MAX: 20, REFLECTED_PRINTED_MAX: 4,
       pivots: { forward: { x: 430, y: 380 }, reflected: { x: 210, y: 380 } },
       needleLength: 329, outerRadius: 330, innerRadius: 319, labelRadius: 347,
       zeroTilt: 8, sweep: 84, legendRadius: 367,
@@ -95,7 +95,7 @@ export default {
       swrFieldTop: 135,
       parallelEpsilon: 1e-9, tickDivisions: 80, curveSamples: 1200,
       labels: { forward: [0, .05, .1, .15, .2, .25, .3, .35, .4, .45, .5, .7, .8, .9, 1],
-        reflected: [0, .05, .1, .2, .3, .5, .8, 1] },
+        reflected: [0, .05, .1, .15, .2, .25, .3, .4, .5, .9, 1] },
       guideValues: [1.2, 1.5, 2, 3, 5],
       guideLabelFractions: [.63, .66, .68, .71, .74, .76],
       calibration: [
@@ -238,13 +238,13 @@ export default {
     },
     forwardSource: 'LIVE', reflectedSource: 'TEST',
     liveClock: Date.now(), liveClockTimer: null, forwardTxSince: null,
-    testPreset: 'ZERO', testReflected: 0,
+    testPreset: 'ZERO',
     testPresets: [
-      { key: 'ZERO', reflected: 0 },
-      { key: 'GOOD', reflected: 1 },
-      { key: 'MEDIUM', reflected: 10 },
-      { key: 'HIGH', reflected: 40 },
-      { key: 'FULL-SCALE', reflected: 120 }
+      { key: 'ZERO', fraction: 0 },
+      { key: 'GOOD', fraction: .01 },
+      { key: 'MEDIUM', fraction: .1 },
+      { key: 'HIGH', fraction: 1/3 },
+      { key: 'FULL-SCALE', fraction: 1 }
     ],
     tabs: [{ key: 'radio', label: 'RADIO' }, { key: 'pa', label: 'PA' }, { key: 'tx', label: 'TX' },
       { key: 'rx', label: 'RX' }, { key: 'external', label: 'EXT' }, { key: 'agct', label: 'AGC-T' }, { key: 'meter', label: 'METER' }]
@@ -257,6 +257,9 @@ export default {
     }
   },
   computed: {
+    reflectedModelMax() { return this.meterGeometry.FORWARD_MODEL_MAX * this.meterGeometry.REFLECTED_PRINTED_MAX / this.meterGeometry.FORWARD_PRINTED_MAX; },
+    reflectedFullScaleWatts() { return this.activeRange * this.reflectedModelMax / this.meterGeometry.FORWARD_MODEL_MAX; },
+    testReflected() { return (this.testPresets.find(preset => preset.key === this.testPreset)?.fraction || 0) * this.reflectedFullScaleWatts; },
     theme() { return this.themeDefinitions[this.selectedTheme] || this.themeDefinitions['classic-warm']; },
     activeRange() { return [20, 200, 2000].includes(this.msg?.payload?.activeRange) ? this.msg.payload.activeRange : 20; },
     activeRangeText() { return this.activeRange === 2000 ? '2 kW' : `${this.activeRange} W`; },
@@ -291,7 +294,7 @@ export default {
   },
   methods: {
     labelArc(side) {
-      const max = side === 'forward' ? this.meterGeometry.FORWARD_MODEL_MAX : this.meterGeometry.REFLECTED_MODEL_MAX;
+      const max = side === 'forward' ? this.meterGeometry.FORWARD_MODEL_MAX : this.reflectedModelMax;
       const points = Array.from({ length: 80 }, (_, i) => this.scalePoint(side, max * (.015 + .28 * i / 79), this.meterGeometry.legendRadius));
       return this.pointsToPath(side === 'reflected' ? points.reverse() : points);
     },
@@ -322,10 +325,10 @@ export default {
       return this.calibratedAngle(watts, this.activeRange);
     },
     reflectedWattsToAngle(watts) {
-      return -this.calibratedAngle(watts, this.meterGeometry.REFLECTED_TEST_FULL_SCALE_W);
+      return -this.calibratedAngle(watts, this.reflectedFullScaleWatts);
     },
     needleDirection(side, watts) {
-      const max = side === 'forward' ? this.meterGeometry.FORWARD_MODEL_MAX : this.meterGeometry.REFLECTED_MODEL_MAX;
+      const max = side === 'forward' ? this.meterGeometry.FORWARD_MODEL_MAX : this.reflectedModelMax;
       const angle = (side === 'forward' ? 1 : -1) * (this.meterGeometry.zeroTilt + this.calibratedAngle(watts, max)) * Math.PI / 180;
       return side === 'forward' ? { x: -Math.cos(angle), y: -Math.sin(angle) } : { x: Math.cos(angle), y: Math.sin(angle) };
     },
@@ -336,9 +339,9 @@ export default {
     },
     scaleLayout(side) {
       const geometry = this.meterGeometry;
-      const max = side === 'forward' ? geometry.FORWARD_MODEL_MAX : geometry.REFLECTED_MODEL_MAX;
+      const max = side === 'forward' ? geometry.FORWARD_MODEL_MAX : this.reflectedModelMax;
       const fractions = geometry.labels[side];
-      const labels = fractions.map(q => ({ watts: q * max, printed: Number((q * (side === 'forward' ? geometry.FORWARD_PRINTED_MAX : geometry.REFLECTED_TEST_FULL_SCALE_W)).toFixed(6)), ...this.scalePoint(side, q * max, geometry.labelRadius) }));
+      const labels = fractions.map(q => ({ watts: q * max, printed: Number((q * (side === 'forward' ? geometry.FORWARD_PRINTED_MAX : geometry.REFLECTED_PRINTED_MAX)).toFixed(6)), ...this.scalePoint(side, q * max, geometry.labelRadius) }));
       const powers = [...new Set([...Array.from({ length: geometry.tickDivisions + 1 }, (_, i) => i * max / geometry.tickDivisions), ...labels.map(item => item.watts)])].sort((a, b) => a - b);
       const ticks = powers.map(watts => {
         const major = labels.some(label => Math.abs(label.watts - watts) < 1e-6);
@@ -355,7 +358,7 @@ export default {
     },
     needleIntersection(forward, reflected) {
       const geometry = this.meterGeometry;
-      if (!Number.isFinite(forward) || !Number.isFinite(reflected) || forward < 0 || reflected < 0 || forward > geometry.FORWARD_MODEL_MAX || reflected > geometry.REFLECTED_MODEL_MAX) return null;
+      if (!Number.isFinite(forward) || !Number.isFinite(reflected) || forward < 0 || reflected < 0 || forward > geometry.FORWARD_MODEL_MAX || reflected > this.reflectedModelMax) return null;
       const F = geometry.pivots.forward, R = geometry.pivots.reflected;
       const u = this.needleDirection('forward', forward), v = this.needleDirection('reflected', reflected);
       const cross = (a, b) => a.x * b.y - a.y * b.x;
@@ -371,11 +374,11 @@ export default {
       const geometry = this.meterGeometry;
       if (swr !== Infinity && (!Number.isFinite(swr) || swr <= 1)) return [];
       const ratio = swr === Infinity ? 1 : ((swr - 1) / (swr + 1)) ** 2;
-      const max = Math.min(geometry.FORWARD_MODEL_MAX, geometry.REFLECTED_MODEL_MAX / ratio);
+      const max = Math.min(geometry.FORWARD_MODEL_MAX, this.reflectedModelMax / ratio);
       const points = [];
       for (let i = 1; i <= geometry.curveSamples; i++) {
         const forward = max * i / geometry.curveSamples;
-        const reflected = Math.min(geometry.REFLECTED_MODEL_MAX, forward * ratio);
+        const reflected = Math.min(this.reflectedModelMax, forward * ratio);
         const point = this.needleIntersection(forward, reflected);
         if (point && point.x >= geometry.face.left && point.x <= geometry.face.right && point.y >= geometry.swrFieldTop && point.y <= geometry.face.bottom) points.push(point);
       }
@@ -393,7 +396,7 @@ export default {
       const preset = this.testPresets.find(item => item.key === key);
       if (!preset) return;
       this.testPreset = preset.key;
-      this.testReflected = preset.reflected;
+
     },
     selectTab(key) {
       if (!this.tabs.some(tab => tab.key === key)) return;
