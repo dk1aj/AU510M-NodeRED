@@ -56,7 +56,7 @@
           <circle :cx="meterGeometry.pivots.reflected.x" :cy="meterGeometry.pivots.reflected.y" r="5" :fill="theme.pivot" :stroke="theme.pivotEdge"/>
         </g>
         <path class="meter-lower-bar" d="M24 350 L216 350 Q320 330 424 350 L616 350 L616 378 L24 378 Z" :fill="theme.bar" :stroke="theme.frameEdge" stroke-width=".7"/>
-        <text x="320" y="370" :fill="theme.text" font-family="Arial,Helvetica,sans-serif" font-size="23" font-weight="bold" text-anchor="middle" letter-spacing="3">SWR</text>
+        <text x="320" y="370" :fill="theme.text" font-family="Arial,Helvetica,sans-serif" font-size="23" font-weight="bold" text-anchor="middle" letter-spacing="3">DK1AJ</text>
       </svg>
         <aside class="meter-test-readout" aria-label="Live forward power and live reflected power" aria-live="polite" data-fwd-source="LIVE" data-ref-source="LIVE" data-swr-source="LIVE" :data-active-range="activeRange" :data-forward-state="forwardState" :data-forward-watts="forwardWatts === null ? undefined : forwardWatts" :data-reflected-watts="reflectedWatts === null ? undefined : reflectedWatts">
           <span>REF: <b>{{ reflectedWattsText }}</b><small>LIVE</small></span>

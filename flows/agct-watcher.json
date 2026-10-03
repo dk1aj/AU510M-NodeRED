@@ -8,12 +8,12 @@
     "env": [
       {
         "name": "WATCHER_OLD_VERSION",
-        "value": "4.17",
+        "value": "4.18",
         "type": "str"
       },
       {
         "name": "WATCHER_VERSION",
-        "value": "4.18",
+        "value": "4.19",
         "type": "str"
       }
     ]
