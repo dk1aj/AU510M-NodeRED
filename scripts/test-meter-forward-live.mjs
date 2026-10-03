@@ -6,7 +6,10 @@ const projection = flows.find(node => node.id === 'au510m_meter_forward_only');
 assert(projection);
 assert(flows.find(node => node.id === 'au510m_live_bridge').wires[0].includes(projection.id));
 assert.deepEqual(projection.wires, [['au510m_power_swr_static_ui']]);
-const select = new Function('msg', projection.func);
+const saved = new Map();
+const context = {get:key=>saved.get(key),set:(key,value)=>saved.set(key,value)};
+const project = new Function('msg', 'context', 'Date', projection.func);
+const select = msg => project(msg, context, {now:()=>base});
 const base = Date.now() + 60000;
 const input = { payload: { section: 'pa', online: true, timestamp: base, rows: [
  { topic: 'TX-/1/FWDPWR', watts: 625, seen: base, raw: 57.9588 },
@@ -15,7 +18,7 @@ const input = { payload: { section: 'pa', online: true, timestamp: base, rows: [
 const original = structuredClone(input);
 const result = select(input);
 assert.deepEqual(input, original, 'Existing RADIO/PA message must not mutate');
-assert.deepEqual(Object.keys(result.payload).sort(), ['forward', 'online', 'radio', 'swr', 'timestamp']);
+assert.deepEqual(Object.keys(result.payload).sort(), ['activeRange', 'forward', 'online', 'radio', 'swr', 'timestamp']);
 assert.deepEqual(result.payload.forward, { watts: 625, seen: base });
 assert.deepEqual(result.payload.swr, { value: 4, seen: base, available: true });
 assert.deepEqual(result.payload.radio, { connected: true, at: base, rxTx: 'TX' });
@@ -42,7 +45,9 @@ assert.equal(state.forwardBoxText, '--');
 update(result.payload);
 assert.equal(state.forwardWatts, 625);
 assert.equal(state.forwardWattsText, '625');
-assert.equal(state.forwardWattsToAngle(state.forwardWatts), 50, 'Only angle clamps');
+assert.equal(state.activeRange,2000);
+assert.equal(state.forwardWattsToAngle(state.forwardWatts),state.calibratedAngle(625,2000));
+assert.equal(state.forwardWattsToAngle(2500),50,'Only angle clamps');
 assert.equal(result.payload.forward.watts, 625);
 for (const preset of state.testPresets) {
  state.selectTestPreset(preset.key);
@@ -86,7 +91,7 @@ update({ ...result.payload, forward: { watts: 123.456, seen: base } });
 assert.equal(state.forwardWatts, 123.456);
 assert.equal(state.forwardWattsText, '123');
 assert.equal(state.forwardBoxText, '123 W');
-for (const [watts, text] of [[37.4, '37 W'], [123.6, '124 W'], [4.2, '4.2 W'], [7.8, '7.8 W'], [0, '0 W']]) {
+for (const [watts, text] of [[37.4, '37 W'], [123.6, '124 W'], [4.2, '4.2 W'], [7.8, '7.8 W'], [0, '0 W'], [1350, '1.35 kW']]) {
  update({ ...result.payload, forward: { watts, seen: base } });
  assert.equal(state.forwardWatts, watts);
  assert.equal(state.forwardBoxText, text);

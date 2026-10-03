@@ -118,3 +118,5 @@ assert(ui.includes('grid-template-rows:42px 30px minmax(0,1fr) 24px'));
  assert.match(state.agctFeedback,/Keine aktuelle Radio-QRG/);
 }
 console.log('PASS: all tabs include AGC-T; fresh-QRG click, exact frequency, save acknowledgement and stale-input rejection.');
+
+await import('./test-meter-auto-range.mjs');

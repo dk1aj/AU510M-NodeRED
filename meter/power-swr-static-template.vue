@@ -21,6 +21,7 @@
         <rect x="1" y="1" width="638" height="388" rx="13" fill="#151a20" stroke="#59606a" stroke-width="2"/>
         <rect x="13" y="14" width="614" height="330" rx="8" fill="url(#static-meter-amber)" stroke="#28221b" stroke-width="3"/>
         <rect x="13" y="14" width="614" height="330" rx="8" fill="url(#static-meter-glow)"/>
+        <text class="meter-range-value" x="320" y="39" fill="#f2f4f5" font-family="Arial,Helvetica,sans-serif" font-size="14" font-weight="600" text-anchor="middle">{{ activeRangeText }}</text>
         <g class="meter-top-value meter-forward-box" data-fwd-source="LIVE" aria-label="Live forward power">
           <rect x="24" y="22" width="90" height="34" rx="4" fill="#1b2633" stroke="#5bcdf2" stroke-width="2"/>
           <text class="meter-live-value" x="69" y="39" :font-size="forwardBoxText.length > 5 ? 24 * 5 / forwardBoxText.length : 24">{{ forwardBoxText }}</text>
@@ -37,7 +38,7 @@
             <path :d="scale.outer" fill="none" stroke-width="2.3"/>
             <path :d="scale.inner" fill="none" stroke-width=".8"/>
             <line v-for="tick in scale.ticks" :key="tick.watts" :data-watts="tick.watts" :x1="tick.start.x" :y1="tick.start.y" :x2="tick.end.x" :y2="tick.end.y" :stroke-width="tick.major ? 1.8 : .65"/>
-            <text v-for="label in scale.labels" :key="label.watts" :x="label.x" :y="label.y + (label.watts === 0 ? meterGeometry.zeroLabelBaseline : meterGeometry.labelBaseline)" text-anchor="middle" stroke="none" font-size="13">{{ label.watts }}</text>
+            <text v-for="label in scale.labels" :key="label.watts" :x="label.x" :y="label.y + (label.watts === 0 ? meterGeometry.zeroLabelBaseline : meterGeometry.labelBaseline)" text-anchor="middle" stroke="none" font-size="13">{{ label.printed }}</text>
           </g>
           <text text-anchor="middle" stroke="none" font-size="19" letter-spacing="1"><textPath href="#forward-label-arc" startOffset="50%">FORWARD</textPath></text>
           <text text-anchor="middle" stroke="none" font-size="19" letter-spacing="1"><textPath href="#reflected-label-arc" startOffset="50%">REFLECTED</textPath></text>
@@ -60,7 +61,7 @@
         <rect x="19" y="350" width="602" height="30" fill="#1b2633" stroke="#5b6571"/>
         <text x="320" y="374" fill="#f2f4f5" font-family="Arial,Helvetica,sans-serif" font-size="26" font-weight="bold" text-anchor="middle" letter-spacing="3">SWR</text>
       </svg>
-        <aside class="meter-test-readout" aria-label="Live forward power and synthetic reflected power" aria-live="polite" data-fwd-source="LIVE" data-ref-source="TEST" data-swr-source="LIVE" :data-forward-state="forwardState" :data-forward-watts="forwardWatts === null ? undefined : forwardWatts">
+        <aside class="meter-test-readout" aria-label="Live forward power and synthetic reflected power" aria-live="polite" data-fwd-source="LIVE" data-ref-source="TEST" data-swr-source="LIVE" :data-active-range="activeRange" :data-forward-state="forwardState" :data-forward-watts="forwardWatts === null ? undefined : forwardWatts">
           <span>REF: <b>{{ testReflected.toFixed(1) }} W</b><small>TEST</small></span>
         </aside>
       </div>
@@ -73,13 +74,14 @@ export default {
   data() { return {
     activeTab: 'radio', tabListener: null, oldVersion: '…', newVersion: '…',
     meterGeometry: {
-      FORWARD_FULL_SCALE_W: 600, REFLECTED_FULL_SCALE_W: 120,
+      FORWARD_MODEL_MAX: 1, REFLECTED_MODEL_MAX: .2,
+      FORWARD_PRINTED_MAX: 20, REFLECTED_TEST_FULL_SCALE_W: 120,
       pivots: { forward: { x: 450, y: 340 }, reflected: { x: 190, y: 340 } },
       needleLength: 378, outerRadius: 378, innerRadius: 360, labelRadius: 342,
       labelBaseline: 4, zeroLabelBaseline: -6,
       face: { left: 13, right: 627, top: 14, bottom: 344 },
       parallelEpsilon: 1e-9, tickDivisions: 24, curveSamples: 1200,
-      labels: { forward: [0, 1/12, 1/6, 1/3, 1/2, 2/3, 5/6, 1],
+      labels: { forward: [0, 1/4, 1/2, 3/4, 1],
         reflected: [0, 1/24, 1/12, 1/6, 1/3, 1/2, 2/3, 5/6, 1] },
       guideValues: [1.2, 1.5, 2, 3, 5, 8],
       guideLabelFractions: [.65, .67, .68, .75, .85, .80, .85],
@@ -242,6 +244,8 @@ export default {
     }
   },
   computed: {
+    activeRange() { return [20, 200, 2000].includes(this.msg?.payload?.activeRange) ? this.msg.payload.activeRange : 20; },
+    activeRangeText() { return this.activeRange === 2000 ? '2 kW' : `${this.activeRange} W`; },
     forwardState() {
       const payload = this.msg?.payload, radio = payload?.radio;
       if (payload?.online !== true || radio?.connected !== true || !this.freshForwardTimestamp(payload.timestamp, 10000) || !this.freshForwardTimestamp(radio.at, 10000)) return 'UNKNOWN';
@@ -256,9 +260,9 @@ export default {
     forwardWattsText() {
       const watts = this.forwardWatts;
       if (watts === null) return '--';
-      return watts >= 10 ? Math.round(watts).toString() : Number(watts.toFixed(1)).toString();
+      return watts >= 1000 ? Number((watts / 1000).toFixed(2)).toString() : watts >= 10 ? Math.round(watts).toString() : Number(watts.toFixed(1)).toString();
     },
-    forwardBoxText() { return this.forwardWatts === null ? '--' : `${this.forwardWattsText} W`; },
+    forwardBoxText() { return this.forwardWatts === null ? '--' : `${this.forwardWattsText} ${this.forwardWatts >= 1000 ? 'kW' : 'W'}`; },
     restEndpoints() { return Object.fromEntries(['forward', 'reflected'].map(side => [side, this.scalePoint(side, 0, this.meterGeometry.needleLength)])); },
     testSwr() { return this.calculatedSwr(this.forwardWatts, this.testReflected); },
     // RADIO's existing SWR validity: TX only, fresh canonical sample in this TX interval.
@@ -290,13 +294,14 @@ export default {
       return points[points.length - 1][1];
     },
     forwardWattsToAngle(watts) {
-      return this.calibratedAngle(watts, this.meterGeometry.FORWARD_FULL_SCALE_W);
+      return this.calibratedAngle(watts, this.activeRange);
     },
     reflectedWattsToAngle(watts) {
-      return -this.calibratedAngle(watts, this.meterGeometry.REFLECTED_FULL_SCALE_W);
+      return -this.calibratedAngle(watts, this.meterGeometry.REFLECTED_TEST_FULL_SCALE_W);
     },
     needleDirection(side, watts) {
-      const angle = (side === 'forward' ? this.forwardWattsToAngle(watts) : this.reflectedWattsToAngle(watts)) * Math.PI / 180;
+      const max = side === 'forward' ? this.meterGeometry.FORWARD_MODEL_MAX : this.meterGeometry.REFLECTED_MODEL_MAX;
+      const angle = (side === 'forward' ? 1 : -1) * this.calibratedAngle(watts, max) * Math.PI / 180;
       return side === 'forward' ? { x: -Math.cos(angle), y: -Math.sin(angle) } : { x: Math.cos(angle), y: Math.sin(angle) };
     },
     scalePoint(side, watts, radius) {
@@ -306,9 +311,9 @@ export default {
     },
     scaleLayout(side) {
       const geometry = this.meterGeometry;
-      const max = side === 'forward' ? geometry.FORWARD_FULL_SCALE_W : geometry.REFLECTED_FULL_SCALE_W;
+      const max = side === 'forward' ? geometry.FORWARD_MODEL_MAX : geometry.REFLECTED_MODEL_MAX;
       const fractions = geometry.labels[side];
-      const labels = fractions.map(q => ({ watts: Number((q * max).toFixed(6)), ...this.scalePoint(side, q * max, geometry.labelRadius) }));
+      const labels = fractions.map(q => ({ watts: q * max, printed: Number((q * (side === 'forward' ? geometry.FORWARD_PRINTED_MAX : geometry.REFLECTED_TEST_FULL_SCALE_W)).toFixed(6)), ...this.scalePoint(side, q * max, geometry.labelRadius) }));
       const powers = [...new Set([...Array.from({ length: geometry.tickDivisions + 1 }, (_, i) => i * max / geometry.tickDivisions), ...labels.map(item => item.watts)])].sort((a, b) => a - b);
       const ticks = powers.map(watts => {
         const major = labels.some(label => Math.abs(label.watts - watts) < 1e-6);
@@ -325,7 +330,7 @@ export default {
     },
     needleIntersection(forward, reflected) {
       const geometry = this.meterGeometry;
-      if (!Number.isFinite(forward) || !Number.isFinite(reflected) || forward < 0 || reflected < 0 || forward > geometry.FORWARD_FULL_SCALE_W || reflected > geometry.REFLECTED_FULL_SCALE_W) return null;
+      if (!Number.isFinite(forward) || !Number.isFinite(reflected) || forward < 0 || reflected < 0 || forward > geometry.FORWARD_MODEL_MAX || reflected > geometry.REFLECTED_MODEL_MAX) return null;
       const F = geometry.pivots.forward, R = geometry.pivots.reflected;
       const u = this.needleDirection('forward', forward), v = this.needleDirection('reflected', reflected);
       const cross = (a, b) => a.x * b.y - a.y * b.x;
@@ -341,11 +346,11 @@ export default {
       const geometry = this.meterGeometry;
       if (swr !== Infinity && (!Number.isFinite(swr) || swr <= 1)) return [];
       const ratio = swr === Infinity ? 1 : ((swr - 1) / (swr + 1)) ** 2;
-      const max = Math.min(geometry.FORWARD_FULL_SCALE_W, geometry.REFLECTED_FULL_SCALE_W / ratio);
+      const max = Math.min(geometry.FORWARD_MODEL_MAX, geometry.REFLECTED_MODEL_MAX / ratio);
       const points = [];
       for (let i = 1; i <= geometry.curveSamples; i++) {
         const forward = max * i / geometry.curveSamples;
-        const reflected = Math.min(geometry.REFLECTED_FULL_SCALE_W, forward * ratio);
+        const reflected = Math.min(geometry.REFLECTED_MODEL_MAX, forward * ratio);
         const point = this.needleIntersection(forward, reflected);
         if (point && point.x >= geometry.face.left && point.x <= geometry.face.right && point.y >= geometry.face.top && point.y <= geometry.face.bottom) points.push(point);
       }

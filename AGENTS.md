@@ -167,14 +167,19 @@ meter faces per range. Preserve pivots, arcs, ticks, calibration and FORWARD
 textPath. The actual live numeric power remains truthful without multipliers.
 Show one small active-range indicator separately from the live power box.
 
-Before implementing range-dependent mapping, find and reuse the existing
-canonical active 20/200/2000 W range state. If none is available, report NOT FOUND
-and stop runtime work; never infer switching thresholds from power or invent
-hysteresis. The deployed v4.12 still has the legacy 600/120 W mapping pending a
-canonical range source; 600 W is not a permanent requirement for the new design.
+The project has no AU-510M-provided 20/200/2000 W range state. The canonical
+METER range is derived centrally from live FWDPWR in au510m_meter_forward_only.
+There is exactly one selector and one state, shared by all browsers and themes.
+UP: 20 -> 200 only above 20 W; 200 -> 2000 only above 200 W.
+DOWN: 2000 -> 200 only below 160 W; 200 -> 20 only below 16 W.
+Evaluate both steps in one update so large changes select the correct range
+immediately. Start at 20 W. RX, zero, unavailable, stale or invalid data retain
+the last range; evaluate again on a fresh positive sample during TX. Use the
+existing normalized TX/RX and current-TX-interval validity gates. No additional
+thresholds, timing rules or independent theme selectors are allowed.
 The REFLECTED 120 W geometry remains unchanged unless separately authorized.
 
-The exact theme identifiers are classic-warm, dark-room-uplight and gr. All
+The exact theme identifiers are classic-warm, dark-room-uplight and graphite-dark. All
 share the same fixed printed scale, range logic, calibration and needle geometry;
 themes change visual styling only. Implement one central theme definition inside
 the existing Vue component; never duplicate data paths, geometry, range logic
@@ -182,7 +187,7 @@ or subscriptions. Recreate the themes natively in SVG/CSS, with classic-warm as
 the default and one compact selector. Use only these repository references:
 - classic-warm: docs/reference/pwr-meter-classic-warm.png
 - dark-room-uplight: docs/reference/pwr-meter-dark-room-uplight.png
-- gr: docs/reference/pwr-meter-graphite-dark.png
+- graphite-dark: docs/reference/pwr-meter-graphite-dark.png
 Do not use bitmap faces, web images or other references. Canonical geometry documentation is docs/cross-needle-meter.md.
 Scale ticks, needle movement and SWR curves must use the same canonical
 power-to-angle geometry/calibration model. Never independently approximate SWR
