@@ -1,6 +1,6 @@
 # Cross-needle RF Power/SWR meter
 
-Current deployed snapshot: [v4.19 handoff](handoff-2026-10-03-v4.19.md).
+Current deployed snapshot: [v4.20 handoff](handoff-2026-10-04-v4.20.md).
 The maintained version pair is in `agct-watcher-version.json`.
 
 ## Canonical data and range
@@ -162,4 +162,4 @@ fresh TX/RX comparison remain pending. The user explicitly requested saving
 this current state as a documented commit checkpoint.
 See the [historical v4.15 handoff](handoff-2026-10-03-v4.15.md) for that
 release's evidence. Current behavior and remaining checks are recorded in the
-[v4.19 handoff](handoff-2026-10-03-v4.19.md).
+[v4.20 handoff](handoff-2026-10-04-v4.20.md).

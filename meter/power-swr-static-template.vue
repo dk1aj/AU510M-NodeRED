@@ -236,11 +236,20 @@ export default {
       ]
     },
     forwardSource: 'LIVE', reflectedSource: 'LIVE',
-    liveClock: Date.now(), liveClockTimer: null, forwardTxSince: null,
+    liveClock: Date.now(), liveClockTimer: null, forwardTxSince: null, serverReceivedAt: Date.now(),
     tabs: [{ key: 'radio', label: 'RADIO' }, { key: 'pa', label: 'PA' }, { key: 'tx', label: 'TX' },
       { key: 'rx', label: 'RX' }, { key: 'external', label: 'EXT' }, { key: 'agct', label: 'AGC-T' }, { key: 'meter', label: 'METER' }]
   }; },
   watch: {
+    msg: {
+      immediate: true,
+      flush: 'sync',
+      handler() {
+        // Server timestamps share one clock; the browser only measures elapsed receipt time.
+        this.serverReceivedAt = Date.now();
+        this.liveClock = this.serverReceivedAt;
+      }
+    },
     forwardState: {
       immediate: true,
       flush: 'sync',
@@ -302,7 +311,10 @@ export default {
     },
     saveTheme() { try { sessionStorage.setItem('aurora-meter-face-theme', this.selectedTheme); } catch (_) {} },
     freshForwardTimestamp(timestamp, ageLimit) {
-      const now = Math.max(this.liveClock, Date.now());
+      const serverNow = this.msg?.payload?.serverNow;
+      if (!Number.isFinite(serverNow) || !Number.isFinite(this.serverReceivedAt)) return false;
+      const elapsed = Math.max(0, Math.max(this.liveClock, Date.now()) - this.serverReceivedAt);
+      const now = serverNow + elapsed;
       return Number.isFinite(timestamp) && timestamp > 0 && now - timestamp >= 0 && now - timestamp < ageLimit;
     },
     calibratedAngle(watts, fullScale) {

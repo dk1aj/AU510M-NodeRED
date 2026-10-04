@@ -14,7 +14,7 @@ from a previous TX interval. Numeric SWR is TX-gated; unavailable/RX shows --.
 The centrally selected 20/200/2000 W range uses FORWARD only and applies to
 both needles; printed scale labels stay fixed. See
 [cross-needle geometry and range rules](cross-needle-meter.md) and the
-[current v4.19 handoff](handoff-2026-10-03-v4.19.md).
+[current v4.20 handoff](handoff-2026-10-04-v4.20.md).
 
 This table is extracted from the active 35-meter display configuration. It lists
 configured identities, not a claim that every one is published or verified in
@@ -63,6 +63,16 @@ historical RX display has some slice-specific rows.
 | RX | `SLC/0/LEVEL` | LEVEL | radio metadata |
 | RX | `SLC/0/AGC+` | AGC+ | radio metadata |
 | EXTERNAL | `EXT_WVF/0x3925F196/FreeDV_SNR` | FreeDV_SNR | radio metadata |
+
+## METER clock handling
+
+The METER projection adds `serverNow` without changing canonical Watt/SWR values.
+The template compares sample timestamps on that server clock and advances it
+by elapsed browser receipt time. Browser/server wall-clock offsets cannot make
+fresh TX values appear future-dated. The existing 10-second payload/radio and
+15-second sample expiry rules, TX-cycle isolation and RX reset remain in force.
+Real measured power changes remain visible; no additional averaging or fixed
+TX value is introduced.
 
 ## Units and freshness
 

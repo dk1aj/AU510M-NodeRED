@@ -60,5 +60,5 @@ and reuses the shared radio config. Exporting does not deploy. Historical migrat
 scripts must not be replayed over the current UI.
 
 The current deployed snapshot and validation limits are recorded in the
-[v4.19 handoff](handoff-2026-10-03-v4.19.md). Runtime version values are maintained
+[v4.20 handoff](handoff-2026-10-04-v4.20.md). Runtime version values are maintained
 only in agct-watcher-version.json and published by watcher status.

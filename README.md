@@ -22,7 +22,7 @@ classic-warm, dark-room-uplight and graphite-dark SVG/CSS face themes.
 Both needles use black/white contours for maximum contrast. The lower central
 meter label is DK1AJ; the red box remains the live radio SWR reading.
 See [cross-needle geometry](docs/cross-needle-meter.md) and the
-[current v4.19 handoff](docs/handoff-2026-10-03-v4.19.md).
+[current v4.20 handoff](docs/handoff-2026-10-04-v4.20.md).
 
 - Host: DietPi/Debian x86_64; observed Node.js 26.3.0/npm 11.16.0.
 - Node-RED 5.0.0 (installed metadata also reports 5.0.0-git).

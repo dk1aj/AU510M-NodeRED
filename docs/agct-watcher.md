@@ -5,7 +5,7 @@ and NEW_VERSION. The version script copies them to watcher tab environment
 settings; the core publishes both in status. Both UIs render that status and the
 footer `Old: vX.Y | New: vX.Y`. METER/UI releases share this version without
 changing watcher calibration behavior. The current deployed snapshot is
-[v4.19](handoff-2026-10-03-v4.19.md).
+[v4.20](handoff-2026-10-04-v4.20.md).
 
 ## Scan
 

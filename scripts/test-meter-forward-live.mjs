@@ -1,6 +1,8 @@
 import fs from 'node:fs';
 import vm from 'node:vm';
 import assert from 'node:assert/strict';
+import { createRequire } from 'node:module';
+const { reactive, computed, watch, effectScope } = createRequire(import.meta.url)('vue');
 const flows = JSON.parse(fs.readFileSync('flows.json'));
 const projection = flows.find(node => node.id === 'au510m_meter_forward_only');
 assert(projection);
@@ -18,7 +20,7 @@ const input = { payload: { section: 'pa', online: true, timestamp: base, rows: [
 const original = structuredClone(input);
 const result = select(input);
 assert.deepEqual(input, original, 'Existing RADIO/PA message must not mutate');
-assert.deepEqual(Object.keys(result.payload).sort(), ['activeRange', 'forward', 'online', 'radio', 'reflected', 'swr', 'timestamp']);
+assert.deepEqual(Object.keys(result.payload).sort(), ['activeRange', 'forward', 'online', 'radio', 'reflected', 'serverNow', 'swr', 'timestamp']);
 assert.deepEqual(result.payload.reflected, { watts: 99, seen: base });
 assert.deepEqual(result.payload.forward, { watts: 625, seen: base });
 assert.deepEqual(result.payload.swr, { value: 4, seen: base, available: true });
@@ -27,14 +29,17 @@ assert(!/raw|SWR|REFPWR|Frequency/.test(JSON.stringify(result)));
 assert.equal(select({ payload: null }), null);
 assert.equal(select({ payload: { section: 'tx', rows: [] } }), null);
 const source = fs.readFileSync('meter/power-swr-static-template.vue', 'utf8');
-const options = vm.runInNewContext(source.match(/<script>([\s\S]*?)<\/script>/)[1].replace('export default', '(') + ')');
+let browserNow = base;
+const options = vm.runInNewContext(source.match(/<script>([\s\S]*?)<\/script>/)[1].replace('export default', '(') + ')', { Date: { now: () => browserNow } });
 const state = { ...options.data(), liveClock: base };
 for (const [key, fn] of Object.entries(options.methods)) state[key] = fn.bind(state);
 for (const [key, fn] of Object.entries(options.computed)) Object.defineProperty(state, key, { get: () => fn.call(state) });
 function update(payload, at = state.liveClock) {
  const before = state.forwardState;
+ browserNow = at;
  state.liveClock = at;
- state.msg = { payload };
+ state.msg = { payload: { ...payload, serverNow: at } };
+ options.watch.msg.handler.call(state);
  const after = state.forwardState;
  if (before !== after) options.watch.forwardState.handler.call(state, after);
 }
@@ -179,3 +184,56 @@ assert(!/testReflected|testPresets|selectTestPreset/.test(source), 'Live REF can
 const changedNodes = flows.filter(n => ['au510m_meter_forward_only', 'au510m_power_swr_static_ui'].includes(n.id));
 assert(!/10\s*\*\*|Math\.pow|sub meter/.test(JSON.stringify(changedNodes)), 'Reuse existing Watt conversion/subscriptions');
 console.log('PASS: canonical FWDPWR/REFPWR branch, immutable input, independent live SWR, shared range/geometry, truthful over-range numbers, RX reset and TX-cycle/stale/invalid safety for both needles.');
+
+// Exercise real Vue synchronous watchers with browser clocks ahead/behind the server.
+// Fresh TX samples must never turn into "--" merely because the two clocks differ.
+for (const offset of [-60000, -250, 0, 250, 60000]) {
+ let clientNow = base + offset;
+ const component = vm.runInNewContext(source.match(/<script>([\s\S]*?)<\/script>/)[1].replace('export default', '(') + ')', { Date: { now: () => clientNow } });
+ const scope = effectScope();
+ scope.run(() => {
+  const view = reactive({ ...component.data(), msg: null });
+  for (const [key, fn] of Object.entries(component.methods)) view[key] = fn.bind(view);
+  for (const [key, fn] of Object.entries(component.computed)) {
+   const value = computed(() => fn.call(view));
+   Object.defineProperty(view, key, { get: () => value.value });
+  }
+  for (const [key, config] of Object.entries(component.watch)) watch(() => view[key], config.handler.bind(view), { immediate: config.immediate, flush: config.flush });
+  const received = (payload, serverNow) => {
+   clientNow = serverNow + offset + 25;
+   view.msg = { payload: { ...payload, serverNow } };
+  };
+  let latest;
+  for (let i = 0; i < 80; i++) {
+   const at = base + i * 125;
+   latest = { ...result.payload, timestamp: at, radio: { connected: true, rxTx: 'TX', at: at - 30 }, forward: { watts: 50 + i, seen: at - 20 }, reflected: { watts: 2, seen: at - 20 }, swr: { value: 1.47, available: true, seen: at - 20 } };
+   received(latest, at);
+   assert.equal(view.forwardState, 'TX', `TX state must remain stable at clock offset ${offset}`);
+   assert.equal(view.forwardWatts, 50 + i, 'Changing real Watt samples remain truthful');
+   assert.notEqual(view.forwardBoxText, '--', 'Fresh TX must not blink');
+   assert.equal(view.reflectedWatts, 2);
+   assert.equal(view.liveSwrText, '1.47');
+   if (i % 8 === 0) view.liveClock = clientNow;
+   assert.equal(view.forwardWatts, 50 + i, 'Expiry timer must not invalidate fresh TX');
+   assert.equal(view.forwardTxSince, base - 30, 'Clock differences must not restart the TX interval');
+  }
+  // Retained values still expire when dashboard messages cease.
+  clientNow += 11000;
+  view.liveClock = clientNow;
+  assert.equal(view.forwardState, 'UNKNOWN');
+  assert.equal(view.forwardBoxText, '--');
+  received({ ...latest, radio: { connected: true, rxTx: 'RX', at: base + 21000 }, timestamp: base + 21000 }, base + 21000);
+  assert.equal(view.forwardWatts, 0);
+  assert.equal(view.reflectedWatts, 0);
+  assert.equal(view.liveSwrText, '--');
+  const txAt = base + 22000;
+  received({ ...latest, timestamp: txAt, radio: { connected: true, rxTx: 'TX', at: txAt } }, txAt);
+  assert.equal(view.forwardWatts, null, 'New TX cannot reuse preceding TX samples');
+  received({ ...latest, timestamp: txAt + 125, radio: { connected: true, rxTx: 'TX', at: txAt + 125 }, forward: { watts: 73, seen: txAt + 120 } }, txAt + 125);
+  assert.equal(view.forwardWatts, 73);
+  received({ ...latest, timestamp: txAt + 125, radio: { connected: true, rxTx: 'TX', at: txAt + 125 }, forward: { watts: 73, seen: txAt + 126 } }, txAt + 125);
+  assert.equal(view.forwardWatts, null, 'Genuinely future server samples stay invalid');
+ });
+ scope.stop();
+}
+console.log('PASS: real Vue watcher sequence, five browser clock offsets, 400 fresh TX updates without false blanks, timer ticks, truthful changing Watts, RX reset, TX-cycle isolation and genuine expiry/future rejection.');
