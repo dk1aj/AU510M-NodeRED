@@ -293,7 +293,7 @@ export default {
       if (this.forwardState !== 'TX' || !sample || sample.available !== true || !Number.isFinite(sample.value) || !this.freshForwardTimestamp(sample.seen, 15000) || !Number.isFinite(this.forwardTxSince) || sample.seen < this.forwardTxSince) return null;
       return sample.value;
     },
-    liveSwrText() { return this.liveSwr === null ? '--' : this.liveSwr.toFixed(2); },
+    liveSwrText() { return this.liveSwr === null ? '' : this.liveSwr.toFixed(2); },
     meterScales() { return ['forward', 'reflected'].map(side => this.scaleLayout(side)); },
     swrGuides() { return [...this.meterGeometry.guideValues, Infinity].map((value, index) => this.swrGuide(value, index)); }
   },

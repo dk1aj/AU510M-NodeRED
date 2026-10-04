@@ -48,6 +48,7 @@ assert.equal(state.reflectedSource, 'LIVE');
 assert.equal(state.forwardWatts, null);
 assert.equal(state.forwardWattsText, '--');
 assert.equal(state.forwardBoxText, '--');
+assert.equal(state.liveSwrText, '', 'Unavailable SWR starts blank');
 update(result.payload);
 assert.equal(state.forwardWatts, 625);
 assert.equal(state.forwardWattsText, '625');
@@ -65,10 +66,10 @@ assert.equal(state.reflectedWattsText, '99 W');
 assert.equal(state.liveSwrText, '4.00');
 for (const value of [null, undefined, NaN, Infinity, 'invalid', '1.47']) {
  update({ ...result.payload, swr: { value, seen: base, available: true } });
- assert.equal(state.liveSwrText, '--');
+ assert.equal(state.liveSwrText, '');
 }
 for (const swr of [{value:1.47,seen:base-16000,available:true},{value:1.47,seen:base+1,available:true},{value:1.47,seen:base,available:false}]) {
- update({...result.payload,swr}); assert.equal(state.liveSwrText,'--');
+ update({...result.payload,swr}); assert.equal(state.liveSwrText,'');
 }
 update(result.payload);
 assert.equal(state.liveSwrText,'4.00');
@@ -106,7 +107,7 @@ update({ ...result.payload, radio: { ...result.payload.radio, rxTx: 'RX' } });
 assert.equal(state.forwardWatts, 0, 'RX must clear stale TX watts immediately');
 assert.equal(state.forwardWattsText, '0');
 assert.equal(state.forwardTxSince, null);
-assert.equal(state.liveSwrText, '--');
+assert.equal(state.liveSwrText, '');
 // A new TX interval cannot use samples retained from the preceding interval.
 update({ ...result.payload, timestamp: base + 100, radio: { ...result.payload.radio, at: base + 100 } }, base + 100);
 assert.equal(state.forwardWatts, null);
@@ -150,7 +151,7 @@ for (const value of [null, undefined, NaN, Infinity, 'invalid', '123', -1]) {
 }
 update({ ...result.payload, forward: { watts: null, seen: base }, swr: { value: null, seen: base, available: false } }, base);
 assert.equal(state.reflectedWatts, 99, 'REF validity is independent of FWD/SWR');
-assert.equal(state.liveSwrText, '--', 'Live SWR never falls back to calculated SWR');
+assert.equal(state.liveSwrText, '', 'Live SWR never falls back to calculated SWR');
 for (const seen of [base - 16000, base + 1, null]) {
  update({ ...result.payload, reflected: { watts: 12, seen } }, base);
  assert.equal(state.reflectedWatts, null);
@@ -225,7 +226,7 @@ for (const offset of [-60000, -250, 0, 250, 60000]) {
   received({ ...latest, radio: { connected: true, rxTx: 'RX', at: base + 21000 }, timestamp: base + 21000 }, base + 21000);
   assert.equal(view.forwardWatts, 0);
   assert.equal(view.reflectedWatts, 0);
-  assert.equal(view.liveSwrText, '--');
+  assert.equal(view.liveSwrText, '');
   const txAt = base + 22000;
   received({ ...latest, timestamp: txAt, radio: { connected: true, rxTx: 'TX', at: txAt } }, txAt);
   assert.equal(view.forwardWatts, null, 'New TX cannot reuse preceding TX samples');

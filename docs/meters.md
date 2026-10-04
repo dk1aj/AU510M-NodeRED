@@ -10,11 +10,12 @@ No additional connection, subscription, parser or Watt conversion is added.
 RADIO and PA continue consuming their existing path directly.
 
 Both needles reset to zero in RX and reject stale/invalid samples or samples
-from a previous TX interval. Numeric SWR is TX-gated; unavailable/RX shows --.
+from a previous TX interval. Numeric SWR is TX-gated; unavailable/RX leaves the METER numeric field empty
+(user-requested behavior in v4.21). Valid live SWR still shows two decimals.
 The centrally selected 20/200/2000 W range uses FORWARD only and applies to
 both needles; printed scale labels stay fixed. See
 [cross-needle geometry and range rules](cross-needle-meter.md) and the
-[current v4.20 handoff](handoff-2026-10-04-v4.20.md).
+[current v4.21 handoff](handoff-2026-10-04-v4.21.md).
 
 This table is extracted from the active 35-meter display configuration. It lists
 configured identities, not a claim that every one is published or verified in
