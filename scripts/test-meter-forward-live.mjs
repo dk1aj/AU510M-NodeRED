@@ -20,7 +20,7 @@ const input = { payload: { section: 'pa', online: true, timestamp: base, rows: [
 const original = structuredClone(input);
 const result = select(input);
 assert.deepEqual(input, original, 'Existing RADIO/PA message must not mutate');
-assert.deepEqual(Object.keys(result.payload).sort(), ['activeRange', 'forward', 'online', 'radio', 'reflected', 'serverNow', 'swr', 'timestamp']);
+assert.deepEqual(Object.keys(result.payload).sort(), ['activeRange', 'forward', 'online', 'paFault', 'radio', 'reflected', 'serverNow', 'swr', 'timestamp']);
 assert.deepEqual(result.payload.reflected, { watts: 99, seen: base });
 assert.deepEqual(result.payload.forward, { watts: 625, seen: base });
 assert.deepEqual(result.payload.swr, { value: 4, seen: base, available: true });

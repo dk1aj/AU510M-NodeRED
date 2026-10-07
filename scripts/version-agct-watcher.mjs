@@ -10,6 +10,13 @@ if (process.argv.includes('--bump')) {
   const [major, minor] = version.split('.').map(Number);
   config.OLD_VERSION = version;
   config.NEW_VERSION = process.argv.includes('--major') ? (major + 1) + '.0' : major + '.' + (minor + 1);
+  const next = process.argv.find(arg => arg.startsWith('--next='))?.slice(7);
+  if (next !== undefined) {
+    if (!/^\d+\.\d+$/.test(next)) throw Error('Invalid next version');
+    const [nm, nn] = next.split('.').map(Number);
+    if (nm < major || (nm === major && nn <= minor)) throw Error('Next version must advance');
+    config.NEW_VERSION = next;
+  }
   delete config.version;
   fs.writeFileSync(file, JSON.stringify(config, null, 2) + '\n');
 }

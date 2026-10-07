@@ -52,7 +52,7 @@
     "9b1bcb4b21cd24ff": "fd52350d3392f79397b40f8f86ffb294fa914b9b85714d0168976aa924ae6979",
     "7d3a0befbda64222": "54080a92256bb2c4a6ddc1e56afd93a319df5ddd11f117c9d39e700e89fafdbc",
     "abcfcd656f3aa13d": "9db713b6d08f28a064fc146d3c80fe3d4d8ab3b4aa9d93f80738bb8a54dfc640",
-    "au510m_live_messages": "72fb34475ab2022eb61c6f7ef3103bb9b5259bb7ebea6fcd8d315d2e60ef645f",
+    "au510m_live_messages": "b3cff129a50fa0114430f597a4ad631048a782176f910a6945946afc0e08de12",
     "au510m_live_connection": "7465faa35e3cfc199decdbbcc270066413a0e5f22b51d769a3c86f1c67d491b7",
     "au510m_live_level": "cebf847dd2a928c48d0164af154574738c120f688d0e1fe3db0c626e1dc1238e",
     "au510m_live_tick": "6c01d844707e800200e17904eef50224e24a21332908cbf573216732aa706b38",
@@ -84,7 +84,8 @@
     "550c0f4a32b8be5d": "d83ef02d1d92e9c7d152f569c60d1a71310e0f69850558b9a91373d547ec624a",
     "450b7e9ed2d9e1eb": "2d82e9a133b8e49ad78da43656b63423949695a3234516c6e5549e80634e2123",
     "ebcd0c0769c3829c": "4b8409df1e45bcf7d2478645e2a641046dd15d62a8614c878c780d28dde95482",
-    "au510m_power_swr_static_ui": "3a01b241c9470b6e610cc0d8815c08ac31da385ddb10fe3bbccf34a7b7948d9b",
-    "au510m_meter_forward_only": "02dc19657fb9cea90edbac92fd5e746bde4889ffe9d34887784281250eee03c7"
-  }
+    "au510m_power_swr_static_ui": "eee0fb2c9259644a13ca686a8047403c65d851fac152329362f64305865ea635",
+    "au510m_meter_forward_only": "beebaa0452fcb8da1f3ae0e50d99dee85c39947bc757510eefa8469b356d154d"
+  },
+  "authorized_meter_pa_fault_change": "Display-only branch from existing messages; original live-state/bridge/radio/parser/subscriptions unchanged; METER projector/template extended."
 }

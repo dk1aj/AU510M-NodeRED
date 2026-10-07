@@ -1,0 +1,85 @@
+{
+  "old_version": "4.23",
+  "new_version": "4.25",
+  "version_note": "4.24 previously used by rolled-back incident draft; --bump --next=4.25 run once for this change set",
+  "deployment": {
+    "result": "PASS",
+    "nodes": 88,
+    "revision": "1f38dfd4b30f04811ac35d467fdafd4f56425436159646addb65a9c4a497e6bb"
+  },
+  "validation": "PASS; inactive incident integration suite explicitly skipped, existing Stage-1/2 and new meter tests pass",
+  "runtime_gate": {
+    "samples": 65,
+    "first": 1791392223202,
+    "last": 1791392288402,
+    "after_startup_grace_all_slices_present": true,
+    "after_startup_grace_all_connected": true,
+    "diagnostic_errors": 0
+  },
+  "live_projection": {
+    "at": "2026-10-07T16:57:35.214Z",
+    "version": "4.25",
+    "paFaultSample": {
+      "state": "READY",
+      "reason": "",
+      "stateSeen": 1791392252012,
+      "reasonSeen": 1791392252012
+    },
+    "paFaultStatus": {
+      "value": "NEIN",
+      "state": "READY",
+      "tone": "clear",
+      "title": "Radio-Reason: (leer) \u00b7 Interlock: READY"
+    },
+    "watcher_age_ms": 466,
+    "activeSlice": "1",
+    "frequencyMHz": 7.064,
+    "radio_fields": {
+      "Frequency": "7.064 MHz",
+      "Mode": "LSB",
+      "Active slice": "B",
+      "RX antenna": "ANT2",
+      "TX antenna": "ANT2",
+      "RX filter": "2.7 kHz",
+      "SPLIT": "ON",
+      "TX/RX": "RX",
+      "Lock": "OFF",
+      "S-meter": "-107.54 dBm",
+      "Mute": "ON",
+      "Audio": "50",
+      "NB": "OFF",
+      "NR": "OFF",
+      "ANF": "OFF",
+      "QSK": "OFF",
+      "DSP": "--",
+      "RIT on": "OFF",
+      "RIT offset": "0 Hz",
+      "XIT on": "OFF",
+      "XIT offset": "0 Hz",
+      "DAX on": "OFF",
+      "DAX channel": "0"
+    },
+    "backend_canonical_values_preserved": true,
+    "meter_vue_live_payload_rx": {
+      "forwardWatts": 0,
+      "reflectedWatts": 0,
+      "swrText": ""
+    },
+    "http": {
+      "/dashboard/au510m": 200,
+      "/agct-watcher/status": 200,
+      "/flows/state": 200
+    },
+    "browser_visual_test": "NOT AVAILABLE",
+    "new_radio_connections": 0,
+    "new_subscriptions": 0,
+    "temporary_tap_retained": false
+  },
+  "original_live_state_bridge_and_radio_config": "BYTE_IDENTICAL_TO_PRECHANGE",
+  "new_radio_connections": 0,
+  "new_subscriptions": 0,
+  "new_meter_conversions": 0,
+  "browser_visual_verification": "NOT AVAILABLE; optional user check requested, no response recorded",
+  "incident_detector": "NOT ACTIVATED; unrelated drafts preserved",
+  "source_geometry": "UNCHANGED; original geometry/calibration/live power-SWR tests PASS"
+}

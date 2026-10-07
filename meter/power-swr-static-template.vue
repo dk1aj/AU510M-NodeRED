@@ -23,6 +23,11 @@
           <rect x="24" y="22" width="90" height="34" rx="4" fill="#1b2633" stroke="#5bcdf2" stroke-width="2"/>
           <text class="meter-live-value" x="69" y="39" :font-size="forwardBoxText.length > 5 ? 24 * 5 / forwardBoxText.length : 24">{{ forwardBoxText }}</text>
         </g>
+        <foreignObject x="24" y="62" width="90" height="38" class="meter-pa-fault-status">
+          <button xmlns="http://www.w3.org/1999/xhtml" type="button" aria-disabled="true" :class="'pa-fault-' + paFaultStatus.tone" :title="paFaultStatus.title" :aria-label="paFaultStatus.title" aria-live="polite">
+            <b>PA_FAULT: {{ paFaultStatus.value }}</b><small>{{ paFaultStatus.state }}</small>
+          </button>
+        </foreignObject>
         <g class="meter-top-value meter-swr-box" data-swr-source="LIVE" aria-label="Live radio SWR">
           <rect x="526" y="22" width="90" height="34" rx="4" fill="#1b2633" stroke="#ed6666" stroke-width="2"/>
           <text class="meter-swr-value" x="571" y="39" :font-size="liveSwrText.length > 5 ? 26 * 5 / liveSwrText.length : 26">{{ liveSwrText }}</text>
@@ -257,6 +262,14 @@ export default {
     }
   },
   computed: {
+    paFaultStatus() {
+      const p = this.msg?.payload, sample = p?.paFault;
+      const unknown = { value: '--', state: '--', tone: 'unknown', title: 'PA_FAULT: keine frischen Radiodaten' };
+      if (p?.online !== true || p?.radio?.connected !== true || !this.freshForwardTimestamp(p.timestamp, 10000) || !this.freshForwardTimestamp(p.radio.at, 10000) || !sample || !this.freshForwardTimestamp(sample.reasonSeen, 15000) || !this.freshForwardTimestamp(sample.stateSeen, 15000) || typeof sample.reason !== 'string' || typeof sample.state !== 'string') return unknown;
+      const reported = sample.reason === 'PA_FAULT';
+      const faultState = ['TX_FAULT','TIMEOUT','STUCK_INPUT'].includes(sample.state);
+      return { value: reported ? 'JA' : 'NEIN', state: sample.state, tone: reported ? (faultState ? 'fault' : 'reported') : 'clear', title: `Radio-Reason: ${sample.reason || '(leer)'} · Interlock: ${sample.state}${reported && !faultState ? ' · PA_FAULT gemeldet, kein aktueller Fault-Zustand belegt' : ''}` };
+    },
     reflectedModelMax() { return this.meterGeometry.FORWARD_MODEL_MAX * this.meterGeometry.REFLECTED_PRINTED_MAX / this.meterGeometry.FORWARD_PRINTED_MAX; },
     reflectedFullScaleWatts() { return this.activeRange * this.reflectedModelMax / this.meterGeometry.FORWARD_MODEL_MAX; },
     theme() { return this.themeDefinitions[this.selectedTheme] || this.themeDefinitions['classic-warm']; },
@@ -445,4 +458,9 @@ export default {
 .meter-test-needle{transform-box:view-box;transition:transform 250ms ease-in-out}
 .power-swr-static-svg{display:block;justify-self:center;width:auto;max-width:100%;height:100%;min-height:0;filter:drop-shadow(0 2px 5px #05080b)}
 .meter-static-footer{display:flex;justify-content:space-between;align-items:center;padding:0 8px;border-top:1px solid #405268;color:#8ddfff;font:700 12px/20px Arial,Helvetica,sans-serif;white-space:nowrap}
+.meter-pa-fault-status button{width:90px;height:38px;border:1px solid #67717a;border-radius:5px;background:#343c46;color:#e0e6ec;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:2px;cursor:default;font:10px/1.3 Arial,Helvetica,sans-serif;overflow:hidden}
+.meter-pa-fault-status b{font-size:10px;white-space:nowrap}.meter-pa-fault-status small{font-size:9px;max-width:86px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.meter-pa-fault-status .pa-fault-fault{background:#8d2029;border-color:#ff7e88;color:#fff}
+.meter-pa-fault-status .pa-fault-reported{background:#694d12;border-color:#efbe4d;color:#fff1c7}
+.meter-pa-fault-status .pa-fault-clear{background:#154b37;border-color:#54b990;color:#d8ffec}
 </style>
