@@ -99,3 +99,12 @@ TX, later 5 Hz validated TUNE; future configurable ceiling 10 Hz, never default.
 The 240-second ring holds only these compact event records and health snapshots,
 not individual raw meter events. Size it from measured filtered record rates and
 actual compact JavaScript objects; final operational coverage is still required.
+
+The [controlled follow-up measurement](au510m-stage1-two-lanes-2026-10-07.md)
+covered a true operator-idle RX baseline, normal TX and active TUNE without slice
+loss. Filtered sizing recommendation: 12000 records / 240 s, based on 17 event
+records/s plus 1 future Tune-event/s and 5 health snapshots/s, with 2x reserve.
+Compact-object heap estimates suggest about 20 MiB for the tested mixture and a
+conservative sample-schema budget of 50 MiB. TUNE 0→1→0 was observed directly;
+canonical runtime TUNE remains UNKNOWN until separately implemented and validated.
+No permanent tap remains; runtime is exact v4.21. New fanout/sources require resizing.

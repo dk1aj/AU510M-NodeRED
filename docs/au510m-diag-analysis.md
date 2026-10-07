@@ -574,7 +574,7 @@ Ein Collector hält nach Monotonzeit die letzten 240 s: relevante tatsächliche 
 
 ### Harte Recordgrenze: Berechnung vor Implementierung verpflichtend
 
-**Aktueller Status: noch kein belastbarer direkt gemessener Collector-Ereigniszähler, deshalb noch kein freigegebener Zahlenwert für `max_records`.** Das frühere 250-ms-Polling beobachtete nur wechselnde `seen`-Zeitpunkte: mehrere Ereignisse zwischen Polls verschwinden. Dashboardnachrichten im Sekundentakt sind ebenfalls keine Eingangsrate. Aus diesen Untergrenzen darf keine scheinbar genaue Recordgrenze berechnet werden. Die frühere Beispielgrenze 100.000 Records ist ausdrücklich zurückgezogen.
+**Aktueller Status nach kontrollierter Messung vom 7. Oktober: für das dokumentierte Zwei-Pfade-Recordmodell empfohlene Hardgrenze 12000 Records bei 240 s.** Siehe [kontrollierte Messung](au510m-stage1-two-lanes-2026-10-07.md) für Coverage, Filter, 23/s Designrate, 2× Reserve, Scope und tatsächliche Objekt-Heapmessung. Noch kein Ring implementiert. Folgende ältere Pollingbefunde erklären, warum die Empfehlung nicht aus Dashboard-Snapshots oder Rawmeterraten abgeleitet werden darf. Das frühere 250-ms-Polling beobachtete nur wechselnde `seen`-Zeitpunkte: mehrere Ereignisse zwischen Polls verschwinden. Dashboardnachrichten im Sekundentakt sind ebenfalls keine Eingangsrate. Aus diesen Untergrenzen darf keine scheinbar genaue Recordgrenze berechnet werden. Die frühere Beispielgrenze 100.000 Records ist ausdrücklich zurückgezogen.
 
 Vor jeder Logger-/Ring-Implementierung ist eine rein passive Messung vorhandener Eingänge durchzuführen, ohne Flow-/Subscription-/Verbindungsänderung. Geeignet ist ein nachweislich vollständiger read-only Trace der bestehenden Verbindung oder vorhandene vollständige Runtime-Telemetrie. Falls keine solche Beobachtung zugänglich ist, bleibt diese Implementierungsvoraussetzung offen; kein Ratenwert wird erfunden. Eine temporäre Flowinstrumentierung wäre bereits Runtimeänderung und benötigt einen separat ausdrücklich freigegebenen Messauftrag, nicht diese Dokumentationsfreigabe.
 
@@ -819,3 +819,21 @@ oder Subscription. RADIO-/Meter-/Watcher-Livewerte nach Restore geprüft;
 Browsersicht und repräsentativer TX/TUNE bleiben offen. Keine nächste
 Implementierungsstufe begonnen. Das ergänzt die obige Analyse, ersetzt aber
 keine fehlende Ringbuffer-/Recordlimit-Voraussetzung.
+
+### Kontrollierte Zwei-Pfade-Messung — 7. Oktober 2026
+
+Der [Folgebericht](au510m-stage1-two-lanes-2026-10-07.md) ergänzt die frühere
+Teilbeobachtung: bestätigte 60-s-Bedienpause, 8.439-s-normaler kanonischer TX und
+echter TUNE-Vorgang mit direkt beobachtetem `transmit.tune` 0→1→0. Keine Slice
+verschwunden, keine gemeldete Collector-Lücke, beide temporären Abgriffe entfernt.
+Kandidat für diesen beobachteten Statuszyklus bestätigt; kanonische Runtime-TUNE-
+Implementierung fehlt weiterhin, UNKNOWN bleibt unverändert.
+
+Neue Sizingbasis ausschließlich EVENT + HEALTH: gemessene Eventspitze 17/s,
+zusätzliche Tune-Eventreserve 1/s, Health maximal default 5/s → 23/s, 240 s,
+Faktor 2 → mindestens 11040, Empfehlung **12000 Records**. Objekt-Heapmessung
+statt JSON-Längen: getestete Mischung rund 20 MiB inklusive Reserven; vorsichtiges
+Schema-Budget rund 50 MiB, kein garantierter Produktionsdeckel. Scope und erneute
+Messpflicht bei neuen Quellen/Fanouts/10 Hz beachten. Die frühere Raw-Teilrechnung
+ist historisch und ersetzt diese gefilterte Empfehlung nicht. Kein Ring/SQLite/
+Incident/DIAG implementiert; Runtime exakt v4.21 wiederhergestellt.
