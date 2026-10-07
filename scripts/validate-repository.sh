@@ -12,6 +12,7 @@ node scripts/test-agct-watcher.mjs
 node scripts/test-agct-dashboard.mjs
 node scripts/test-au510m-diag.mjs
 node scripts/test-au510m-diag-runtime.mjs
+node scripts/test-au510m-state-machine.mjs
 node radio-status/live-test.cjs
 node radio-status/average-test.cjs
 node archive/station-dashboard/test.js

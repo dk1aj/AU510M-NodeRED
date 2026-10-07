@@ -5,7 +5,7 @@ const require=createRequire(import.meta.url);
 const {DiagnosticBuffer,TOPICS}=require('../diagnostics/au510m-stage1-core.cjs');
 let time=0,wall=1800000000000;const debug=[];
 const make=()=>new DiagnosticBuffer({version:'test',wall:()=>wall+time,mono:()=>time,debug:r=>debug.push(r)});
-const core=make();assert.equal(core.data.seq,1);assert.equal(core.records()[0].record_type,'LOGGER_START');assert.equal(core.data.tuneCandidate.tune_value,'UNKNOWN');assert.equal(core.data.latestState.tx_state,'UNKNOWN');
+const core=make();assert.equal(core.records()[0].seq,1);assert.equal(core.records()[0].record_type,'LOGGER_START');assert.equal(core.data.tuneCandidate.tune_value,'UNKNOWN');assert.equal(core.data.latestState.tx_state,'UNKNOWN');
 const snapshot=tx=>({connected:true,fields:{'TX/RX':tx,Frequency:'14.074 MHz',Mode:'DIGU','Active slice':'A'}});
 core.canonical(snapshot('RX'),'READY');assert.equal(core.rate(),1);
 const baseline=core.records().find(r=>r.record_type==='INTERLOCK_BASELINE');assert(baseline);
@@ -27,10 +27,10 @@ core.connection(true);time+=1000;core.tick(rows);assert.equal(core.data.latestHe
 core.request('request',{_msgid:'abc',payload:'meter list'});core.ack('request',{_msgid:'abc',status_code:0});const request=core.records().findLast(r=>r.record_type==='COMMAND_REQUEST'),ack=core.records().findLast(r=>r.record_type==='ACK_RESPONSE');assert.equal(ack.derived_from_seq,request.seq);assert.equal(request.command_origin,'NODE_RED');assert.equal(request.trigger_origin,'UNKNOWN');
 assert(!Object.hasOwn(request,'meters'));assert(!debug.some(r=>r.record_type==='HEALTH'));
 core.session('client/0x1/connected',{program:'AetherSDR',station:'station'},'recipient');const sessionCount=core.count;core.session('client/0x1/connected',{program:'AetherSDR',station:'station'},'recipient');assert.equal(core.count,sessionCount);assert.equal(core.records().at(-1).client_program,'AetherSDR');assert.equal(core.records().at(-1).command_origin,'UNKNOWN');
-const fresh=make();assert.equal(fresh.count,1);assert.equal(fresh.data.seq,1);assert.equal(fresh.data.tuneCandidate.tune_value,'UNKNOWN');assert.notEqual(core.data.run_id,fresh.data.run_id);
+const fresh=make();assert.equal(fresh.count,2);assert.equal(fresh.records()[0].seq,1);assert.equal(fresh.data.tuneCandidate.tune_value,'UNKNOWN');assert.notEqual(core.data.run_id,fresh.data.run_id);
 // Exercise actual fixed-capacity eviction independently of the extra memory guard.
 for(let i=0;i<12020;i++)fresh.add({seq:i,record_type:'LIMIT_TEST'});
-assert.equal(fresh.count,12000);assert.equal(fresh.data.metrics.dropped_by_limit,21);assert.equal(fresh.data.metrics.max_record_count_seen,12000);
+assert.equal(fresh.count,12000);assert.equal(fresh.data.metrics.dropped_by_limit,22);assert.equal(fresh.data.metrics.max_record_count_seen,12000);
 time+=240000;fresh.expire();fresh.updateMetrics();assert.equal(fresh.data.metrics.dropped_by_age,0,'Exactly 240 s remains eligible');
 time+=1;fresh.expire();fresh.updateMetrics();assert(fresh.data.metrics.dropped_by_age>=12000);assert(fresh.count<=2);assert.equal(fresh.slots.filter(Boolean).length,fresh.count);
 const bounded=make();for(let i=0;i<1000;i++)bounded.append('BOUND','source','field',null,{long:'x'.repeat(10000)});assert(bounded.data.metrics.truncated_fields>=1000);assert(bounded.estimatedBytes<=bounded.config.memoryBudgetBytes);

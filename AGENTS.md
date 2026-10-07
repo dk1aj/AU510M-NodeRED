@@ -379,3 +379,11 @@ Documentation-only changes do not deploy or increment the runtime version.
 - For a controlled temporary measurement, stop instrumentation immediately if
   the canonical active slice disappears; preserve available evidence and restore
   known-good v4.21 without changing canonical parsers, connections or subscriptions.
+
+### Diagnostic state evidence
+
+- Diagnostic states must never be fabricated. Unsupported states remain UNKNOWN
+  or NOT IMPLEMENTED. DIRECT, DERIVED and UNKNOWN state evidence must remain
+  distinguishable; these state-confidence labels do not extend the separate
+  origin-confidence enum. State logic consumes Stage-1 records only and never
+  attributes command origin from temporal coincidence.

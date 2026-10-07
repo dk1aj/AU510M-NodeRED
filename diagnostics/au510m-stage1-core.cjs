@@ -1,5 +1,6 @@
 'use strict';
 const {randomUUID}=require('node:crypto');
+const {DiagnosticStateMachine}=require('./au510m-state-machine.cjs');
 const TOPICS=Object.freeze(['TX-/1/FWDPWR','TX-/2/REFPWR','TX-/3/SWR','TX-/4/PATEMP','RAD/8/PAFETQ1TEMP','RAD/9/PAFETQ2TEMP','RAD/300/PACURRENT','TX-/6/PAEFF','RAD/334/+13.8A','RAD/0/+13.8B','RAD/3/MAINFAN']);
 const DEFAULTS=Object.freeze({retentionMs:240000,maxRecords:12000,tuneFreshMs:15000,meterFreshMs:15000,rxHz:1,txHz:5,memoryBudgetBytes:50*1024*1024});
 class DiagnosticBuffer {
@@ -8,6 +9,8 @@ class DiagnosticBuffer {
   if(this.config.maxRecords!==12000||this.config.retentionMs!==240000)throw Error('Stage-1 retention contract must remain 240 s / 12000');
   this.slots=new Array(this.config.maxRecords);this.head=0;this.count=0;this.estimatedBytes=0;this.stateEpoch=0;this.epochWall=wall();this.lastInterlockSeq=null;this.lastInterlockValue=null;this.txSince=null;this.lastHealthMono=mono();this.interlockFields={};this.slices=new Map();this.clients=new Map();this.pending=new Map();
   this.data={run_id:randomUUID(),version,seq:0,config:{...this.config},connectionState:'UNKNOWN',latestState:this.emptyState(),latestHealth:{},tuneCandidate:this.emptyTune(),ringBuffer:{records:this.slots,head:0,count:0},metrics:{logger_status:'RUNNING',connection_status:'UNKNOWN',record_count:0,oldest_age_seconds:0,max_record_count_seen:0,dropped_by_age:0,dropped_by_limit:0,dropped_by_memory:0,estimated_ring_bytes:0,total_events:0,total_health_samples:0,truncated_fields:0,source_overflow:0,pending_expired:0,errors:0,sample_rate_hz:1,current_tx_rx:'UNKNOWN',tune_value:'UNKNOWN',tune_fresh:false,last_event_timestamp:null,uptime_seconds:0,start_wall_ms:wall(),last_health_ms:null,ring_span_seconds:0},startup_mono:mono()};
+  this.stateMachine=new DiagnosticStateMachine({metrics:this.data.metrics,emit:extra=>this.append('DIAG_STATE_CHANGE','au510m_diag_state_machine','diag_state',extra.old_state,extra.new_state,extra)});
+  this.data.stateMachine=this.stateMachine.data;
   this.append('LOGGER_START','au510m_diag','runtime',null,version,{raw_source:{run_id:this.data.run_id,version}});
  }
  emptyState(){return {tx_state:'UNKNOWN',interlock_state:null,frequency:null,mode:null,active_slice:null};}
@@ -27,7 +30,8 @@ class DiagnosticBuffer {
   const record={ts_wall:new Date(w).toISOString(),ts_ms:w,seq:++this.data.seq,record_type,source:this.compact(source),field:this.compact(field),old_value:this.compact(old_value),new_value:this.compact(new_value),...s,tune_value:c.tune_value,tune_fresh:c.tune_fresh,trigger_origin:'UNKNOWN',trigger_name:null,intermediary:[],command_origin:'UNKNOWN',command_name:null,client_name:null,client_handle:null,client_id:null,client_program:null,client_ip:null,origin_confidence:'UNKNOWN',derived_from_seq:null,raw_source:null,...extra};
   if(record.raw_source)record.raw_source=this.compact(record.raw_source);
   this.add(record,t);this.data.metrics.total_events++;this.data.metrics.last_event_timestamp=w;
-  if(['LOGGER_START','RADIO_CONNECTED','RADIO_DISCONNECTED','INTERLOCK_STATE','TX_RX','TUNE_CANDIDATE','TUNE_STALE','SLICE_ADDED','SLICE_REMOVED','DIAGNOSTIC_ERROR'].includes(record_type))this.debug(record);
+  if(['DIAG_STATE_CHANGE','LOGGER_START','RADIO_CONNECTED','RADIO_DISCONNECTED','INTERLOCK_STATE','TX_RX','TUNE_CANDIDATE','TUNE_STALE','SLICE_ADDED','SLICE_REMOVED','DIAGNOSTIC_ERROR'].includes(record_type))this.debug(record);
+  if(record_type!=='DIAG_STATE_CHANGE')this.stateMachine.consume(record);
   return record.seq;
  }
  estimate(v){
@@ -142,7 +146,7 @@ class DiagnosticBuffer {
   }
   this.data.latestHealth=meters;
   const record={ts_wall:new Date(now).toISOString(),ts_ms:now,seq:++this.data.seq,record_type:'HEALTH',source:'2702052aa13cacd0',...s,tune_value:c.tune_value,tune_fresh:c.tune_fresh,tune_age_ms:c.tune_age_ms,meters};
-  this.add(record);this.data.metrics.total_health_samples++;this.data.metrics.last_health_ms=now;
+  this.add(record);this.data.metrics.total_health_samples++;this.data.metrics.last_health_ms=now;this.stateMachine.consume(record);
  }
  error(message){this.data.metrics.errors++;this.data.metrics.logger_status='ERROR';this.append('DIAGNOSTIC_ERROR','au510m_diag','error',null,String(message).slice(0,256));}
  close(){this.data.metrics.logger_status='STOPPED';}

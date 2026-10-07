@@ -100,3 +100,15 @@ cached canonical context, not fabricated as a new wire event.
 The [larger diagnostic plan](au510m-diag-analysis.md) remains future work:
 no SQLite, incident detector, JSONL captures, diagnostic state machine or DIAG UI.
 Next stage is a separately authorized diagnostic state machine.
+
+## AU-510M diagnostic Stage 2 (v4.23)
+
+The [state-machine specification and acceptance](au510m-stage2-v4.23.md) adds
+one isolated record reducer to Stage 1. It consumes only Stage-1 records and
+publishes compact DIAG_STATE_CHANGE records into the same bounded ring.
+TUNE is a freshness-gated DIAGNOSTIC_TUNE_SIGNAL; state confidence DIRECT/DERIVED/
+UNKNOWN remains separate from command-origin confidence. Exact observed PTT and
+unkey states are supported; unsupported evidence stays UNKNOWN. Return-to-RX
+settles immediately within one source-event reduction, without a timer. Existing
+radio paths, health rates, subscriptions and dashboard templates remain unchanged.
+No persistence, incident detector or DIAG page is added. Live RX/TX, retention and controlled TUNE acceptance pass; browser visual verification remains unavailable.

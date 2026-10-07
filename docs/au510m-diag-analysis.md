@@ -6,6 +6,18 @@ Stand: 6. Oktober 2026. Projekt: `/mnt/dietpi_userdata/node-red`.
 
 Die Architektur unterstützt einen passiven Logger über die bestehende Verbindung. Die wichtigste Einschränkung: Die vorhandenen Dashboard-Snapshots erscheinen im Sekundentakt; TUNE, vollständige Interlock-Gründe und Bedienkommandos werden derzeit nicht kanonisch gespeichert. Eine schnelle Schwingung kann deshalb mit einem bloßen Mitschreiben der sichtbaren Dashboardwerte nicht kausal aufgelöst werden. Der Logger muss Einzelereignisse vor der Snapshot-Verdichtung beobachten und Unsicherheiten ausdrücklich erhalten.
 
+## Stage 2 — v4.23
+
+Die ausdrücklich freigegebene diagnostische State Machine ist implementiert;
+RX/TX, Ring und der neue kontrollierte TUNE sind live abgenommen; visuelles Browserrendering bleibt ungeprüft. [Verbindliche Zustandsdefinitionen, Eingänge,
+Grenzen und Abnahme](au510m-stage2-v4.23.md). Ausschließlich Stage-1-Records,
+ein gemeinsamer Ring, keine neuen Radioeingänge. DIAGNOSTIC_TUNE_SIGNAL ist
+frischeabhängig und kein Beweis für einen Bedien-/Commandursprung. Die neuen
+State-Confidence-Werte DIRECT/DERIVED/UNKNOWN verändern das getrennte
+Origin-Confidence-Enum nicht. UNKEY_REQUESTED ist entgegen dem älteren
+Planungsstand inzwischen durch den realen v4.22-Record seq 4513 belegt.
+Keine SQLite-/Incident-/DIAG-UI-Implementierung und keine automatische nächste Stufe.
+
 ## Aktueller Implementierungsstand — 7. Oktober 2026
 
 **Stage 1 implementiert, v4.21 → v4.22.** Der ausdrücklich autorisierte Umfang

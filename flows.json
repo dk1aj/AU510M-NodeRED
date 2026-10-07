@@ -38,12 +38,12 @@
         "env": [
             {
                 "name": "WATCHER_OLD_VERSION",
-                "value": "4.21",
+                "value": "4.22",
                 "type": "str"
             },
             {
                 "name": "WATCHER_VERSION",
-                "value": "4.22",
+                "value": "4.23",
                 "type": "str"
             }
         ]
@@ -1657,7 +1657,7 @@
         "outputs": 1,
         "timeout": 0,
         "noerr": 0,
-        "initialize": "// Stage-1 lifecycle checkpoint: reinitialize only this diagnostic owner.\nconst runtimeRequire=loader.createRequire('/mnt/dietpi_userdata/node-red/package.json');\nfor(const file of ['/mnt/dietpi_userdata/node-red/diagnostics/au510m-stage1-core.cjs','/mnt/dietpi_userdata/node-red/diagnostics/au510m-stage1-runtime.cjs'])delete runtimeRequire.cache[runtimeRequire.resolve(file)];\nconst runtime=runtimeRequire('/mnt/dietpi_userdata/node-red/diagnostics/au510m-stage1-runtime.cjs');\ncontext.set('au510mDiagHandle',runtime.start({context,send:msg=>node.send(msg),status:value=>node.status(value)}));",
+        "initialize": "// Stage 2: restart only the isolated diagnostic owner and its record reducer.\nconst runtimeRequire=loader.createRequire('/mnt/dietpi_userdata/node-red/package.json');\nfor(const file of ['/mnt/dietpi_userdata/node-red/diagnostics/au510m-state-machine.cjs','/mnt/dietpi_userdata/node-red/diagnostics/au510m-stage1-core.cjs','/mnt/dietpi_userdata/node-red/diagnostics/au510m-stage1-runtime.cjs'])delete runtimeRequire.cache[runtimeRequire.resolve(file)];\nconst runtime=runtimeRequire('/mnt/dietpi_userdata/node-red/diagnostics/au510m-stage1-runtime.cjs');\ncontext.set('au510mDiagHandle',runtime.start({context,send:msg=>node.send(msg),status:value=>node.status(value)}));",
         "finalize": "const handle=context.get('au510mDiagHandle');if(handle)handle.close();context.set('au510mDiagHandle',undefined);",
         "libs": [
             {
