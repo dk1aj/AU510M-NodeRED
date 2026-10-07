@@ -46,10 +46,10 @@
     "8d4f60f2c8914739": "096148a1ac21f94aa609a42b7196353fc14108cf93b39884d7b160d200ea0041",
     "2702052aa13cacd0": "2ebf7b22d570cac39342a6cb09e0e9ec3b952bb99be1852f6f93b03ce3368af3",
     "185977e7709d7d4d": "0b4145b99cc55bbdc775fbd439015d79d2866c26e645387e2813ad7c9de71427",
-    "9ee3e94e3758b01f": "0caf9a040a571dccc762db9b7aee1e0f348f9b9af5bf0e5b9ce1ed157172e7a8",
-    "961ffe09d3da81ac": "c673df5334ee7d3c427ad264505ee5f3e818ef16fb7ad2cfc55b6890f25631e4",
-    "80108e5a65682ca7": "f7755b18c4f5d7aa14f50bca04ce8e137677b09b0e6b1f87a8bc52634e77c928",
-    "9b1bcb4b21cd24ff": "fd52350d3392f79397b40f8f86ffb294fa914b9b85714d0168976aa924ae6979",
+    "9ee3e94e3758b01f": "bbc4f64ac18f22e4847055290cdbdfa11eff0a315c5040d32e3f1dcc907bdfd6",
+    "961ffe09d3da81ac": "3787f7be0883fb0d6f5a2a3c5d3f84d987a23abb33b6665eaedcd672d7afe855",
+    "80108e5a65682ca7": "b060958a7f416447a09dcabaf8566c6f07951e68c8adc5c793bdedc6f90fbc87",
+    "9b1bcb4b21cd24ff": "c924b36270700f71589eaf5f8b629f45c1888354564023eb3af8978295ecf993",
     "7d3a0befbda64222": "54080a92256bb2c4a6ddc1e56afd93a319df5ddd11f117c9d39e700e89fafdbc",
     "abcfcd656f3aa13d": "9db713b6d08f28a064fc146d3c80fe3d4d8ab3b4aa9d93f80738bb8a54dfc640",
     "au510m_live_messages": "b3cff129a50fa0114430f597a4ad631048a782176f910a6945946afc0e08de12",
@@ -84,8 +84,9 @@
     "550c0f4a32b8be5d": "d83ef02d1d92e9c7d152f569c60d1a71310e0f69850558b9a91373d547ec624a",
     "450b7e9ed2d9e1eb": "2d82e9a133b8e49ad78da43656b63423949695a3234516c6e5549e80634e2123",
     "ebcd0c0769c3829c": "4b8409df1e45bcf7d2478645e2a641046dd15d62a8614c878c780d28dde95482",
-    "au510m_power_swr_static_ui": "0ce6a99c56ee0e5941ccf1f714741bb82d493606e7bd9e34c10f7c21f930c859",
+    "au510m_power_swr_static_ui": "4d202b99f9743fdd05b369c3cb1fc3a602e2cd0d554d764efa0f2eb32947199e",
     "au510m_meter_forward_only": "beebaa0452fcb8da1f3ae0e50d99dee85c39947bc757510eefa8469b356d154d"
   },
-  "authorized_meter_pa_fault_change": "Display-only branch from existing messages; original live-state/bridge/radio/parser/subscriptions unchanged; METER projector/template extended."
+  "authorized_meter_pa_fault_change": "Display-only branch from existing messages; original live-state/bridge/radio/parser/subscriptions unchanged; METER projector/template extended.",
+  "authorized_ext_diag_presentation_change": "v4.28 Stage A: same EXT widget ID/internal key/order; DIAG navigation label and minimal static presentation only. All non-UI canonical nodes, radio connections, subscriptions, parsers, forwarding and meter processing remain unchanged."
 }

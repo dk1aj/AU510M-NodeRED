@@ -243,7 +243,7 @@ export default {
     forwardSource: 'LIVE', reflectedSource: 'LIVE',
     liveClock: Date.now(), liveClockTimer: null, forwardTxSince: null, serverReceivedAt: Date.now(),
     tabs: [{ key: 'radio', label: 'RADIO' }, { key: 'pa', label: 'PA' }, { key: 'tx', label: 'TX' },
-      { key: 'rx', label: 'RX' }, { key: 'external', label: 'EXT' }, { key: 'agct', label: 'AGC-T' }, { key: 'meter', label: 'METER' }]
+      { key: 'rx', label: 'RX' }, { key: 'external', label: 'DIAG' }, { key: 'agct', label: 'AGC-T' }, { key: 'meter', label: 'METER' }]
   }; },
   watch: {
     msg: {

@@ -56,6 +56,7 @@ for (const n of flows.filter(n=>n.type==='ui-template')) {
  check(parse(js,{ecmaVersion:'latest',sourceType:'module'}));
  const options=vm.runInNewContext(js.replace('export default','(')+')');
  assert.deepEqual(Array.from(options.data().tabs,t=>t.key),['radio','pa','tx','rx','external','agct','meter']);
+ assert.deepEqual(Array.from(options.data().tabs,t=>t.label),['RADIO','PA','TX','RX','DIAG','AGC-T','METER']);
  assert(!n.format.includes('repeat(5,minmax(0,1fr)) 154px'));
  compile(n.format.slice(n.format.indexOf('<template>')+10,n.format.lastIndexOf('</template>')),{mode:'function'});
 }
