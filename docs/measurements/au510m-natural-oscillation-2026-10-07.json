@@ -1,0 +1,58 @@
+{
+  "analysis_type": "POST_HOC_OFFLINE_REPLAY_OF_REAL_V4_23_RECORDS_NOT_LIVE_V4_24_INCIDENT",
+  "run_id": "2677c58f-e32f-40ec-b46d-112fce8c6e13",
+  "capture_missing_sequences": [],
+  "fixture": "diagnostics/fixtures/stage2-v423-natural-oscillation.json",
+  "recorded_time_basis": "RECORDED_WALL_CLOCK_MS_NONDECREASING_NOT_ORIGINAL_MONOTONIC_TIMES",
+  "earlier_tx_fault": {
+    "seq": 18185,
+    "at_utc": "2026-10-07T14:37:57.616Z",
+    "at_local": "2026-10-07 16:37:57.616 Europe/Berlin",
+    "evidence": "DIRECT INTERLOCK_STATE TX_FAULT; no cause inferred"
+  },
+  "oscillation_burst": {
+    "first_cycle_start_utc": "2026-10-07T14:38:02.817000+00:00",
+    "last_rx_return_utc": "2026-10-07T14:38:12.934Z",
+    "completed_cycles": 38,
+    "duration_ms": 10117,
+    "maximum_cycles_in_5000ms": 23,
+    "rx_returns_with_fresh_active_tune": 24,
+    "cycles_with_proven_tune_reactivation": 16
+  },
+  "offline_replay": {
+    "incident_count": 1,
+    "trigger": {
+      "record_type": "INCIDENT_TRIGGER",
+      "incident_id": "AU510M-2677c58f-e32f-40ec-b46d-112fce8c6e13-1",
+      "incident_type": "TUNE_RX_OSCILLATION",
+      "trigger_seq": 18264,
+      "cycle_count": 3,
+      "duration_ms": 792,
+      "frequency": "21.095 MHz",
+      "mode": "DIGU",
+      "tune_active_during_rx": true,
+      "tune_reactivated": true,
+      "first_abnormal_event": "RX_RETURN_WHILE_TUNE_ACTIVE",
+      "origin": "UNKNOWN",
+      "origin_confidence": "UNKNOWN"
+    },
+    "first_abnormal_seq": 18227,
+    "first_abnormal_event": "RX_RETURN_WHILE_TUNE_ACTIVE",
+    "trigger_utc": "2026-10-07T14:38:03.609Z",
+    "not_a_live_v424_incident": true,
+    "trigger_health_values": "NOT_VERIFIED; NOT PRESENT IN COMPACT SOURCE CAPTURE",
+    "post_120_seconds": "NOT_VERIFIED; CAPTURE DOES NOT COVER FULL POST WINDOW"
+  },
+  "after_burst": {
+    "slice_loss_seq": 18967,
+    "interlock_receive_seq": 18968,
+    "state_unknown_seq": 18973,
+    "state_unknown_reason": "AWAIT_LINKED_CANONICAL_TX_RX",
+    "observed": "READY -> RECEIVE while canonical TX/RX remains RX; no new linked TX_RX event in captured tail",
+    "origin": "UNKNOWN",
+    "causal_conclusion": "NONE"
+  },
+  "runtime_change": false,
+  "runtime_version": "4.23",
+  "commit_push": "NONE; Stage-3 acceptance pending"
+}
