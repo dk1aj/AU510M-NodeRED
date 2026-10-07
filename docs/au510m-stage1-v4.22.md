@@ -118,7 +118,7 @@ Debug output; health snapshots never reach it. Debug starts disabled.
   Count overflow and exact age boundaries are also tested offline.
 - At live age acceptance: whole-process heap delta −35,001,936 bytes (−33.38 MiB),
   RSS +19,484,672 bytes (+18.58 MiB). Heap fluctuated between approximately
-  −66.4 and +91.3 MiB during observation including redeploy/GC/context exports;
+  −66.4 and +106.6 MiB during observation including redeploy/GC/context exports;
   this is not attribution to diagnostic records. No monotonic ring growth past
   retention, overflow or memory eviction was observed. After the diagnostic restart,
   final heap delta was −9,498,928 bytes and RSS +479,232 bytes.
