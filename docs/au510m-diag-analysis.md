@@ -794,3 +794,20 @@ Lesend bestätigt: Node-RED `/flows` HTTP200, 84 Nodes und Gleichheit zu Datei; 
 | Version changed | NO; bestehend Old v4.20 / New v4.21 |
 
 **STOP: Nur Dokumentation ergänzt; Implementierung erst nach ausdrücklicher Freigabe und erfüllter Raten-/Recordlimit-Voraussetzung.**
+
+### Passive Stage-1-Teilbeobachtung — 7. Oktober 2026
+
+Die ausdrücklich freigegebene temporäre Messung ist im
+[Stage-1-Bericht](au510m-stage1-measurement-2026-10-07.md) dokumentiert.
+120 vollständig begrenzte Sekunden ergeben 7506 Records, 62.55/s im Mittel,
+154/festem Sekundenbin und 80/festem 100-ms-Bin. Vollständige Idle-/TX-/TUNE-Abnahme
+fehlt; die endgültige Hardgrenze bleibt PENDING. Direkt empfangenes
+`transmit.payload.tune=0` ist ein Statusquellen-Kandidat, keine freigegebene
+kanonische TUNE-Implementierung. TUNE bleibt UNKNOWN.
+
+Bei vorübergehend fehlender aktiver Slice wurde vorsorglich zurückdeployed.
+Die Runtime ist wieder exakt v4.21, kein permanenter Tap, keine neue Verbindung
+oder Subscription. RADIO-/Meter-/Watcher-Livewerte nach Restore geprüft;
+Browsersicht und repräsentativer TX/TUNE bleiben offen. Keine nächste
+Implementierungsstufe begonnen. Das ergänzt die obige Analyse, ersetzt aber
+keine fehlende Ringbuffer-/Recordlimit-Voraussetzung.

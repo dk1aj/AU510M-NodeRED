@@ -86,3 +86,8 @@ Interlock is directly observed; canonical TX/RX is DERIVED_FROM_INTERLOCK and
 must reference that source record, not appear as independent causal evidence.
 Confirmed TUNE is currently unavailable: tune=UNKNOWN until a direct/canonical
 signal is verified. Do not infer it from TX, power or button appearance.
+
+A [temporary Stage-1 measurement](au510m-stage1-measurement-2026-10-07.md)
+on 2026-10-07 observed individual canonical events and existing decoded status.
+The tap was removed and exact v4.21 restored. Final record limit remains pending
+complete idle/TX/TUNE coverage; no permanent logger/DIAG feature exists.

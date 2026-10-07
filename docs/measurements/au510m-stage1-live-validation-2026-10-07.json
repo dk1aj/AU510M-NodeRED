@@ -1,0 +1,47 @@
+{
+  "at": "2026-10-07T07:46:16.702Z",
+  "version": "4.21",
+  "watcher_age_ms": 437,
+  "activeSlice": "0",
+  "frequencyMHz": 7.014,
+  "radio_fields": {
+    "Frequency": "7.014 MHz",
+    "Mode": "CW",
+    "Active slice": "A",
+    "RX antenna": "ANT2",
+    "TX antenna": "ANT2",
+    "RX filter": "400 Hz",
+    "SPLIT": "OFF",
+    "TX/RX": "RX",
+    "Lock": "OFF",
+    "S-meter": "-120.92 dBm",
+    "Mute": "OFF",
+    "Audio": "47",
+    "NB": "OFF",
+    "NR": "OFF",
+    "ANF": "OFF",
+    "QSK": "OFF",
+    "DSP": "--",
+    "RIT on": "OFF",
+    "RIT offset": "0 Hz",
+    "XIT on": "OFF",
+    "XIT offset": "0 Hz",
+    "DAX on": "ON",
+    "DAX channel": "1"
+  },
+  "backend_canonical_values_preserved": true,
+  "meter_vue_live_payload_rx": {
+    "forwardWatts": 0,
+    "reflectedWatts": 0,
+    "swrText": ""
+  },
+  "http": {
+    "/dashboard/au510m": 200,
+    "/agct-watcher/status": 200,
+    "/flows/state": 200
+  },
+  "browser_visual_test": "NOT AVAILABLE",
+  "new_radio_connections": 0,
+  "new_subscriptions": 0,
+  "temporary_tap_retained": false
+}
