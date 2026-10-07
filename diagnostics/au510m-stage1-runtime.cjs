@@ -7,13 +7,14 @@ const hooks=require('@node-red/util').hooks;
 const {DiagnosticBuffer}=require('./au510m-stage1-core.cjs');
 const IDS=Object.freeze({owner:'7fbf2bfc9badc7d3',meter:'2702052aa13cacd0',state:'au510m_live_state',bridge:'au510m_live_bridge'});
 const REQUESTS=new Set(['cb517e1d426fa203','1938f24ff5eccb7f','185977e7709d7d4d','au510m_live_request','07c61c6741eb8fad']);
-function start({context,send=()=>{},status=()=>{}}){
+function start({context,send=()=>{},status=()=>{},attachPersistence=null}){
  const owner=nodes.getNode(IDS.owner),meter=nodes.getNode(IDS.meter),canonical=nodes.getNode(IDS.state);
  if(!owner||!meter||!canonical)throw Error('Stage-1 canonical owners unavailable');
  const version=JSON.parse(fs.readFileSync(path.join(__dirname,'../agct-watcher-version.json'),'utf8')).NEW_VERSION;
  const label='au510mDiagStage1';const memoryBefore=process.memoryUsage();
  if(hooks.has('onReceive.'+label)||hooks.has('onSend.'+label))throw Error('Existing diagnostic instance not finalized');
  const core=new DiagnosticBuffer({version,mono:()=>performance.now(),debug:r=>send({topic:'au510m/diag/'+r.record_type,payload:r})});
+ const persistence=attachPersistence?.(core);
  context.set('au510mDiag',core.data);let closed=false,ticks=0;
  const counters={widgets:{},canonical_messages:0,status_messages:0,original_owners:IDS,process_memory_start:memoryBefore,process_memory:memoryBefore};core.data.runtime=counters;
  function safely(fn){if(closed)return;try{fn();}catch(e){core.error(e.message);}}
@@ -37,11 +38,11 @@ function start({context,send=()=>{},status=()=>{}}){
  });}
  function connected(){safely(()=>core.connection(true));}
  function disconnected(){safely(()=>core.connection(false));}
- function close(){if(closed)return;closed=true;clearInterval(timer);hooks.remove('*.'+label);owner.off('status',radioStatus);owner.off('connected',connected);owner.off('disconnected',disconnected);owner.off('connecting',disconnected);core.close();status({fill:'grey',shape:'ring',text:'diagnostic stopped'});}
+ function close(){if(closed)return;closed=true;clearInterval(timer);hooks.remove('*.'+label);owner.off('status',radioStatus);owner.off('connected',connected);owner.off('disconnected',disconnected);owner.off('connecting',disconnected);core.close();status({fill:'grey',shape:'ring',text:'diagnostic stopped'});return persistence?.close();}
  hooks.add('onReceive.'+label,receive);hooks.add('onSend.'+label,sending);
  owner.on('status',radioStatus);owner.on('connected',connected);owner.on('disconnected',disconnected);owner.on('connecting',disconnected);
  const timer=setInterval(()=>safely(()=>{
-  core.tick(meter.context().get('meters')?.rows||{});
+  core.tick(meter.context().get('meters')?.rows||{});persistence?.tick();
   if(++ticks%100===0){counters.process_memory=process.memoryUsage();core.data.metrics.process_heap_delta_bytes=counters.process_memory.heapUsed-memoryBefore.heapUsed;core.data.metrics.process_rss_delta_bytes=counters.process_memory.rss-memoryBefore.rss;}
   if(ticks%20===0)status({fill:core.data.metrics.errors?'red':core.data.connectionState==='CONNECTED'?'green':'yellow',shape:'dot',text:`${core.count}/12000 · ${core.rate()} Hz · ${core.data.tuneCandidate.tune_fresh?'TUNE '+core.data.tuneCandidate.tune_value:'TUNE ?'}`});
  }),50);

@@ -7,7 +7,7 @@ const root=path.resolve(new URL('../',import.meta.url).pathname);
 const require=createRequire(import.meta.url);
 const {parse,compileTemplate}=require('@vue/compiler-sfc');
 const {parse:parseJs}=require('acorn');
-const excluded=new Set(['node_modules','.git','.npm','.agents','.codex','backups','lib']);
+const excluded=new Set(['node_modules','.git','.npm','.agents','.codex','backups','lib','data']);
 function files(dir){return fs.readdirSync(dir,{withFileTypes:true}).flatMap(e=>{
  if(excluded.has(e.name)||e.name.startsWith('.config.')||e.name.startsWith('.flows')||e.name.startsWith('flows_cred')||e.name.startsWith('flows.json.bak')||e.name==='agct-watcher-settings.json'||e.name.startsWith('.env'))return [];
  const p=path.join(dir,e.name);return e.isDirectory()?files(p):e.isFile()?[p]:[];

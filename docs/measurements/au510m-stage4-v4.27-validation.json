@@ -1,0 +1,168 @@
+{
+  "old_version": "4.26",
+  "new_version": "4.27",
+  "sqlite": "PASS",
+  "wal": "PASS",
+  "schema": "PASS",
+  "natural_replay": "PASS",
+  "natural_replay_pre": "120-second time span retained; completeness false because compact historical fixture omitted record classes",
+  "natural_replay_post": "INTERRUPTED; original full POST unavailable",
+  "synthetic_full_120s_pre_post": "PASS",
+  "jsonl_export": "PASS offline; production RX has no incident",
+  "sanitization": "PASS",
+  "retention": "PASS",
+  "startup_recovery": "PASS",
+  "db_failure_fallback": "PASS",
+  "core_ring_state_machine_sampling_pa_fault_unchanged": "PASS",
+  "offline_worker_benchmark": {
+    "records": 5000,
+    "end_to_end_ms": 206,
+    "worker_transaction_ms": 101,
+    "records_per_second": 24302,
+    "event_loop_responsive": true
+  },
+  "live_rx": {
+    "version": "4.27",
+    "sqlite": "READY",
+    "stable_rx": "PASS",
+    "radio_data": "PASS",
+    "pa_data": "PASS",
+    "watcher_data": "PASS",
+    "meter_data": "PASS",
+    "pa_fault": "READY",
+    "pa_fault_behavior_unchanged": true,
+    "templates_byte_identical": true,
+    "live_flows_equal_repository": true,
+    "widget_deliveries_observed": true,
+    "incident_count": 0,
+    "db_total_bytes": 148136,
+    "sqlite_errors": null,
+    "observer_errors": 0,
+    "performance": {
+      "before_heap_mib": 77,
+      "after_heap_mib": 68,
+      "before_rss_mib": 371,
+      "after_rss_mib": 289,
+      "caveat": "Observed aggregate Node-RED values; GC and other runtime activity prevent attribution solely to persistence"
+    },
+    "visual_kiosk": "PASS_USER_CONFIRMED"
+  },
+  "live_tx": {
+    "result": "PASS",
+    "start_ts": "2026-10-07T20:42:45.833Z",
+    "end_ts": "2026-10-07T20:42:46.806Z",
+    "timezone": "Europe/Berlin",
+    "state_sequence": [
+      "RADIO_RX",
+      "UNKNOWN",
+      "TX_REQUESTED",
+      "TRANSMITTING",
+      "UNKEY_REQUESTED",
+      "RETURN_TO_RX",
+      "RADIO_RX"
+    ],
+    "unknown_ts": "2026-10-07T20:42:45.313Z",
+    "unknown_reason": "AWAIT_LINKED_CANONICAL_TX_RX",
+    "interlock_sequence": [
+      "READY",
+      "PTT_REQUESTED",
+      "TRANSMITTING",
+      "UNKEY_REQUESTED",
+      "READY"
+    ],
+    "tune_value": 0,
+    "tune_fresh": true,
+    "incident_count_before": 0,
+    "incident_count_after": 0,
+    "sqlite_status": "READY",
+    "sqlite_last_error": null,
+    "active_slice_after": "A",
+    "queue_max": 0,
+    "max_observed_context_latency_ms": 11.254
+  },
+  "live_tune": {
+    "result": "PASS",
+    "start_ts": "2026-10-07T20:43:56.381Z",
+    "end_ts": "2026-10-07T20:43:58.207Z",
+    "timezone": "Europe/Berlin",
+    "state_sequence": [
+      "RADIO_RX",
+      "TUNE_REQUESTED",
+      "TX_REQUESTED",
+      "TRANSMITTING",
+      "UNKEY_REQUESTED",
+      "RETURN_TO_RX",
+      "RADIO_RX"
+    ],
+    "interlock_sequence": [
+      "READY",
+      "PTT_REQUESTED",
+      "TRANSMITTING",
+      "UNKEY_REQUESTED",
+      "READY"
+    ],
+    "tune_sequence": [
+      0,
+      1,
+      0
+    ],
+    "tune_on_ts": "2026-10-07T20:43:56.381Z",
+    "tune_off_ts": "2026-10-07T20:43:58.203Z",
+    "tune_fresh": true,
+    "stale_tune_records": 0,
+    "incident_count_before": 0,
+    "incident_count_after": 0,
+    "sqlite_status": "READY",
+    "sqlite_last_error": null,
+    "active_slice_after": "A",
+    "queue_max": 0,
+    "max_observed_context_latency_ms": 9.055
+  },
+  "deployment": "PASS",
+  "acceptance": "PASS",
+  "commit": "See Git commit containing this release report",
+  "final_database_check": {
+    "quick_check": "ok",
+    "foreign_key_errors": 0,
+    "journal_mode": "wal",
+    "incident_count": 0,
+    "collecting_count": 0,
+    "state_event_count": 0,
+    "health_sample_count": 0,
+    "db_bytes": 4096,
+    "wal_bytes": 111272,
+    "shm_bytes": 32768,
+    "total_bytes": 148136,
+    "files_mode": "0600",
+    "last_writer_timestamp_unchanged": true,
+    "retention": "No cleanup invoked; no incident rows before or after; periodic retention implementation unchanged",
+    "synthetic_incidents_created": false
+  },
+  "live_performance": {
+    "radio_pa_watcher_meter_data_fresh": true,
+    "queue_max": 0,
+    "sqlite_errors": 0,
+    "source_overflow": 0,
+    "observation": "Main-thread HTTP context reads remained responsive; 1/5-Hz health sampling continued; no sustained monotonic memory growth observed",
+    "memory_after": {
+      "rss_bytes": 297717760,
+      "heap_used_bytes": 104843728
+    },
+    "memory_at_runtime_start": {
+      "rss_bytes": 391127040,
+      "heap_used_bytes": 79295864
+    },
+    "limitations": "Aggregate heap/RSS varied with GC and other runtime work; no attribution to persistence. Visual absence of stalls confirmed by the user."
+  },
+  "visual_confirmation": {
+    "result": "PASS",
+    "source": "Explicit user confirmation on 2026-10-07",
+    "RADIO": "PASS",
+    "PA": "PASS",
+    "AGC-T": "PASS",
+    "METER": "PASS",
+    "visible_stalling": false
+  },
+  "repository_validation": "PASS",
+  "deployment_during_closure": "unchanged"
+}

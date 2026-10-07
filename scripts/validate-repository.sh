@@ -13,11 +13,13 @@ node scripts/test-agct-dashboard.mjs
 node scripts/test-au510m-diag.mjs
 node scripts/test-au510m-diag-runtime.mjs
 node scripts/test-au510m-state-machine.mjs
+node scripts/test-au510m-persistence.mjs
+node scripts/test-au510m-persistence-runtime.mjs
 node scripts/test-meter-pa-fault.mjs
 if [[ -f scripts/test-au510m-incident-detector.mjs ]] && rg -q 'IncidentDetector' diagnostics/au510m-stage1-core.cjs; then
   node scripts/test-au510m-incident-detector.mjs
 else
-  echo 'SKIP: inactive v4.24 incident integration draft; runtime has Stage-2 core'
+  echo 'SKIP: historical Stage-3 core-integration test draft; active persistence and detector tested above'
 fi
 if [[ -f scripts/replay-au510m-natural-incident.mjs ]]; then
   node scripts/replay-au510m-natural-incident.mjs

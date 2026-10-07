@@ -875,3 +875,28 @@ Schema-Budget rund 50 MiB, kein garantierter Produktionsdeckel. Scope und erneut
 Messpflicht bei neuen Quellen/Fanouts/10 Hz beachten. Die frühere Raw-Teilrechnung
 ist historisch und ersetzt diese gefilterte Empfehlung nicht. Kein Ring/SQLite/
 Incident/DIAG implementiert; Runtime exakt v4.21 wiederhergestellt.
+
+
+## Current persistent incident logging — v4.27
+
+The canonical implementation is [Stage 4 v4.27](au510m-stage4-v4.27.md).
+SQLite uses the built-in Node.js 26.3.0 `node:sqlite` API exclusively in a worker.
+The database is `data/au510m-diagnostics.sqlite`; sanitized per-incident JSONL files
+are in `data/incidents/`. The complete data directory is excluded from Git.
+WAL, synchronous=NORMAL, foreign keys and a 5000-ms busy timeout are enforced.
+Only EVENT and HEALTH records inside incident windows are persisted; no raw
+radio packet stream or continuous normal-history database is written.
+
+The existing detector draft is now an authorized passive incident consumer.
+The Stage-1 core, v4.23 state machine, 240-second/12000-record ring, 1/5-Hz
+sampling and PA_FAULT v4.26 remain unchanged. PRE is 120 seconds; same-episode
+qualifying cycles extend POST to the latest trigger +120 seconds. Independent
+incidents may overlap. Missing coverage, disconnects and interrupted restarts
+remain explicit; historical replay never fabricates its unavailable POST.
+
+Event/health row retention is 30 days/48 hours, excluding COLLECTING incidents.
+Metadata and sanitized JSONL are retained indefinitely. Positive field lists
+exclude handles, sessions, raw sources, journal/process metadata and temporary
+paths. SQLite failure degrades persistence only. No DIAG UI is added.
+Older database paths, schema proposals and rollout notes below describe earlier
+planning; the Stage-4 implementation is authoritative for current persistence.

@@ -38,12 +38,12 @@
         "env": [
             {
                 "name": "WATCHER_OLD_VERSION",
-                "value": "4.25",
+                "value": "4.26",
                 "type": "str"
             },
             {
                 "name": "WATCHER_VERSION",
-                "value": "4.26",
+                "value": "4.27",
                 "type": "str"
             }
         ]
@@ -1658,8 +1658,8 @@
         "outputs": 1,
         "timeout": 0,
         "noerr": 0,
-        "initialize": "// Stage 2: restart only the isolated diagnostic owner and its record reducer.\nconst runtimeRequire=loader.createRequire('/mnt/dietpi_userdata/node-red/package.json');\nfor(const file of ['/mnt/dietpi_userdata/node-red/diagnostics/au510m-state-machine.cjs','/mnt/dietpi_userdata/node-red/diagnostics/au510m-stage1-core.cjs','/mnt/dietpi_userdata/node-red/diagnostics/au510m-stage1-runtime.cjs'])delete runtimeRequire.cache[runtimeRequire.resolve(file)];\nconst runtime=runtimeRequire('/mnt/dietpi_userdata/node-red/diagnostics/au510m-stage1-runtime.cjs');\ncontext.set('au510mDiagHandle',runtime.start({context,send:msg=>node.send(msg),status:value=>node.status(value)}));",
-        "finalize": "const handle=context.get('au510mDiagHandle');if(handle)handle.close();context.set('au510mDiagHandle',undefined);",
+        "initialize": "// Stage 4: isolated diagnostic observer and worker persistence, existing radio owners only.\nconst runtimeRequire=loader.createRequire('/mnt/dietpi_userdata/node-red/package.json');\nfor(const name of ['au510m-state-machine','au510m-stage1-core','au510m-stage1-runtime','au510m-incident-detector','au510m-persistence-sanitize','au510m-persistence-client','au510m-persistence']){\n const file='/mnt/dietpi_userdata/node-red/diagnostics/'+name+'.cjs';\n delete runtimeRequire.cache[runtimeRequire.resolve(file)];\n}\nconst runtime=runtimeRequire('/mnt/dietpi_userdata/node-red/diagnostics/au510m-stage1-runtime.cjs');\nconst storage=runtimeRequire('/mnt/dietpi_userdata/node-red/diagnostics/au510m-persistence.cjs');\ncontext.set('au510mDiagHandle',runtime.start({context,send:msg=>node.send(msg),status:value=>node.status(value),attachPersistence:core=>storage.attach(core,{onError:message=>node.warn(message)})}));",
+        "finalize": "const handle=context.get('au510mDiagHandle');context.set('au510mDiagHandle',undefined);if(handle)return handle.close();",
         "libs": [
             {
                 "var": "loader",

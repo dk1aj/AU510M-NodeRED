@@ -51,3 +51,6 @@ archive/runtime-backups/
 .agents/
 .codex/
 lib/
+
+# Persistent diagnostics are local runtime data, never source/evidence commits
+/data/
