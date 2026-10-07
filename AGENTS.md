@@ -288,3 +288,70 @@ value or force 1.00. Reuse existing RADIO SWR validity behavior, including its
 TX/RX gate. During intermediate development the REF needle may remain TEST,
 but it must never influence visible numeric SWR. The visible METER SWR field
 is a LIVE RADIO VALUE ONLY.
+
+
+## AU-510M DIAG / FORENSIC PROVENANCE PERMANENT RULES
+
+These rules govern the planned AU510M Health Logger and DIAG feature. Planning
+and documentation do not authorize runtime implementation. Canonical plan:
+`docs/au510m-diag-analysis.md`. Do not implement or deploy the logger until the
+user explicitly authorizes implementation and the applicable prerequisites pass.
+Documentation-only changes do not deploy or increment the runtime version.
+
+### Forensic buffer and incident windows
+
+- RAM ring buffer: 240 seconds, bounded by BOTH age and a hard maximum record count.
+- Incident capture: 120 seconds PRE trigger, the trigger record, and 120 seconds POST trigger.
+- Calculate and document the exact integer record-count limit from a complete
+  observed event rate BEFORE logger/ring implementation. Record measurement
+  coverage, average/peak rate, generated records/fanout, safety factor, formula,
+  result and memory estimate. Last-sample polling and dashboard snapshot counts
+  are not complete event-rate measurements. Do not invent a count from them.
+- If the required observation is unavailable, mark the calculation pending;
+  do not bypass this prerequisite with an arbitrary example count.
+- Record overflow, dropped records and actual prehistory coverage explicitly;
+  never claim a complete capture when records are missing. Retriggers in one
+  episode extend POST to the latest trigger + 120 seconds; preserve original PRE.
+- SQLite is the planned persistent normal history. Incident snapshots are JSONL.
+
+### Generic command/action provenance
+
+- Preserve every relevant observable action/request origin in an extensible
+  model, not a SmartControl-specific design. Potential sources include
+  SmartControl, Maestro, SmartSDR, Stream Deck, FRStack, Node-RED, N1MM+, WSJT-X,
+  scripts/macros, third-party FlexRadio clients, another PC, hardware controls,
+  radio internal logic, interlock/protection logic and UNKNOWN.
+- A user/physical trigger and the program sending the radio command can differ.
+  Preserve separately, where observable: trigger_origin, trigger_name,
+  intermediary (ordered extensible hops), command_origin, command_name,
+  client_handle, client_id, client_name, client_program, client_ip, source_node,
+  origin_confidence, correlation_id, derived_from_seq and raw_source.
+- Unknown origins remain UNKNOWN; unobservable technical identifiers remain
+  null with availability/evidence. Never substitute radio IP for client IP or
+  assume a client handle identifies a particular program without evidence.
+- Origin confidence uses ONLY DIRECT, CORRELATED, INFERRED, UNKNOWN. Preserve
+  evidence/confidence separately for trigger, command, intermediary and client
+  identity; DIRECT command provenance does not prove an unknown trigger.
+- Time proximity alone never proves a source or a causal link. CORRELATED needs
+  explicit, defensible linkage; INFERRED needs documented derivation and
+  alternatives. Record source/run/epoch/sequence evidence for every derivation.
+- Example: if only FRStack is directly observable as command sender, record
+  trigger_origin=UNKNOWN, command_origin=FRSTACK, origin_confidence=DIRECT.
+  Do not attribute Stream Deck unless its trigger and linkage are observable.
+- Keep trigger/action, COMMAND/request, ACK/response, INTERLOCK and resulting
+  STATE_CHANGE as separate records, linked by evidence/correlation. Never
+  fabricate a command record solely because the radio state changed.
+
+### TX/RX and TUNE integrity
+
+- Current canonical TX/RX is derived from Interlock. Record Interlock as DIRECT
+  and TX/RX with derivation=DERIVED_FROM_INTERLOCK and derived_from_seq pointing
+  to its Interlock record. This derivation label is not an origin-confidence enum.
+  These are not two independent observations of radio causality.
+- Confirmed canonical TUNE state is currently missing: tune=UNKNOWN (SQL NULL).
+  Do not infer TUNE from TX, power, Interlock TRANSMITTING or button appearance.
+  A future directly observed command/event may support an explicitly labeled,
+  evidence-backed request/intent inference; it does not by itself prove the
+  resulting radio TUNE state or successful transmission.
+- Preserve existing canonical radio/meter paths, shared connection and parser.
+  No duplicate FlexRadio connection, subscriptions or meter conversions for DIAG.

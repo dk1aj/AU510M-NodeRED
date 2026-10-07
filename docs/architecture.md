@@ -62,3 +62,27 @@ scripts must not be replayed over the current UI.
 The current deployed snapshot and validation limits are recorded in the
 [v4.21 handoff](handoff-2026-10-04-v4.21.md). Runtime version values are maintained
 only in agct-watcher-version.json and published by watcher status.
+
+
+## Planned DIAG blackbox (documentation only)
+
+The [DIAG analysis and staged implementation plan](au510m-diag-analysis.md)
+uses the existing shared radio/parser and canonical meter branches. Nothing in
+this planned feature is implemented or deployed yet.
+
+Permanent forensic windows: RAM ring 240 s; incident 120 s PRE + trigger +
+120 s POST. Bound the ring by age AND a hard record count. Calculate and record
+the exact limit from a complete observed event rate before implementation;
+last-sample polling cannot establish it. Normal persistent history is planned
+in SQLite, incident snapshots in JSONL.
+
+Use generic extensible provenance for all observable sources. Preserve physical/
+user trigger, intermediary hops, actual command sender, client identity, source
+node, correlation and raw evidence separately. Confidence: DIRECT, CORRELATED,
+INFERRED, UNKNOWN. Time proximity alone proves no origin. Keep action/command,
+ACK, radio Interlock and resulting state changes as separate linked records.
+
+Interlock is directly observed; canonical TX/RX is DERIVED_FROM_INTERLOCK and
+must reference that source record, not appear as independent causal evidence.
+Confirmed TUNE is currently unavailable: tune=UNKNOWN until a direct/canonical
+signal is verified. Do not infer it from TX, power or button appearance.
