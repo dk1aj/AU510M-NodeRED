@@ -84,7 +84,7 @@
     "550c0f4a32b8be5d": "d83ef02d1d92e9c7d152f569c60d1a71310e0f69850558b9a91373d547ec624a",
     "450b7e9ed2d9e1eb": "2d82e9a133b8e49ad78da43656b63423949695a3234516c6e5549e80634e2123",
     "ebcd0c0769c3829c": "4b8409df1e45bcf7d2478645e2a641046dd15d62a8614c878c780d28dde95482",
-    "au510m_power_swr_static_ui": "eee0fb2c9259644a13ca686a8047403c65d851fac152329362f64305865ea635",
+    "au510m_power_swr_static_ui": "0ce6a99c56ee0e5941ccf1f714741bb82d493606e7bd9e34c10f7c21f930c859",
     "au510m_meter_forward_only": "beebaa0452fcb8da1f3ae0e50d99dee85c39947bc757510eefa8469b356d154d"
   },
   "authorized_meter_pa_fault_change": "Display-only branch from existing messages; original live-state/bridge/radio/parser/subscriptions unchanged; METER projector/template extended."

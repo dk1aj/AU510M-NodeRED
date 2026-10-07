@@ -1,0 +1,29 @@
+{
+  "old_version": "4.25",
+  "new_version": "4.26",
+  "deployment": "PASS",
+  "offline_tests": {
+    "startup": "PASS",
+    "disconnect": "PASS",
+    "reconnect_freshness": "PASS",
+    "stale": "PASS",
+    "actual_fault_transition_replay": "PASS",
+    "zero_watts_rx_tune_zero_no_clear": "PASS"
+  },
+  "repository_validation": "PASS",
+  "live_flows_equal_repository": true,
+  "diagnostic_drafts_byte_identical": true,
+  "natural_incident_sha256": "6f35714df7e0ae2f4a1895664a6bf4a38dea5bcf6720fe36470a8951b23a3dde",
+  "physical_800x480_visual": "NOT VERIFIED; no kiosk capture available",
+  "live_status": {
+    "state": "READY",
+    "color": "GREEN",
+    "canonical_values_preserved": true
+  },
+  "supervision": {
+    "samples": 65,
+    "startup_grace_samples": 6,
+    "post_startup_samples_all_connected_with_active_slice_and_no_diag_errors": true
+  },
+  "scope": "Summary of previously completed validation; unrelated station settings, journal/session metadata and process metrics omitted."
+}

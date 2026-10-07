@@ -1,0 +1,59 @@
+{
+  "diagnostic_source": "diagnostics/fixtures/stage2-v423-natural-oscillation.json",
+  "observed_transition": [
+    "TX_FAULT",
+    "NOT_READY",
+    "READY"
+  ],
+  "clearing_state": "READY",
+  "reason_note": "PA_FAULT persists through READY; reason alone does not prove current fault.",
+  "provenance": "Selected actual Interlock observations; unrelated runtime fields omitted; unabridged originals retained locally outside tracked content.",
+  "diagnostic_records": [
+    {
+      "seq": 18185,
+      "ts_ms": 1791383877616,
+      "ts_wall": "2026-10-07T14:37:57.616Z",
+      "source": "au510m_live_state",
+      "interlock_state": "TX_FAULT"
+    },
+    {
+      "seq": 18202,
+      "ts_ms": 1791383882770,
+      "ts_wall": "2026-10-07T14:38:02.770Z",
+      "source": "au510m_live_state",
+      "interlock_state": "NOT_READY"
+    },
+    {
+      "seq": 18206,
+      "ts_ms": 1791383882816,
+      "ts_wall": "2026-10-07T14:38:02.816Z",
+      "source": "au510m_live_state",
+      "interlock_state": "READY"
+    }
+  ],
+  "journal_source": "Existing node-red.service journal; selected state/reason fields only, not raw records",
+  "time_basis": "Journal receipt UTC, separately from original diagnostic timestamps",
+  "journal_observations": [
+    {
+      "journal_ts_utc": "2026-10-07T14:37:57.616459+00:00",
+      "payload": {
+        "state": "TX_FAULT",
+        "reason": "PA_FAULT"
+      }
+    },
+    {
+      "journal_ts_utc": "2026-10-07T14:38:02.773094+00:00",
+      "payload": {
+        "state": "NOT_READY",
+        "reason": "PA_FAULT"
+      }
+    },
+    {
+      "journal_ts_utc": "2026-10-07T14:38:02.809964+00:00",
+      "payload": {
+        "state": "READY",
+        "reason": "PA_FAULT"
+      }
+    }
+  ]
+}
