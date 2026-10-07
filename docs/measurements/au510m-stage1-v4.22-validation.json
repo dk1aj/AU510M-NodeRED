@@ -68,7 +68,7 @@
     "estimated_ring_bytes": 39360960,
     "dropped_by_limit": 7
   },
-  "tune_active_cycle_observed": false,
+  "tune_active_cycle_observed": true,
   "browser_visual": "NOT AVAILABLE",
   "new_connections": 0,
   "new_subscriptions": 0,
@@ -194,5 +194,89 @@
     "new_radio_connections": 0,
     "new_subscriptions": 0,
     "temporary_tap_retained": false
+  },
+  "tune_live_validation": {
+    "captured_at": "2026-10-07T09:25:29.863Z",
+    "run_id": "fa63f19e-5e6f-4bfd-b106-a5f7d525d156",
+    "candidate_only": true,
+    "status": "PASS",
+    "source": "transmit.payload.tune",
+    "start": {
+      "seq": 4492,
+      "at": "2026-10-07T09:24:55.971Z",
+      "old": 0,
+      "new": 1,
+      "fresh": true
+    },
+    "end": {
+      "seq": 4518,
+      "at": "2026-10-07T09:24:58.923Z",
+      "old": 1,
+      "new": 0,
+      "fresh": true
+    },
+    "duration_ms": 2952,
+    "health_samples": 15,
+    "health_rate_hz": 4.908835904628331,
+    "max_candidate_age_ms": 2841.9206090010703,
+    "derived_interlock_links_verified": true,
+    "interlock_sequence": [
+      {
+        "seq": 4494,
+        "state": "PTT_REQUESTED",
+        "at": "2026-10-07T09:24:55.992Z"
+      },
+      {
+        "seq": 4497,
+        "state": "TRANSMITTING",
+        "at": "2026-10-07T09:24:56.009Z"
+      },
+      {
+        "seq": 4513,
+        "state": "UNKEY_REQUESTED",
+        "at": "2026-10-07T09:24:58.863Z"
+      },
+      {
+        "seq": 4516,
+        "state": "READY",
+        "at": "2026-10-07T09:24:58.871Z"
+      }
+    ],
+    "returned_to_rx": true,
+    "post_cycle_candidate": 0,
+    "post_cycle_fresh": true,
+    "diagnostic_errors": 0,
+    "active_slice": "A",
+    "command_origin": "UNKNOWN",
+    "trigger_origin": "UNKNOWN",
+    "metrics_at_capture": {
+      "logger_status": "RUNNING",
+      "connection_status": "CONNECTED",
+      "record_count": 512,
+      "oldest_age_seconds": 239.7642200070005,
+      "max_record_count_seen": 516,
+      "dropped_by_age": 4062,
+      "dropped_by_limit": 0,
+      "dropped_by_memory": 0,
+      "estimated_ring_bytes": 2029670,
+      "total_events": 2379,
+      "total_health_samples": 2195,
+      "truncated_fields": 0,
+      "source_overflow": 0,
+      "pending_expired": 0,
+      "errors": 0,
+      "sample_rate_hz": 1,
+      "current_tx_rx": "RX",
+      "tune_value": 0,
+      "tune_fresh": true,
+      "last_event_timestamp": 1791365125431,
+      "uptime_seconds": 2217.207237265,
+      "start_wall_ms": 1791362912626,
+      "last_health_ms": 1791365129276,
+      "ring_span_seconds": 239.20700479499996,
+      "active_slice": "A",
+      "process_heap_delta_bytes": 59657008,
+      "process_rss_delta_bytes": 56430592
+    }
   }
 }

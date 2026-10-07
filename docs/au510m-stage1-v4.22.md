@@ -94,8 +94,10 @@ latestHealth, tuneCandidate, connectionState, ringBuffer, metrics and adapter
 runtime counters. A separate local `au510mDiagHandle` stores only lifecycle cleanup.
 Read individual metrics through the existing authenticated/local Node-RED context
 API, for example `/context/node/au510m_diag_stage1/au510mDiag.metrics`.
-The sparse ring is encoded as an array wrapper by the context API; this is not an
-additional runtime buffer. Avoid frequent full-context exports on a live system.
+The sparse ring is encoded as an array wrapper by the context API, and the
+full-array response can truncate its displayed elements. Read occupied slots
+individually as `au510mDiag.ringBuffer.records[index]` when extracting evidence
+after the head advances. This is not an additional runtime buffer. Avoid frequent full-context exports on a live system.
 
 Metrics include logger/connection state, count, oldest age/span, max count,
 age/count/memory evictions, events/health counts, truncation/overflow/errors,
@@ -128,10 +130,14 @@ Debug output; health snapshots never reach it. Debug starts disabled.
   checkpoint instead. No Node-RED service/radio restart was performed.
 - Disconnect/reconnect handling, stale TUNE timeout and no stale TX are verified
   with the adapter/core tests; the live radio connection was deliberately not cut.
-- Fresh tune=0 repeats live. A new controlled 0→1→0 TUNE cycle has not yet been
-  observed in this acceptance run; candidate-cycle acceptance remains UNKNOWN.
-  The previous measurement's successful cycle is historical evidence, not a
-  substitute for this implementation's live test.
+- Fresh tune=0 repeats live. The controlled follow-up TUNE cycle
+  on 2026-10-07 at 09:24:55.971–09:24:58.923 UTC is PASS: seq 4492 observed
+  0→1 and seq 4518 observed 1→0, both DIRECT and fresh, duration 2.952 s.
+  Fifteen fresh active-candidate health samples measured 4.909 Hz.
+  Interlock READY → PTT_REQUESTED → TRANSMITTING → UNKEY_REQUESTED → READY
+  and derived TX/RX references were verified; final state RX, tune=0 fresh,
+  active slice A, errors 0. TUNE remains a candidate, not a promotion to
+  canonical TUNE or proof of command/physical trigger origin.
 - RADIO/PA/AGC-T/METER backend delivery and fresh AU-510M state pass; existing
   templates are unchanged. Actual METER Vue logic with live RX payload gives
   both needles zero and no live RX SWR. Watcher status is fresh at v4.22.
