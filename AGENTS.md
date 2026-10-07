@@ -355,3 +355,27 @@ Documentation-only changes do not deploy or increment the runtime version.
   resulting radio TUNE state or successful transmission.
 - Preserve existing canonical radio/meter paths, shared connection and parser.
   No duplicate FlexRadio connection, subscriptions or meter conversions for DIAG.
+
+### Permanent DIAG two-lane retention design
+
+- EVENT LANE retains every relevant actual state change immediately, plus actual
+  observable requests and ACKs as separate records. Repeated identical periodic
+  state baselines are not new state-change records. Preserve generic provenance.
+- HEALTH LANE maintains the latest eleven canonical health values and samples
+  one compact complete snapshot: RX 1 Hz, TX 5 Hz, later validated TUNE 5 Hz.
+  Future configurable maximum is 10 Hz; 10 Hz is never the default.
+- The future 240-second ring contains EVENT LANE records and sampled HEALTH LANE
+  snapshots only. Never retain the complete raw/normalized individual meter stream.
+- Calculate record limits from measured filtered event-record fanout plus the
+  configured health rate, not the former 154 raw records/s. Complete operational
+  coverage remains a prerequisite; unknown limits remain pending.
+- Event records are compact and event-specific; do not copy all eleven health
+  values into unrelated events. Estimate actual JavaScript object memory
+  conservatively; full JSON strings are not the RAM-sizing basis.
+- `transmit.payload.tune=0` is directly observed candidate evidence only. Canonical
+  TUNE remains UNKNOWN until both states and real-operation transitions, source,
+  freshness and session behavior are validated. Client presence does not prove
+  command origin.
+- For a controlled temporary measurement, stop instrumentation immediately if
+  the canonical active slice disappears; preserve available evidence and restore
+  known-good v4.21 without changing canonical parsers, connections or subscriptions.

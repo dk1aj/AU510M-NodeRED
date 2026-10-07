@@ -91,3 +91,11 @@ A [temporary Stage-1 measurement](au510m-stage1-measurement-2026-10-07.md)
 on 2026-10-07 observed individual canonical events and existing decoded status.
 The tap was removed and exact v4.21 restored. Final record limit remains pending
 complete idle/TX/TUNE coverage; no permanent logger/DIAG feature exists.
+
+Permanent design correction: DIAG retention has two lanes. EVENT LANE records
+actual relevant state changes immediately, including separate observable requests
+and ACKs. HEALTH LANE samples the latest eleven canonical values at 1 Hz RX / 5 Hz
+TX, later 5 Hz validated TUNE; future configurable ceiling 10 Hz, never default.
+The 240-second ring holds only these compact event records and health snapshots,
+not individual raw meter events. Size it from measured filtered record rates and
+actual compact JavaScript objects; final operational coverage is still required.

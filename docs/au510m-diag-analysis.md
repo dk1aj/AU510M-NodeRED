@@ -325,14 +325,18 @@ Für unterschiedliche Eingänge source-lokale Ordnung mitführen; eine Collector
 Eigener modularer Node-RED-Tab, zunächst deaktiviert vorbereitet und pro freigegebener Stufe aktiviert. Keine Schreibverbindung zu Radio-Request-Nodes.
 
 ```text
-kanonische Statusereignisse / passiv dekodierte Ergänzungen
-kanonische normalisierte Einzel-Meterereignisse
-    → Receipt/Provenienz → Diagnose-Reducer → getrennte Command-/Result-/State-Change-Events
-                         ├→ zeitbegrenzter RAM-Ring
-                         ├→ Snapshot-Scheduler → Health-Samples
-                         ├→ Detektor → Incident-/Pre-/Post-Collection
-                         └→ asynchroner Writer → SQLite / JSONL
-                                             → Loggerstatus → DIAG
+Bestehender Decoder / kanonische Statusprojektion
+    → EVENT LANE: relevante tatsächliche Änderungen, Requests, ACKs sofort
+        → kompakte ereignisspezifische Records ─────────────────────┐
+                                                                  ├→ gemeinsamer 240-s-Ring
+Bestehende kanonische Meterwerte                                  │  → später SQLite / Incidentexport
+    → letzter Wert je Meter, Quellalter/Qualität erhalten           │
+        → HEALTH LANE: vollständiger kompakter Snapshot            │
+            RX 1 Hz / TX 5 Hz / validiertes TUNE später 5 Hz ──────┘
+            maximal konfigurierbar später 10 Hz, nie Default
+
+Rohmeterereignisse → nur kanonischer Latest-Cache / temporäre Ratenzählung
+                  → NICHT in den 240-s-Ring
 ```
 
 ### Exakte Abgriffpunkte
@@ -342,12 +346,12 @@ kanonische normalisierte Einzel-Meterereignisse
 - `d5e6ccb24dea5faa` deckt tx/pan ab, aber nicht radio/atu/client. Für die fehlenden Topics ist ein passiver Listener am **gleichen** Configowner mit gezieltem Filter sinnvoll. Er benutzt denselben Librarydecoder, sendet keine Requests. Bestehende Filter nicht pauschal erweitern: zusätzliche Meldungen würden auch an den Watcher gelangen und könnten bestehende Verarbeitung beeinflussen.
 - Vollständige Interlock-Payloads am bestehenden Statuszweig erhalten, bevor der RADIO-Kern `reason/source` verwirft. DIAG führt keinen zweiten Interlock-Textparser ein; fehlende Metadaten werden nur aus schon dekodierten Feldern projiziert. Partial-/optionale Felder nach belegter API-Semantik behandeln: ein fehlender reason in neuem Interlock-State darf nicht blind als alter aktueller Blockgrund weiterleben.
 - `au510m_live_bridge` zusätzliche Branch für die vorhandenen PAwerte an Health/DIAG; bestehende RADIO- und METER-Wires bleiben direkt.
-- Für hochauflösende kanonische Meter ist der heutige 1-Hz-Ausgang unzureichend. Minimal erforderliche Erweiterung: **rein additiver siebter Diagnoseausgang** an `2702052aa13cacd0`, nach bestehender Sample-Normalisierung, mit unverändert kopiertem `row` und Eingangsprovenienz. Erste sechs Ausgänge, Outputreihenfolge, Subscriberlogik und bisherige Werte bleiben unverändert. Das ist eine explizite, kleine Instrumentierung des kanonischen Owners; vor Implementierung Diff-/Regressionstest und Abnahme. Kein zweites dBm→W-Modul. Falls diese additive Instrumentierung nicht freigegeben wird, bleibt ein snapshotbasierter Logger möglich, aber kein hochauflösendes Blackboxversprechen.
+- Für hochauflösende kanonische Meter ist der heutige 1-Hz-Ausgang unzureichend. Minimal erforderliche Erweiterung: **später separat freizugebender rein additiver siebter Diagnoseausgang zum Latest-Cache, niemals zum Raw-Ring** an `2702052aa13cacd0`, nach bestehender Sample-Normalisierung, mit unverändert kopiertem `row` und Eingangsprovenienz. Erste sechs Ausgänge, Outputreihenfolge, Subscriberlogik und bisherige Werte bleiben unverändert. Das ist eine explizite, kleine Instrumentierung des kanonischen Owners; vor Implementierung Diff-/Regressionstest und Abnahme. Kein zweites dBm→W-Modul. Falls diese additive Instrumentierung nicht freigegeben wird, bleibt ein snapshotbasierter Logger möglich, aber kein hochauflösendes Blackboxversprechen.
 - Watcherstatus-Ausgang/Cache per Nachrichtenbranch lesen für Version/Band/Watcherereignisse; Permit/Gate nicht ändern. Neues Loggerflow kann den anderen Flowkontext nicht direkt über `flow.get` erreichen.
 
 ### Event log
 
-Jede relevante Änderung sofort erfassen/queueen: Interlockstate/reason/source/allowed, Tune wenn belegt, normalisiertes RX/TX, aktive Slice/QRG/Mode/Band, ATU/Settings wenn belegt, Connection/Inventory/Qualität, Recorderlücke und Incident. Gleiche Baseline/gleicher State ist kein neuer Statewechsel; bei wiederholten Baselines trotzdem ein Provenienzrecord im Ring, kein falscher Detektortrigger.
+Jede relevante Änderung sofort erfassen/queueen: Interlockstate/reason/source/allowed, Tune wenn belegt, normalisiertes RX/TX, aktive Slice/QRG/Mode/Band, ATU/Settings wenn belegt, Connection/Inventory/Qualität, Recorderlücke und Incident. Gleiche Baseline/gleicher State ist kein neuer Statewechsel und erzeugt keinen periodischen Eventrecord. Relevante Connection-/Epoch-/Clientänderungen bleiben eigene unmittelbare Events; echte Requests und ACKs werden auch bei gleichem Befehlsinhalt als getrennte tatsächliche Vorgänge erfasst.
 
 ### Health samples und Last
 
@@ -355,9 +359,9 @@ Start: RX **1 Hz**, frisches TRANSMITTING beziehungsweise belegter Tune-Modus **
 
 Beobachtet: Node-RED Prozess etwa 33 % CPU als laufzeitgemittelter `ps`-Wert, ca. 264 MiB RSS. Kein aussagefähiger TX-Lastbenchmark; keine Zusicherung, dass 10 Hz gefahrlos sind. Mit SQLite außerhalb des Haupt-Eventloops erscheinen 1/5 Hz als vernünftiger Start, müssen aber gemessen werden.
 
-Snapshots übernehmen letzte kanonische Werte mit eigenem `seen`, Alter, Unit, Gültigkeit und TX-Interval. Identische Werte dürfen wiederholt sampled werden, aber `seen` wird nicht künstlich erneuert. Kein schnelleres Sampling als angebliche neue Hardwaremessung verkaufen. Alle Einzelmeterereignisse bleiben unabhängig davon im 240-s-Ring.
+Snapshots übernehmen letzte kanonische Werte mit eigenem `seen`, Alter, Unit, Gültigkeit und TX-Interval. Identische Werte dürfen wiederholt sampled werden, aber `seen` wird nicht künstlich erneuert. Kein schnelleres Sampling als angebliche neue Hardwaremessung verkaufen. **Einzelmeterereignisse werden nicht im Ring gespeichert.** Der Ring erhält aus dem HEALTH LANE ausschließlich kontrolliert gesampelte kompakte Snapshots. EVENT LANE bleibt vollständig für relevante tatsächliche Änderungen, Requests und ACKs.
 
-Offline/Livekriterium: Queue wächst nicht dauerhaft; keine verlorenen Stateevents; Lag-p99 möglichst unter 20 ms und keine neue starke Abweichung zur Baseline, keine RADIO/PA/AGC-T-Ausfälle. Dies sind vorgeschlagene Abnahmekriterien, keine gemessenen Eigenschaften. Bei Lastproblemen zuerst Health auf 2 Hz TX beziehungsweise 1 Hz reduzieren; Stateevents weiterhin unverdichtet.
+Offline/Livekriterium: Queue wächst nicht dauerhaft; keine verlorenen Stateevents; Lag-p99 möglichst unter 20 ms und keine neue starke Abweichung zur Baseline, keine RADIO/PA/AGC-T-Ausfälle. Dies sind vorgeschlagene Abnahmekriterien, keine gemessenen Eigenschaften. Default bleibt RX 1 Hz / TX 5 Hz / später validiertes TUNE 5 Hz, maximal zukünftig konfigurierbar 10 Hz. Eine Änderung dieser Vorgabe erfordert einen eigenen Auftrag und Abnahme; Stateevents bleiben unverdichtet.
 
 ## 12. SQLite-Integration und Pfade
 
@@ -560,13 +564,13 @@ Planungsannahme pro Healthrow einschließlich Index/Quality-JSON **0.8–1.5 KiB
 | dauerhaft 5 Hz | 864.000 | 675–1.266 MiB |
 | dauerhaft 10 Hz | 1.728.000 | 1.350–2.531 MiB |
 
-Eventannahme 1–3 KiB/Row: 10.000 Events/Tag × 30 Tage ungefähr 293–879 MiB; bei viel QRG-Tuning oder dauerhaftem Fehler deutlich mehr. Kein kontinuierliches Speichern jeder normalen Meteränderung als Stateevent; dafür Ring und Health. 240-s-JSONL (120 s PRE + Trigger + 120 s POST) bei 200/1.000 kompakten Records/s und 400 B/Record etwa 19.2/96 MB reine Nutzdaten je Incident. Laufzeitrate unbekannt; diese Zahlen sind Budgetbeispiele. Unbegrenzte Incidents/Dateien benötigen Platzanzeige und Disk-Full-Handling, obwohl Retention dort ausgeschaltet bleibt.
+Eventannahme 1–3 KiB/Row: 10.000 Events/Tag × 30 Tage ungefähr 293–879 MiB; bei viel QRG-Tuning oder dauerhaftem Fehler deutlich mehr. Kein kontinuierliches Speichern jeder normalen Meteränderung als Stateevent oder Raw-Ringrecord; dafür ausschließlich gesampelte Health-Snapshots. 240-s-JSONL (120 s PRE + Trigger + 120 s POST) bei 200/1.000 kompakten Records/s und 400 B/Record etwa 19.2/96 MB reine Nutzdaten je Incident. Laufzeitrate unbekannt; diese Zahlen sind Budgetbeispiele. Unbegrenzte Incidents/Dateien benötigen Platzanzeige und Disk-Full-Handling, obwohl Retention dort ausgeschaltet bleibt.
 
 ## 15. RAM-Ringbuffer — permanente forensische Vorgabe
 
 **RAM-Ring: 240 Sekunden. Incident: 120 Sekunden PRE + Trigger + 120 Sekunden POST.** SQLite bleibt die persistente normale Historie, JSONL das Incidentformat. Dies ersetzt sämtliche früheren 60-s-Ring-/60-s-PRE-/60-s-POST-Vorschläge.
 
-Ein Collector hält nach Monotonzeit die letzten 240 s: dekodierte Statusdeltas, Connection/Quality, kanonische Einzelmeter, getrennte Command-/Action-/Resultrecords, Diagnoseevents und Health-/Loggerstatus. Kompakte Records; keine komplette 35-Meter-/Watcherstruktur je Ereignis. Speicherbegrenzung zwingend durch **Alter und harte maximale Recordanzahl**. Ein zusätzliches Bytebudget ersetzt keine dieser beiden Grenzen.
+Ein Collector hält nach Monotonzeit die letzten 240 s: relevante tatsächliche Statusänderungen, Connection/Quality, getrennte Command-/Action-/Resultrecords, spätere Diagnoseereignisse und kontrolliert gesampelte Health-Snapshots. Einzelne rohe oder normalisierte Meterupdates gehören nicht in den Ring; sie aktualisieren nur die letzten kanonischen Werte. Kompakte Records; keine komplette 35-Meter-/Watcherstruktur je Ereignis. Speicherbegrenzung zwingend durch **Alter und harte maximale Recordanzahl**. Ein zusätzliches Bytebudget ersetzt keine dieser beiden Grenzen.
 
 ### Harte Recordgrenze: Berechnung vor Implementierung verpflichtend
 
@@ -579,18 +583,22 @@ Die Messung muss alle geplanten Recordklassen berücksichtigen. Beobachtungsmodu
 Berechnung je Szenario, bevor implementiert wird:
 
 ```text
-R_avg = direkt beobachtete relevante Eingangsrecords / Beobachtungsdauer_s
-R_peak = max(relevante Eingangsrecords in jedem gleitenden 1-s-Fenster)
-R_fanout = max(zusätzliche abgeleitete Records je Eingangsrecord)
-R_generated = konfigurierte maximale Health-/Clock-/Loggerrecords pro Sekunde
-R_design = R_peak * (1 + R_fanout) + R_generated
-safety_factor = 2.0 (explizite technische Reserve, keine gemessene Rate)
-max_records = ceil(240 * R_design * safety_factor)
+R_event_avg = tatsächlich erzeugte kompakte EVENT-LANE-Records / Dauer_s
+R_event_peak = gemessene Peakrate dieser Records (Fensterdefinition dokumentieren)
+R_health = 1/s RX, 5/s TX beziehungsweise später validiertes TUNE
+R_design = größtes glaubwürdiges R_event_peak + R_health über abgedeckte Szenarien
+safety_factor >= 2.0, Reserve aus beobachteten EVENT-LANE-Bursts begründen
+expected_normal_records = ceil(240 * (R_event_avg + R_health_normal))
+expected_worst_records = ceil(240 * R_design)
+max_records = ceil(expected_worst_records * safety_factor)
+
+Raw-Meter-Rate NICHT zu R_design addieren.
+154 rohe Records/s aus der ersten Teilbeobachtung sind KEINE Sizingbasis.
 ```
 
-Falls der beobachtete Stream bereits sämtliche finalen Collectorrecords enthält, ist `R_fanout=0`; niemals denselben Fanout doppelt zählen. Alle Szenarien auswerten und die größte berechnete Grenze übernehmen. Bei späteren zusätzlichen Quellen/Fanouts neu messen/berechnen. Vor Implementierung hier die **konkrete ganze Zahl**, Messzeitraum, Eingangs-/Recorddefinition, Durchschnitt/Peak, Fanout, generierte Rate, Reserve, Coverage und geschätzten tatsächlichen JS-Speicher dokumentieren. Erst dann ist die Voraussetzung erfüllt. Ein reines RX-Messergebnis darf nicht als TX-/Incident-Spitzenlast ausgegeben werden.
+Die Messung muss den tatsächlichen EVENT-LANE-Fanout und die HEALTH-Schedulerrecords bereits getrennt ausweisen; niemals denselben Fanout doppelt zählen. Alle Szenarien auswerten und die größte berechnete Grenze übernehmen. Bei späteren zusätzlichen Quellen/Fanouts neu messen/berechnen. Vor Implementierung hier die **konkrete ganze Zahl**, Messzeitraum, Eingangs-/Recorddefinition, Durchschnitt/Peak, Fanout, generierte Rate, Reserve, Coverage und geschätzten tatsächlichen JS-Speicher dokumentieren. Erst dann ist die Voraussetzung erfüllt. Ein reines RX-Messergebnis darf nicht als TX-/Incident-Spitzenlast ausgegeben werden.
 
-Budgetbeispiele, ausdrücklich keine freigegebenen Limits: 200 Records/s × 240 s × 400 B ≈ 19.2 MB serialisiert; 1.000/s ≈ 96 MB. JS-Objektoverhead und obige Reserve zusätzlich. Rate oder Speicherbedarf zu hoch: Recordformat/Architektur und Messung vor Implementierung überarbeiten, nicht still die zugesicherten Zeitfenster verkürzen.
+RAM anhand des tatsächlichen kompakten JavaScript-Objektschemas konservativ abschätzen und später per Heapmessung überprüfen. Eventrecords tragen nur ereignisspezifische Werte und Provenienz, keine Kopie aller elf Healthwerte. Ein Healthrecord trägt genau einen vollständigen Snapshot. Vollständige JSON-Strings oder Pretty-JSON sind keine RAM-Sizingbasis; JSONL wird erst beim späteren Incidentexport normalisiert. Rate oder Speicherbedarf zu hoch: Recordformat/Architektur und Messung vor Implementierung überarbeiten, nicht still die zugesicherten Zeitfenster verkürzen.
 
 ### Capture und Überlauf
 
@@ -709,7 +717,7 @@ Vor jeder Runtime-Stufe: aktuellen sauberen Gitstand und aktuelles `origin/main`
 
 | Stufe | Änderung | Unverändert | Validierung | Rollbackpunkt |
 |---|---|---|---|---|
-| 1: passiver Eventtap | eigener Flow/gezielte vorhandene Statusbranches, Receipt/Provenienz; additive kanonische Einzelmeterausgabe für den Ring vorbereiten/abnehmen | Verbindung, Subscriptions, erste sechs Meterausgänge, Radio-/Watchersteuerung, alle UIs | Originalpfade vorher/nachher identisch; keine neue Config/Requests; echte empfangene tx/radio/interlock-Felder inventarisieren, Zeit-/Verlustraten messen | heutiger Known-good-Stand beziehungsweise aktueller Stage-0-Stand |
+| 1: passiver Eventtap | eigener Flow/gezielte vorhandene Statusbranches, Receipt/Provenienz; passive kanonische Latest-Werte für gesampelte HEALTH-LANE-Snapshots und getrennte EVENT-LANE-Raten vorbereiten/abnehmen | Verbindung, Subscriptions, erste sechs Meterausgänge, Radio-/Watchersteuerung, alle UIs | Originalpfade vorher/nachher identisch; keine neue Config/Requests; echte empfangene tx/radio/interlock-Felder inventarisieren, Zeit-/Verlustraten messen | heutiger Known-good-Stand beziehungsweise aktueller Stage-0-Stand |
 | 2: State machine | rein passiver Reducer/Changes/Confidence; TUNE/Unkey nur wenn belegt | Meter-/Radioverarbeitung, kein DB-/UIfeature | offline Replay von Partial-Updates, UNKNOWN, Block, Fault, normalen Cycles, Baseline/Disconnect; echte Statesequenz lesen | abgenommener Stage-1-Commit |
 | 3: Ringbuffer | 240-s-Zeitfenster, harte gemessene Recordgrenze, bounded Memory, Lossstatus | DB, Incidentdetektor, UIs | 240-s-Abdeckung bei gemessener Last und dokumentierter Recordlimit-Berechnung, Overflow/Restart/immutability, Speicherprofil | Stage 2 |
 | 4: SQLite events | Verzeichnis/Worker/Schema, nur Eventlog und Loggerstatus | keine neuen Radioabos, noch keine Healthwrites | temporäre Test-DB später außerhalb Runtime; ACK/Restart/Diskfull/Busy/Shutdown, eindeutige seq, Hauptloop-Lag; echte Eventwrites | Stage 3, Writer entfernen/deaktivieren; aufgezeichnete Dateien erhalten |
