@@ -38,12 +38,12 @@
         "env": [
             {
                 "name": "WATCHER_OLD_VERSION",
-                "value": "4.20",
+                "value": "4.21",
                 "type": "str"
             },
             {
                 "name": "WATCHER_VERSION",
-                "value": "4.21",
+                "value": "4.22",
                 "type": "str"
             }
         ]
@@ -1640,5 +1640,57 @@
                 "au510m_power_swr_static_ui"
             ]
         ]
+    },
+    {
+        "id": "au510m_diag_tab",
+        "type": "tab",
+        "label": "AU510M DIAG · Stage 1 RAM only",
+        "disabled": false,
+        "info": "Passive EVENT + HEALTH lanes, 240 s / 12000 records. No radio writes, new subscriptions, database, incidents or dashboard.\nDiagnostic-only lifecycle redeploy: initializes a new run, UNKNOWN state and sequence 1; existing radio/dashboard owners are preserved."
+    },
+    {
+        "id": "au510m_diag_stage1",
+        "type": "function",
+        "z": "au510m_diag_tab",
+        "name": "Passive Stage-1 diagnostic RAM buffer",
+        "func": "return null;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "// Stage-1 lifecycle checkpoint: reinitialize only this diagnostic owner.\nconst runtimeRequire=loader.createRequire('/mnt/dietpi_userdata/node-red/package.json');\nfor(const file of ['/mnt/dietpi_userdata/node-red/diagnostics/au510m-stage1-core.cjs','/mnt/dietpi_userdata/node-red/diagnostics/au510m-stage1-runtime.cjs'])delete runtimeRequire.cache[runtimeRequire.resolve(file)];\nconst runtime=runtimeRequire('/mnt/dietpi_userdata/node-red/diagnostics/au510m-stage1-runtime.cjs');\ncontext.set('au510mDiagHandle',runtime.start({context,send:msg=>node.send(msg),status:value=>node.status(value)}));",
+        "finalize": "const handle=context.get('au510mDiagHandle');if(handle)handle.close();context.set('au510mDiagHandle',undefined);",
+        "libs": [
+            {
+                "var": "loader",
+                "module": "module"
+            }
+        ],
+        "x": 330,
+        "y": 120,
+        "wires": [
+            [
+                "au510m_diag_debug"
+            ]
+        ],
+        "outputLabels": [
+            "Isolated lifecycle / transitions only"
+        ]
+    },
+    {
+        "id": "au510m_diag_debug",
+        "type": "debug",
+        "z": "au510m_diag_tab",
+        "name": "AU510M DIAG lifecycle / transitions · enable on demand",
+        "active": false,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 730,
+        "y": 120,
+        "wires": []
     }
 ]

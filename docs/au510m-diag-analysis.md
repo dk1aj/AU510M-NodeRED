@@ -2,9 +2,35 @@
 
 Stand: 6. Oktober 2026. Projekt: `/mnt/dietpi_userdata/node-red`.
 
-**Nur Analyse. Keine Runtime-Datei geändert, kein Deploy, keine Installation, keine Datenbank oder Tabelle angelegt, keine Version erhöht, kein Commit und kein Push.** Die dauerhaft gepflegte Fassung liegt unter `docs/au510m-diag-analysis.md`; die ursprüngliche Berichtskopie unter `/tmp/` ist synchronisiert. Die Ergänzung vom 6. Oktober 2026 betrifft ausschließlich Dokumentation und AGENTS.md.
+**Historischer Planungsstand vom 6. Oktober. Keine Runtime-Datei geändert, kein Deploy, keine Installation, keine Datenbank oder Tabelle angelegt, keine Version erhöht, kein Commit und kein Push.** Die dauerhaft gepflegte Fassung liegt unter `docs/au510m-diag-analysis.md`; die ursprüngliche Berichtskopie unter `/tmp/` ist synchronisiert. Die Ergänzung vom 6. Oktober 2026 betrifft ausschließlich Dokumentation und AGENTS.md.
 
 Die Architektur unterstützt einen passiven Logger über die bestehende Verbindung. Die wichtigste Einschränkung: Die vorhandenen Dashboard-Snapshots erscheinen im Sekundentakt; TUNE, vollständige Interlock-Gründe und Bedienkommandos werden derzeit nicht kanonisch gespeichert. Eine schnelle Schwingung kann deshalb mit einem bloßen Mitschreiben der sichtbaren Dashboardwerte nicht kausal aufgelöst werden. Der Logger muss Einzelereignisse vor der Snapshot-Verdichtung beobachten und Unsicherheiten ausdrücklich erhalten.
+
+## Aktueller Implementierungsstand — 7. Oktober 2026
+
+**Stage 1 implementiert, v4.21 → v4.22.** Der ausdrücklich autorisierte Umfang
+zieht RAM-Ring und Health-Sampling in Stage 1 vor; die ältere Stufentabelle
+weiter unten beschreibt den historischen Plan, nicht den aktuellen Freigabeumfang.
+Verbindliche aktuelle Architektur und Abnahme: [Stage-1-Bericht](au510m-stage1-v4.22.md)
+und [Architektur](architecture.md#au-510m-passive-diagnostic-stage-1-v422).
+
+Zwei getrennte Recordpfade: sofortige kompakte Zustandsänderungen und Health mit
+1 Hz RX / 5 Hz TX beziehungsweise frischem aktivem TUNE-Kandidaten. Ein Ring,
+240 s und maximal 12000 Records, monotone Altersprüfung, gezählte Evictions,
+begrenzte Metadaten; erwarteter Mix ~20 MiB, konservatives Schätzbudget 50 MiB.
+Sizing-Voraussetzung erfüllt durch die dokumentierte vollständige Zwei-Pfade-
+Messung (23/s × 240 × 2 = 11040, auf 12000 aufgerundet).
+
+Die Hooks beobachten ausschließlich vorhandene Parser-/Reducer-Ausgaben und
+Requests; keine neuen Verbindungen, Abos, Parser oder Meterkonversionen.
+TUNE bleibt Kandidat mit explizit konservativen 15 s Freshness, nicht kanonischer
+TUNE-Zustand. LOGGER_START startet seq=1 und UNKNOWN; Disconnect setzt aktuelle
+Werte zurück, erhält Historie und verlangt frische Meter nach dem Verbindungsepoch.
+Interlock-DIRECT und daraus abgeleitetes TX/RX bleiben mit Sequenzbeleg getrennt.
+UNKNOWN-Ursprünge werden nicht durch Zeitnähe oder Clientnamen ersetzt.
+
+Kein SQLite, Incidentdetektor, Incident-JSONL oder DIAG-Dashboard implementiert.
+Nächste separat freizugebende Stufe: **DIAGNOSTIC STATE MACHINE**.
 
 ## 1. Bestehende Architektur
 
@@ -574,7 +600,7 @@ Ein Collector hält nach Monotonzeit die letzten 240 s: relevante tatsächliche 
 
 ### Harte Recordgrenze: Berechnung vor Implementierung verpflichtend
 
-**Aktueller Status nach kontrollierter Messung vom 7. Oktober: für das dokumentierte Zwei-Pfade-Recordmodell empfohlene Hardgrenze 12000 Records bei 240 s.** Siehe [kontrollierte Messung](au510m-stage1-two-lanes-2026-10-07.md) für Coverage, Filter, 23/s Designrate, 2× Reserve, Scope und tatsächliche Objekt-Heapmessung. Noch kein Ring implementiert. Folgende ältere Pollingbefunde erklären, warum die Empfehlung nicht aus Dashboard-Snapshots oder Rawmeterraten abgeleitet werden darf. Das frühere 250-ms-Polling beobachtete nur wechselnde `seen`-Zeitpunkte: mehrere Ereignisse zwischen Polls verschwinden. Dashboardnachrichten im Sekundentakt sind ebenfalls keine Eingangsrate. Aus diesen Untergrenzen darf keine scheinbar genaue Recordgrenze berechnet werden. Die frühere Beispielgrenze 100.000 Records ist ausdrücklich zurückgezogen.
+**Aktueller Status nach kontrollierter Messung vom 7. Oktober: für das dokumentierte Zwei-Pfade-Recordmodell empfohlene Hardgrenze 12000 Records bei 240 s.** Siehe [kontrollierte Messung](au510m-stage1-two-lanes-2026-10-07.md) für Coverage, Filter, 23/s Designrate, 2× Reserve, Scope und tatsächliche Objekt-Heapmessung. Dieser Messstand wurde inzwischen durch den Stage-1-Ring v4.22 umgesetzt. Folgende ältere Pollingbefunde erklären, warum die Empfehlung nicht aus Dashboard-Snapshots oder Rawmeterraten abgeleitet werden darf. Das frühere 250-ms-Polling beobachtete nur wechselnde `seen`-Zeitpunkte: mehrere Ereignisse zwischen Polls verschwinden. Dashboardnachrichten im Sekundentakt sind ebenfalls keine Eingangsrate. Aus diesen Untergrenzen darf keine scheinbar genaue Recordgrenze berechnet werden. Die frühere Beispielgrenze 100.000 Records ist ausdrücklich zurückgezogen.
 
 Vor jeder Logger-/Ring-Implementierung ist eine rein passive Messung vorhandener Eingänge durchzuführen, ohne Flow-/Subscription-/Verbindungsänderung. Geeignet ist ein nachweislich vollständiger read-only Trace der bestehenden Verbindung oder vorhandene vollständige Runtime-Telemetrie. Falls keine solche Beobachtung zugänglich ist, bleibt diese Implementierungsvoraussetzung offen; kein Ratenwert wird erfunden. Eine temporäre Flowinstrumentierung wäre bereits Runtimeänderung und benötigt einen separat ausdrücklich freigegebenen Messauftrag, nicht diese Dokumentationsfreigabe.
 
@@ -711,7 +737,7 @@ Neue Vorlagelogik ausschließlich innerhalb eines einzigen `export default { ...
 
 ## 20. Implementierungsstufen
 
-**Vor Stage 1 beziehungsweise jeder Logger-/Ring-Implementierung:** vollständige passive Ereignisratenmessung und konkretes berechnetes `max_records` gemäß Abschnitt 15 dokumentieren. Derzeit offen; keine Implementierungsfreigabe aus einer angenäherten Pollingrate ableiten.
+**Vor Stage 1 beziehungsweise jeder Logger-/Ring-Implementierung:** vollständige passive Ereignisratenmessung und konkretes berechnetes `max_records` gemäß Abschnitt 15 dokumentieren. Durch die kontrollierte Zwei-Pfade-Messung erfüllt; keine Freigabe aus einer angenäherten Pollingrate ableiten.
 
 Vor jeder Runtime-Stufe: aktuellen sauberen Gitstand und aktuelles `origin/main` verifizieren, Known-good-SHA und live Flow-Revision notieren; einmal zentrale Version bumpen; Exports aktualisieren; statische Checks einschließlich Vue-AST, Watcher-/Dashboard-/Meterchecks und spezifischer Tests. Standarddeploy erst nach bestandenem Check. Nach jeder Stufe RADIO, PA, TX/RX/EXT, AGC-T, METER und echte AU-510M-Livedaten prüfen. Erst nach erfolgreicher Runtimeabnahme Commit/Push, HEAD==origin/main und sauberer Baum. Keine nächste Stufe bei fehlender Abnahme.
 
@@ -762,7 +788,7 @@ Version bei Rollback transparent dokumentieren: alte geprüfte Runtimeversion wi
 
 Zentrale Datei `agct-watcher-version.json`: **OLD_VERSION=4.20, NEW_VERSION=4.21**. Identische Werte in aktivem Watcher-Tab und live `GET /agct-watcher/status`. Aktuell deployt ist **v4.21**.
 
-Für eine später ausdrücklich freigegebene **Stage 1** empfohlen: **Old v4.21 → New v4.22**, einmal `node scripts/version-agct-watcher.mjs --bump`, danach Exports/Validation und Runtimeabnahme. Jetzt nicht ausgeführt. Eine reine weitere Plan-/Dokumentationsänderung verlangt keinen Runtimebump.
+Für eine später ausdrücklich freigegebene **Stage 1** empfohlen: **Old v4.21 → New v4.22**, einmal `node scripts/version-agct-watcher.mjs --bump`, danach Exports/Validation und Runtimeabnahme. Mit Stage 1 einmal ausgeführt. Eine reine weitere Plan-/Dokumentationsänderung verlangt keinen Runtimebump.
 
 Lesend bestätigt: Node-RED `/flows` HTTP200, 84 Nodes und Gleichheit zu Datei; `/agct-watcher/status` HTTP200, frisches RX, Slice 0, QRG14.074 MHz/Band20; Dashboard-Route HTTP200. Alle angefragten elf Healthmeter frisch im kanonischen Kontext. Keine echte TUNE-/TX-/Maestroabnahme und keine gerenderte Browsersicht in dieser Analyse.
 

@@ -64,47 +64,39 @@ The current deployed snapshot and validation limits are recorded in the
 only in agct-watcher-version.json and published by watcher status.
 
 
-## Planned DIAG blackbox (documentation only)
+## AU-510M passive diagnostic Stage 1 (v4.22)
 
-The [DIAG analysis and staged implementation plan](au510m-diag-analysis.md)
-uses the existing shared radio/parser and canonical meter branches. Nothing in
-this planned feature is implemented or deployed yet.
+Stage 1 is implemented as an isolated, RAM-only observer. The [implementation
+and acceptance report](au510m-stage1-v4.22.md) lists exact sources and limitations.
+The existing 84 nodes, connection, parser, subscriptions and UI paths remain
+unchanged apart from the central watcher version environment. Three diagnostic
+nodes add one tab, one observer Function and one disabled isolated Debug output;
+there is no DIAG dashboard page.
 
-Permanent forensic windows: RAM ring 240 s; incident 120 s PRE + trigger +
-120 s POST. Bound the ring by age AND a hard record count. Calculate and record
-the exact limit from a complete observed event rate before implementation;
-last-sample polling cannot establish it. Normal persistent history is planned
-in SQLite, incident snapshots in JSONL.
+The event lane retains relevant changes and separate existing requests/ACKs.
+The health lane samples eleven already processed canonical meters at 1 Hz RX,
+5 Hz canonical TX or a fresh active TUNE candidate. Raw meter events are never
+retained and Watts are never converted again. The ring uses monotonic age:
+240 seconds AND 12000 records, with counted age/count/memory evictions and
+bounded metadata. The measured sizing basis is in the [two-lane report](au510m-stage1-two-lanes-2026-10-07.md):
+23 records/s × 240 s × 2 reserve = 11040, rounded to 12000; expected mixture
+about 20 MiB, conservative estimated-record budget 50 MiB.
 
-Use generic extensible provenance for all observable sources. Preserve physical/
-user trigger, intermediary hops, actual command sender, client identity, source
-node, correlation and raw evidence separately. Confidence: DIRECT, CORRELATED,
-INFERRED, UNKNOWN. Time proximity alone proves no origin. Keep action/command,
-ACK, radio Interlock and resulting state changes as separate linked records.
+Interlock observations are DIRECT; TX/RX is copied from the canonical reducer,
+with DERIVED_FROM_INTERLOCK and a source sequence. Sequence denotes local arrival
+order, not guaranteed radio-internal causal order. Physical trigger and command
+sender remain distinct; unavailable origin stays UNKNOWN. Ambiguous repeated
+request message identifiers cannot prove an individual ACK correlation.
 
-Interlock is directly observed; canonical TX/RX is DERIVED_FROM_INTERLOCK and
-must reference that source record, not appear as independent causal evidence.
-Confirmed TUNE is currently unavailable: tune=UNKNOWN until a direct/canonical
-signal is verified. Do not infer it from TX, power or button appearance.
+`transmit.payload.tune` remains a directly observed candidate, never promoted
+to canonical TUNE. A configured 15-second monotonic freshness window is conservative:
+current status refreshes were observed around 5 seconds, without a guaranteed
+heartbeat contract. Missing updates expire to UNKNOWN. Startup/redeploy begins
+with sequence 1 LOGGER_START and UNKNOWN state; disconnect resets latest state
+and freshness while keeping history. Connection recovery only admits post-epoch
+meter updates. A canonical-context Interlock baseline is explicitly labeled as
+cached canonical context, not fabricated as a new wire event.
 
-A [temporary Stage-1 measurement](au510m-stage1-measurement-2026-10-07.md)
-on 2026-10-07 observed individual canonical events and existing decoded status.
-The tap was removed and exact v4.21 restored. Final record limit remains pending
-complete idle/TX/TUNE coverage; no permanent logger/DIAG feature exists.
-
-Permanent design correction: DIAG retention has two lanes. EVENT LANE records
-actual relevant state changes immediately, including separate observable requests
-and ACKs. HEALTH LANE samples the latest eleven canonical values at 1 Hz RX / 5 Hz
-TX, later 5 Hz validated TUNE; future configurable ceiling 10 Hz, never default.
-The 240-second ring holds only these compact event records and health snapshots,
-not individual raw meter events. Size it from measured filtered record rates and
-actual compact JavaScript objects; final operational coverage is still required.
-
-The [controlled follow-up measurement](au510m-stage1-two-lanes-2026-10-07.md)
-covered a true operator-idle RX baseline, normal TX and active TUNE without slice
-loss. Filtered sizing recommendation: 12000 records / 240 s, based on 17 event
-records/s plus 1 future Tune-event/s and 5 health snapshots/s, with 2x reserve.
-Compact-object heap estimates suggest about 20 MiB for the tested mixture and a
-conservative sample-schema budget of 50 MiB. TUNE 0→1→0 was observed directly;
-canonical runtime TUNE remains UNKNOWN until separately implemented and validated.
-No permanent tap remains; runtime is exact v4.21. New fanout/sources require resizing.
+The [larger diagnostic plan](au510m-diag-analysis.md) remains future work:
+no SQLite, incident detector, JSONL captures, diagnostic state machine or DIAG UI.
+Next stage is a separately authorized diagnostic state machine.
