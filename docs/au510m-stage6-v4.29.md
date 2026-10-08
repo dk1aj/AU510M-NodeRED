@@ -315,3 +315,16 @@ Read-only HISTORY/cache/error checks, unchanged zero incident count, canonical
 RX/SQLite continuity and ten passive LIVE socket updates passed again. This
 internal correction retains Old v4.28 / New v4.29. HISTORY kiosk acceptance
 remains PENDING; no commit or push has been performed.
+
+## Final release acceptance
+
+The user explicitly confirmed **HISTORY Kiosk: PASS** after the final deployed
+HISTORY correction. Both LIVE and HISTORY have therefore passed their required
+actual 800×480 kiosk acceptance; technical/runtime and repository validation
+have passed. Old v4.28 / New v4.29 remains the completed release version.
+
+Before finalization, the repository and origin/main were found already at
+`899bccb9a8c11bece6f3ebfc14fb64baa9c71fd4` (`brute force`), containing the
+implementation and the previously separate diagnostic drafts. That published
+commit is preserved without rewriting history. This acceptance record is a
+documentation-only follow-up; no additional runtime change or deploy is needed.
