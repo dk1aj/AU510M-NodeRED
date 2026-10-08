@@ -877,6 +877,28 @@ ist historisch und ersetzt diese gefilterte Empfehlung nicht. Kein Ring/SQLite/
 Incident/DIAG implementiert; Runtime exakt v4.21 wiederhergestellt.
 
 
+## Stage 3 v4.24 candidate — rolled back to v4.23
+
+The authorized v4.24 deployment was rolled back at 18:11:51 on 7 October 2026
+after canonical active slice disappearance; current runtime is v4.23. Acceptance,
+commit and push are stopped. The later [natural episode](au510m-natural-oscillation-2026-10-07-1832.md)
+is captured under v4.23 and detected by offline replay only.
+
+The RAM-only TUNE_RX_OSCILLATION detector candidate consumes existing
+diagnostic records and unchanged Stage-2 outputs. Three complete start-to-RX
+cycles inside five seconds require fresh active TUNE at RX or observed reactivation
+between cycles. A bounded ten-second lookup in the existing ring preserves direct
+precursor faults separately from the first abnormal incident event. Deduplication,
+PRE boundary references and original-trigger 120-second POST lifecycle stay in RAM.
+No new radio path, subscription, parser, forensic buffer, incident writer, database
+or DIAG dashboard. Existing 1/5-Hz Health and 240 s/12000 retention stay unchanged.
+The known v4.23 UNKNOWN linkage gap is not refactored.
+See [Stage-3 release and validation](au510m-stage3-v4.24.md) and the immutable
+[natural evidence](measurements/au510m-natural-oscillation-2026-10-07.json).
+The [earlier slice recovery report](au510m-slice-recovery-2026-10-07.md) describes
+the historical preauthorization state. STOP FOR REVIEW after live acceptance.
+
+
 ## Current persistent incident logging — v4.27
 
 The canonical implementation is [Stage 4 v4.27](au510m-stage4-v4.27.md).

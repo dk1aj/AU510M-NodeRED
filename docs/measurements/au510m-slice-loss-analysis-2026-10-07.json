@@ -1,0 +1,203 @@
+{
+  "runtime": "4.23",
+  "runtime_changes": false,
+  "old_version": "4.23",
+  "new_version": "4.23 (unchanged analysis only)",
+  "journal_sha256": "b8b3d7eb2faa9997e3d47db5c44f14ff3f5024bd370cd681f9b52bb2f24777d3",
+  "rollback_episode": {
+    "window_utc": [
+      "2026-10-07T16:11:49Z",
+      "2026-10-07T16:11:53Z"
+    ],
+    "slice_membership_confidence": "DIRECT",
+    "owner_handle": "0x07540F15",
+    "owner_identity": "SmartSDR-Win",
+    "owner_identity_confidence": "DIRECT_FROM_CLIENT_STATUS_AND_SLICE_CLIENT_HANDLE",
+    "identity_record": {
+      "journal_ts_utc": "2026-10-07T16:11:31.336267+00:00",
+      "raw_status_line": "S1D732B1E|client 0x07540F15 connected local_ptt=1 client_id=7661C601-4964-4F02-B36E-C72C054BA082 program=SmartSDR-Win station=DESKTOP-S7JCL8S",
+      "journal_cursor": "s=0c183f64dfc848fcb2913642849de7ac;i=151ad;b=4f195082a73946e0afb919c2c2ed64a7;m=7cc6a33fc;t=65d425e49144b;x=8f04c127c180e045"
+    },
+    "slice_baseline": {
+      "journal_ts_utc": "2026-10-07T16:11:31.421860+00:00",
+      "raw_status_line": "S1D732B1E|slice 0 in_use=1 sample_rate=24000 RF_frequency=10.141000 client_handle=0x07540F15 index_letter=A rit_on=0 rit_freq=0 xit_on=0 xit_freq=0 rxant=ANT1 mode=DIGU wide=0 filter_lo=0 filter_hi=3000 step=1000 step_list=1,5,10,20,100,250,500,1000 agc_mode=med agc_threshold=91 agc_off_level=10 pan=0x40000000 txant=ANT1 loopa=0 loopb=0 qsk=0 dax_iq_channel=0 dax=1 dax_clients=1 lock=0 tx=1 active=1 audio_level=25 audio_pan=50 audio_mute=0 record=0 play=disabled record_time=0.0 nr=0 nr_level=50 nr_wlen=256 nr_delay=25 nr_adapt_mode=2 nr_isdft_mode=1 nrl=0 nrl_level=100 nrl_filter_size=128 nrl_delay=16 nrl_leakage_level=50 nrf=0 nrf_winc=256 nrf_wlen=2048 rnn=0 nrs=0 nrs_level=50 anf=0 anf_level=50 anf_wlen=256 anf_delay=25 anf_adapt_mode=2 anf_isdft_mode=1 anfl=0 anfl_level=100 anfl_filter_size=128 anfl_delay=16 anfl_leakage_level=0 anft=0 nb=0 nb_level=50 apf=0 apf_level=0 wnb=1 wnb_level=51 squelch=1 squelch_level=20 diversity=0 diversity_parent=0 diversity_child=0 diversity_index=1342177293 ant_list=ANT1,ANT2,RX_A,XVTA mode_list=LSB,USB,AM,CW,DIGL,DIGU,SAM,FM,NFM,DFM,RTTY,FDVU,FDVL fm_tone_mode=OFF fm_tone_value=67.0 fm_repeater_offset_freq=0.000000 tx_offset_freq=0.000000 repeater_offset_dir=SIMPLEX fm_tone_burst=0 fm_deviation=5000 dfm_pre_de_emphasis=0 post_demod_low=300 post_demod_high=3300 rtty_mark=2125 rtty_shift=170 digl_offset=2210 digu_offset=1500 post_demod_bypass=0 rfgain=16 tx_ant_list=ANT1,ANT2,XVTA rx_error_mHz=13.351441 esc=0 esc_gain=1.000000 esc_phase_shift=0.000000 max_internal_pa_power=500",
+      "journal_cursor": "s=0c183f64dfc848fcb2913642849de7ac;i=151af;b=4f195082a73946e0afb919c2c2ed64a7;m=7cc6b8255;t=65d425e4a62a4;x=78bd7ac34580df62"
+    },
+    "client_disconnect": {
+      "journal_ts_utc": "2026-10-07T16:11:51.498545+00:00",
+      "raw_status_line": "S7540F15|client 0x07540F15 disconnected forced=0 wan_validation_failed=0 duplicate_client_id=0",
+      "journal_cursor": "s=0c183f64dfc848fcb2913642849de7ac;i=15202;b=4f195082a73946e0afb919c2c2ed64a7;m=7cd9ddae1;t=65d425f7cbb31;x=7a8922c8f5f4bc5f"
+    },
+    "slice_removal": {
+      "journal_ts_utc": "2026-10-07T16:11:51.499536+00:00",
+      "raw_status_line": "S7540F15|slice 0 in_use=0 tx=1 active=0",
+      "journal_cursor": "s=0c183f64dfc848fcb2913642849de7ac;i=15203;b=4f195082a73946e0afb919c2c2ed64a7;m=7cd9ddec0;t=65d425f7cbf10;x=dbfd700311346947"
+    },
+    "disconnect_to_removal_journal_us": 991,
+    "offline_exact_function_probe": {
+      "result": "PASS",
+      "seed": "Recorded last full slice baseline; synthetic connected=true/fresh heartbeat isolates deletion branch, not a full runtime replay",
+      "before_active": "A",
+      "after_active": "--",
+      "after_frequency": "--",
+      "commands": 0
+    },
+    "physical_trigger": "UNKNOWN",
+    "command_origin": "UNKNOWN",
+    "causal_client": "UNKNOWN",
+    "note": "Known slice ownership/client identity does not prove command sender, user action, crash or causal oscillation source."
+  },
+  "natural_oscillation_episode": {
+    "window_utc": [
+      "2026-10-07T16:32:35Z",
+      "2026-10-07T16:32:36Z"
+    ],
+    "slice_membership_confidence": "DIRECT",
+    "owner_handle": "0x3EB038C8",
+    "owner_identity": "AetherSDR",
+    "owner_identity_confidence": "DIRECT_FROM_CLIENT_STATUS_AND_SLICE_CLIENT_HANDLE",
+    "identity_record": {
+      "journal_ts_utc": "2026-10-07T16:32:05.516958+00:00",
+      "raw_status_line": "S3A6B5639|client 0x3EB038C8 connected local_ptt=1 client_id=6D1CAFC7-1184-45B2-8C6D-9F9175AB4952 program=AetherSDR station=AetherSDR",
+      "journal_cursor": "s=0c183f64dfc848fcb2913642849de7ac;i=16b0a;b=4f195082a73946e0afb919c2c2ed64a7;m=815fa4e4f;t=65d42a7d92e9e;x=cb08b1b70b4367b4"
+    },
+    "slice_baseline": {
+      "journal_ts_utc": "2026-10-07T16:32:05.601864+00:00",
+      "raw_status_line": "S3A6B5639|slice 0 in_use=1 sample_rate=24000 RF_frequency=7.032000 client_handle=0x3EB038C8 index_letter=A rit_on=0 rit_freq=0 xit_on=0 xit_freq=0 rxant=ANT2 mode=CW wide=0 filter_lo=-200 filter_hi=200 step=10 step_list=1,5,10,50,100,200,400 agc_mode=med agc_threshold=100 agc_off_level=10 pan=0x40000000 txant=ANT2 loopa=0 loopb=0 qsk=1 dax_iq_channel=0 dax=1 dax_clients=1 lock=0 tx=1 active=1 audio_level=42 audio_pan=50 audio_mute=0 record=0 play=disabled record_time=0.0 nr=0 nr_level=50 nr_wlen=256 nr_delay=25 nr_adapt_mode=2 nr_isdft_mode=1 nrl=0 nrl_level=100 nrl_filter_size=128 nrl_delay=16 nrl_leakage_level=50 nrf=0 nrf_winc=256 nrf_wlen=2048 rnn=0 nrs=0 nrs_level=50 anf=0 anf_level=50 anf_wlen=256 anf_delay=25 anf_adapt_mode=2 anf_isdft_mode=1 anfl=0 anfl_level=100 anfl_filter_size=128 anfl_delay=16 anfl_leakage_level=0 anft=0 nb=0 nb_level=50 apf=0 apf_level=7 wnb=1 wnb_level=51 squelch=1 squelch_level=20 diversity=0 diversity_parent=0 diversity_child=0 diversity_index=1342177293 ant_list=ANT1,ANT2,RX_A,XVTA mode_list=LSB,USB,AM,CW,DIGL,DIGU,SAM,FM,NFM,DFM,RTTY,FDVU,FDVL fm_tone_mode=OFF fm_tone_value=67.0 fm_repeater_offset_freq=0.000000 tx_offset_freq=0.000000 repeater_offset_dir=SIMPLEX fm_tone_burst=0 fm_deviation=5000 dfm_pre_de_emphasis=0 post_demod_low=300 post_demod_high=3300 rtty_mark=2125 rtty_shift=170 digl_offset=2210 digu_offset=1500 post_demod_bypass=0 rfgain=-8 tx_ant_list=ANT1,ANT2,XVTA rx_error_mHz=11.444092 esc=0 esc_gain=1.000000 esc_phase_shift=0.000000 max_internal_pa_power=500",
+      "journal_cursor": "s=0c183f64dfc848fcb2913642849de7ac;i=16b0c;b=4f195082a73946e0afb919c2c2ed64a7;m=815fb99f9;t=65d42a7da7a48;x=77ee849ef75c7125"
+    },
+    "client_disconnect": {
+      "journal_ts_utc": "2026-10-07T16:32:35.534340+00:00",
+      "raw_status_line": "S3EB038C8|client 0x3EB038C8 disconnected forced=0 wan_validation_failed=0 duplicate_client_id=0",
+      "journal_cursor": "s=0c183f64dfc848fcb2913642849de7ac;i=16f3d;b=4f195082a73946e0afb919c2c2ed64a7;m=817c455b5;t=65d42a9a33604;x=3782437f1101da09"
+    },
+    "slice_removal": {
+      "journal_ts_utc": "2026-10-07T16:32:35.537165+00:00",
+      "raw_status_line": "S3EB038C8|slice 0 in_use=0 tx=1 active=0",
+      "journal_cursor": "s=0c183f64dfc848fcb2913642849de7ac;i=16f44;b=4f195082a73946e0afb919c2c2ed64a7;m=817c460bd;t=65d42a9a3410d;x=d410b42a49705425"
+    },
+    "disconnect_to_removal_journal_us": 2825,
+    "offline_exact_function_probe": {
+      "result": "PASS",
+      "seed": "Recorded last full slice baseline; synthetic connected=true/fresh heartbeat isolates deletion branch, not a full runtime replay",
+      "before_active": "A",
+      "after_active": "--",
+      "after_frequency": "--",
+      "commands": 0
+    },
+    "physical_trigger": "UNKNOWN",
+    "command_origin": "UNKNOWN",
+    "causal_client": "UNKNOWN",
+    "note": "Known slice ownership/client identity does not prove command sender, user action, crash or causal oscillation source.",
+    "user_reported_disconnect_context": "INTENTIONAL_CLOSURE_TO_STOP_EXISTING_OSCILLATION"
+  },
+  "rollback_lifecycle": [
+    {
+      "journal_ts_utc": "2026-10-07T16:11:52.205755+00:00",
+      "flow_lifecycle_log": "7 Oct 18:11:52 - [info] Stopping modified flows",
+      "journal_cursor": "s=0c183f64dfc848fcb2913642849de7ac;i=1523d;b=4f195082a73946e0afb919c2c2ed64a7;m=7cda8a56c;t=65d425f8785bb;x=f2e3bff4d64cf609"
+    },
+    {
+      "journal_ts_utc": "2026-10-07T16:11:52.208547+00:00",
+      "flow_lifecycle_log": "7 Oct 18:11:52 - [info] Stopped modified flows",
+      "journal_cursor": "s=0c183f64dfc848fcb2913642849de7ac;i=1523e;b=4f195082a73946e0afb919c2c2ed64a7;m=7cda8b053;t=65d425f8790a3;x=56fd37c7ed24ea67"
+    },
+    {
+      "journal_ts_utc": "2026-10-07T16:11:52.209316+00:00",
+      "flow_lifecycle_log": "7 Oct 18:11:52 - [info] Updated flows",
+      "journal_cursor": "s=0c183f64dfc848fcb2913642849de7ac;i=1523f;b=4f195082a73946e0afb919c2c2ed64a7;m=7cda8b354;t=65d425f8793a4;x=c81c10ea8e4ed6da"
+    },
+    {
+      "journal_ts_utc": "2026-10-07T16:11:52.218303+00:00",
+      "flow_lifecycle_log": "7 Oct 18:11:52 - [info] Starting modified flows",
+      "journal_cursor": "s=0c183f64dfc848fcb2913642849de7ac;i=15240;b=4f195082a73946e0afb919c2c2ed64a7;m=7cda8d670;t=65d425f87b6bf;x=e3975878a3b5ca37"
+    },
+    {
+      "journal_ts_utc": "2026-10-07T16:11:52.265595+00:00",
+      "flow_lifecycle_log": "7 Oct 18:11:52 - [info] Started modified flows",
+      "journal_cursor": "s=0c183f64dfc848fcb2913642849de7ac;i=15241;b=4f195082a73946e0afb919c2c2ed64a7;m=7cda98f2b;t=65d425f886f7b;x=10648176acb68753"
+    }
+  ],
+  "removal_before_rollback_ms": 706,
+  "pa_fault_context": {
+    "first_in_selected_journal": "2026-10-07T15:30:01.643212+00:00",
+    "total": 885,
+    "near_rollback": [
+      {
+        "at": "2026-10-07T16:11:41.759920+00:00",
+        "state": "READY",
+        "reason": "PA_FAULT",
+        "tx_allowed": 1
+      },
+      {
+        "at": "2026-10-07T16:11:46.562875+00:00",
+        "state": "READY",
+        "reason": "PA_FAULT",
+        "tx_allowed": 1
+      },
+      {
+        "at": "2026-10-07T16:11:51.508017+00:00",
+        "state": "RECEIVE",
+        "reason": "PA_FAULT",
+        "tx_allowed": 0
+      },
+      {
+        "at": "2026-10-07T16:11:51.863129+00:00",
+        "state": "RECEIVE",
+        "reason": "PA_FAULT",
+        "tx_allowed": 0
+      },
+      {
+        "at": "2026-10-07T16:11:53.464755+00:00",
+        "state": "RECEIVE",
+        "reason": "PA_FAULT",
+        "tx_allowed": 0
+      }
+    ],
+    "interpretation": "Already present before deployment and in READY with tx_allowed=1. No newly observed TX_FAULT state at slice loss; reason is not proof of fresh PA fault or causality."
+  },
+  "local_requests": {
+    "count": 2138,
+    "non_subscription": [
+      {
+        "journal_ts_utc": "2026-10-07T16:31:05.347584+00:00",
+        "radio_instance": "1",
+        "request_seq": 14300,
+        "command": "client set enforce_network_mtu=1"
+      },
+      {
+        "journal_ts_utc": "2026-10-07T16:31:05.347584+00:00",
+        "radio_instance": "1",
+        "request_seq": 14301,
+        "command": "client set send_reduced_bw_dax=0"
+      },
+      {
+        "journal_ts_utc": "2026-10-07T16:31:05.349046+00:00",
+        "radio_instance": "1",
+        "request_seq": 14302,
+        "command": "client udpport 41482"
+      }
+    ],
+    "slice_removal_commands": [],
+    "limits": "Only logged local Radio._sendRequest traffic, not commands from external clients."
+  },
+  "user_observation": {
+    "text": "ATU OK",
+    "source": "USER_REPORTED",
+    "technical_origin_confidence": "UNKNOWN",
+    "exact_observation_time": null,
+    "interpretation": "No time-linked raw ATU status yet established."
+  },
+  "pending": "Cause of the earlier SmartSDR-Win disconnect at 18:11 and initiating cause of oscillation remain UNKNOWN. AetherSDR closure at 18:32 is clarified by the user.",
+  "conclusion": "Both observed losses are radio-reported slice removal after a client session ends. The user intentionally closed AetherSDR at the end of the later oscillation to stop it; that disconnect is intervention after onset, not evidence of an initiating cause. Earlier SmartSDR-Win disconnect cause and deployment causal connection remain unproven. Existing canonical deletion handles recorded removal as written.",
+  "user_clarification": {
+    "verbatim": "ich habe Aethersdr geschlossen um das schwingen zu stoppen",
+    "source": "USER_REPORTED",
+    "episode": "2026-10-07 18:32 Europe/Berlin",
+    "reported_action": "CLOSED_AETHERSDR",
+    "reported_intent": "STOP_ALREADY_RUNNING_OSCILLATION",
+    "exact_action_time": null,
+    "technical_confirmation": "Radio reports the previously identified AetherSDR client disconnected at 16:32:35.534340Z and slice removal at 16:32:35.537165Z.",
+    "limits": "User report clarifies intentional closure. It does not prove the software command chain, the exact physical-action timestamp, or the initiating cause of oscillation."
+  }
+}
