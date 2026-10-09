@@ -46,3 +46,27 @@ PA HEALTH / UNKNOWN / DERIVED · STAGE A and all five summary cards were readabl
 there was no overlap, clipping or new scrollbar, and LIVE, HISTORY, TREND,
 RADIO, PA, AGC-T and METER remained functional. This is the accepted reversible
 checkpoint before Stage B.
+
+Stage-A commit/push: `2f05c239aa42b74f0302d2dcd0be12d9eda6257a`,
+`HEAD == origin/main`, clean working tree.
+
+## Stage B — static final card layout
+
+The fifth summary card receives its final static visual hierarchy: PA HEALTH
+heading, compact multiple-reason count slot, large state and one-line primary
+reason/status slot. Four scoped styles distinguish OK (green), WARNING (amber),
+CRITICAL (red) and UNKNOWN (gray). The visible Stage-B fixture remains UNKNOWN,
+`PRIMARY -- · STATIC` and `+0`; no style is selected by live data. There is no
+classifier, threshold, event, timer or backend path.
+
+Technical/full repository validation: PASS. Deployment: PASS, 99 nodes,
+revision `1c1af33fd5ad97d8452b6527818ef03b9f17f55de4c813c1fa64da485b7b5ea9`.
+Runtime and source are byte-for-byte equal. Ten passive RX seconds delivered
+111 RADIO, 111 PA, 110 METER, ten DIAG LIVE and ten DIAG TREND updates; every
+trend series remained intact. SQLite stayed READY with queue 0, ring errors 0,
+no active capture and zero incidents. Actual 800×480 kiosk acceptance and the
+reversible Git checkpoint: PASS, explicitly confirmed by the user on 9 October
+2026. UNKNOWN styling, count slot and primary-reason line were readable; all
+five summary cards fit without overlap, clipping or scrollbar, and existing
+pages remained functional. This is the accepted reversible checkpoint before
+Stage C.

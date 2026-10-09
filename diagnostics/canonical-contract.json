@@ -49,7 +49,7 @@
     "9ee3e94e3758b01f": "bbc4f64ac18f22e4847055290cdbdfa11eff0a315c5040d32e3f1dcc907bdfd6",
     "961ffe09d3da81ac": "3787f7be0883fb0d6f5a2a3c5d3f84d987a23abb33b6665eaedcd672d7afe855",
     "80108e5a65682ca7": "b060958a7f416447a09dcabaf8566c6f07951e68c8adc5c793bdedc6f90fbc87",
-    "9b1bcb4b21cd24ff": "5674db5e6bba7389d52a87a3dbd88315448437a9d38404fc208e2fe017d3317a",
+    "9b1bcb4b21cd24ff": "fea86feffb8ddd69dfe5d74987f2c58e54db269ffab2cc6cc120077a5573666b",
     "7d3a0befbda64222": "54080a92256bb2c4a6ddc1e56afd93a319df5ddd11f117c9d39e700e89fafdbc",
     "abcfcd656f3aa13d": "9db713b6d08f28a064fc146d3c80fe3d4d8ab3b4aa9d93f80738bb8a54dfc640",
     "au510m_live_messages": "b3cff129a50fa0114430f597a4ad631048a782176f910a6945946afc0e08de12",
@@ -88,5 +88,5 @@
     "au510m_meter_forward_only": "beebaa0452fcb8da1f3ae0e50d99dee85c39947bc757510eefa8469b356d154d"
   },
   "authorized_meter_pa_fault_change": "Display-only branch from existing messages; original live-state/bridge/radio/parser/subscriptions unchanged; METER projector/template extended.",
-  "authorized_ext_diag_presentation_change": "v4.31 internal TREND reads all eleven canonical HEALTH values through one read-only branch from the existing display tick and existing 240 s ring, with at most 480 peak-preserving points per series. v4.32 Stage A adds one static derived PA HEALTH UNKNOWN card only. No classifier, event, subscription, sampler, SQLite or radio path change."
+  "authorized_ext_diag_presentation_change": "v4.31 internal TREND reads all eleven canonical HEALTH values through one read-only branch from the existing display tick and existing 240 s ring, with at most 480 peak-preserving points per series. v4.32 Stage B adds one static derived PA HEALTH card layout and scoped state styles only. No classifier, event, subscription, sampler, SQLite or radio path change."
 }
