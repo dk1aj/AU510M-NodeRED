@@ -31,6 +31,30 @@ LIVE, complete LIVE/HISTORY/TREND selector, readable empty view, unchanged
 LIVE/HISTORY and existing pages, footer visible, no scrollbar, clipping or
 overlap. This is the accepted reversible checkpoint before Stage B.
 
+Stage-A commit/push: `18ccaf74b4aa2648c6e409bfbd27a49046e83bed`,
+`HEAD == origin/main`, clean working tree.
+
+## Stage B — static visual layout
+
+The empty placeholder is replaced by the final structural regions only: compact
+POWER/SWR/TEMP/PA selectors, CURRENT/EFF/SUPPLY/FAN PA subselectors, one large
+native SVG plot area with relative -4m through NOW axis, and group-specific
+current/minimum/maximum statistic slots. Every value remains `--`; the chart is
+explicitly labelled STATIC LAYOUT and has no source, refresh timer or series.
+Technical validation: PASS, including full repository validation. Deployment:
+PASS, 98 nodes, revision
+`b51024fe84df8eeb146dcc36616fd9f65edffd9deb6811e5545382eea9d35a47`.
+The immediate post-deploy observation briefly caught the documented existing
+DIAG initialization state UNKNOWN; without any action it returned on the first
+bounded follow-up observation to CONNECTED/RADIO_RX, slice A, TUNE 0, SQLite
+READY and zero incidents/errors. Ten passive Dashboard seconds then delivered
+actual RADIO/PA/METER/DIAG traffic and eleven DIAG health fields. LIVE, HISTORY,
+AGC-T and v4.30 EXPORT sources are unchanged. Actual Stage-B kiosk validation
+PASS, explicitly confirmed by the user on 9 October 2026: all group and PA
+subgroup selectors are usable, graph/axes/stat slots/footer fit at 800×480,
+LIVE/HISTORY and existing pages remain functional, with no scrollbars, clipping
+or overlap. This is the accepted reversible checkpoint before Stage C.
+
 ## Planned final projection
 
 The final view will read only existing HEALTH-lane records from the canonical
