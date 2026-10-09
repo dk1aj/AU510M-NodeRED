@@ -387,3 +387,10 @@ Documentation-only changes do not deploy or increment the runtime version.
   distinguishable; these state-confidence labels do not extend the separate
   origin-confidence enum. State logic consumes Stage-1 records only and never
   attributes command origin from temporal coincidence.
+
+## PA HEALTH PERMANENT RULES
+
+- Project warning thresholds must never be presented as manufacturer limits.
+- PA health classification is diagnostic and derived, never a direct radio state.
+- No automatic radio protection action is authorized without explicit future
+  user authorization.
