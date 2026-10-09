@@ -15,6 +15,7 @@ node scripts/test-au510m-diag-runtime.mjs
 node scripts/test-au510m-diag-live.mjs
 node scripts/test-au510m-history.mjs
 node scripts/test-au510m-export.mjs
+node scripts/test-au510m-trend.mjs
 node scripts/test-au510m-state-machine.mjs
 node scripts/test-au510m-persistence.mjs
 node scripts/test-au510m-persistence-runtime.mjs

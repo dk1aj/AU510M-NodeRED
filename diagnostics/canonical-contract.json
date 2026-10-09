@@ -49,7 +49,7 @@
     "9ee3e94e3758b01f": "bbc4f64ac18f22e4847055290cdbdfa11eff0a315c5040d32e3f1dcc907bdfd6",
     "961ffe09d3da81ac": "3787f7be0883fb0d6f5a2a3c5d3f84d987a23abb33b6665eaedcd672d7afe855",
     "80108e5a65682ca7": "b060958a7f416447a09dcabaf8566c6f07951e68c8adc5c793bdedc6f90fbc87",
-    "9b1bcb4b21cd24ff": "142796205ac869211a99aa829998328bbb9c59e02f850c8db4ca46b02f774fb7",
+    "9b1bcb4b21cd24ff": "b92c8bcbca753363ea6c259d381f85790df4e4cd9cb3568146a71d9da2097975",
     "7d3a0befbda64222": "54080a92256bb2c4a6ddc1e56afd93a319df5ddd11f117c9d39e700e89fafdbc",
     "abcfcd656f3aa13d": "9db713b6d08f28a064fc146d3c80fe3d4d8ab3b4aa9d93f80738bb8a54dfc640",
     "au510m_live_messages": "b3cff129a50fa0114430f597a4ad631048a782176f910a6945946afc0e08de12",
@@ -88,5 +88,5 @@
     "au510m_meter_forward_only": "beebaa0452fcb8da1f3ae0e50d99dee85c39947bc757510eefa8469b356d154d"
   },
   "authorized_meter_pa_fault_change": "Display-only branch from existing messages; original live-state/bridge/radio/parser/subscriptions unchanged; METER projector/template extended.",
-  "authorized_ext_diag_presentation_change": "v4.30 compact EXPORT in accepted HISTORY; selected-incident SELECT-only worker, strict shared sanitizer allowlist, bounded ZIP/capability download. All original LIVE, radio/PA/watcher/METER nodes and wires unchanged."
+  "authorized_ext_diag_presentation_change": "v4.31 staged internal TREND view in the existing DIAG widget; Stage A adds selector and empty view only. Original LIVE/HISTORY, radio/PA/watcher/METER paths remain unchanged."
 }
