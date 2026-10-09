@@ -55,6 +55,29 @@ subgroup selectors are usable, graph/axes/stat slots/footer fit at 800×480,
 LIVE/HISTORY and existing pages remain functional, with no scrollbars, clipping
 or overlap. This is the accepted reversible checkpoint before Stage C.
 
+Stage-B commit/push: `f3d7b41f2a9e6956a3eadfc174016058a8e327ae`,
+`HEAD == origin/main`, clean working tree.
+
+## Stage C — deterministic display simulation
+
+The static layout receives fixed example series for all groups and PA
+subgroups. The toolbar, graph and status area visibly say SIMULATION. Curves,
+legend, group-specific scales and current/minimum/maximum calculations execute
+only in the browser from fixed arrays. The fixture includes a 240 W forward
+burst, 18 W reflected peak, SWR excursion, temperature rise, PA current and
+efficiency changes, supply sag and fan ramp. It has no timer, ring access,
+network request, SQLite access or Node-RED output and cannot be mistaken for a
+live station value. It will be removed before live integration. Technical,
+validation: PASS, including the complete repository suite and explicit peak/
+statistics assertions. Deployment: PASS, 98 nodes, revision
+`b31e09f513ea6e39984cfb3bd7547b58be46d98a77d663de006a1ac6020e95ca`.
+Runtime/source equality, CONNECTED/RADIO_RX slice A, SQLite READY with zero
+incidents/errors, empty HISTORY and passive actual RADIO/PA/METER/DIAG traffic
+all pass. Actual Stage-C kiosk validation: PASS, explicitly confirmed by the
+user on 9 October 2026 for every group/subgroup, curves, legends, axes and
+statistics, with smooth switching and no scrollbar, clipping or overlap. This
+is the accepted reversible checkpoint before Stage D.
+
 ## Planned final projection
 
 The final view will read only existing HEALTH-lane records from the canonical
