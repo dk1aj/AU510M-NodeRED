@@ -60,8 +60,8 @@ try{
  assert(source.includes(':disabled="!canExport"'));assert(!source.includes('this.send('));
  // Scope guard: existing nodes remain byte-for-byte unchanged except the authorized one-way TREND branch and central release env.
  const before=JSON.parse(execFileSync('git',['show','HEAD:flows.json'],{encoding:'utf8'})),after=JSON.parse(fs.readFileSync('flows.json'));
- const scopeClean=n=>n.id==='au510m_diag_live_tick'?{...n,wires:n.wires.map(output=>output.filter(id=>id!=='au510m_diag_trend_project'))}:n;
- for(const n of before)if(!['9b1bcb4b21cd24ff','au510m_agct_watcher_tab'].includes(n.id)&&!n.env?.some(e=>e.name==='WATCHER_VERSION'))assert.deepEqual(scopeClean(after.find(x=>x.id===n.id)),n,'Unrelated flow changed: '+n.id);
+ const scopeClean=n=>n.id==='au510m_diag_live_tick'?{...n,wires:n.wires.map(output=>output.filter(id=>id!=='au510m_diag_trend_project'))}:n.id==='au510m_diag_trend_project'?{...n,name:''}:n;
+ for(const n of before)if(!['9b1bcb4b21cd24ff','au510m_agct_watcher_tab'].includes(n.id)&&!n.env?.some(e=>e.name==='WATCHER_VERSION'))assert.deepEqual(scopeClean(after.find(x=>x.id===n.id)),scopeClean(n),'Unrelated flow changed: '+n.id);
  const tick=after.find(n=>n.id==='au510m_diag_live_tick');assert.equal(tick.wires[0].filter(id=>id==='au510m_diag_trend_project').length,1);assert(tick.wires[0].includes('au510m_diag_live_project'));
  console.log('PASS export: four valid ZIP entries/CRC, immutable natural 38-cycle fixture, chronological records, NULL/UNKNOWN/zero, strict allowlists, read-only selected SQL, empty/missing/oversize/failure cleanup, seven-day retention, ignored data, worker metrics, streamed capability downloads, traversal/symlink rejection, UI states/failure isolation and unchanged canonical paths.');
 }finally{await client?.close();store?.close();fs.rmSync(dir,{recursive:true,force:true});}

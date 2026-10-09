@@ -119,7 +119,7 @@ current value while preserving history, pending groups contained no simulation,
 existing pages remained functional and no visual overflow/regression or false
 incident occurred. This is the accepted reversible checkpoint before Stage E.
 
-## Planned final projection
+## Projection design
 
 The final view will read only existing HEALTH-lane records from the canonical
 240-second/12,000-record RAM ring. A bounded server projection will retain at
@@ -130,3 +130,57 @@ will replace each snapshot and never accumulate points. Native SVG inside the
 existing Vue component avoids a new frontend dependency. Final behavior,
 performance, stale/disconnect semantics and acceptance evidence will be recorded
 as their stages are completed.
+
+## Stage E — complete canonical live projection
+
+The same Stage-D display branch now projects all eleven existing canonical
+HEALTH values: forward and reflected Watts, canonical live radio SWR, PA/FET1/
+FET2 temperatures, PA current, PA efficiency, both 13.8 V supplies and main-fan
+RPM. POWER, SWR, TEMP and all four PA subgroups use compatible native-SVG scales
+and show group-specific current/minimum/maximum statistics. The visible SWR is
+the stored canonical `TX-/3/SWR` value; no value is calculated from power.
+
+The projection still runs from the existing one-second DIAG display tick, reads
+the existing Stage-1 240-second/12,000-record RAM ring and sends at most 480
+age/value points per series. Its 120 fixed buckets retain unique first, minimum,
+maximum and last values without averaging. The browser replaces each snapshot
+and never grows its own history. Current forward/reflected power and SWR require
+existing TX or fresh TUNE context. Other HEALTH values remain current while
+CONNECTED/FRESH. RX, stale delivery and disconnect show unavailable current
+values where applicable while retaining valid visible-window history. Refresh
+remains 1 Hz. Event markers were intentionally omitted because the existing
+curves and context label carry the required evidence without adding ambiguous
+forensic causality or screen clutter.
+
+The deterministic Stage-E matrix covers a complete 240-second RX window,
+RX-to-TX-to-RX, normal TUNE, forward burst, reflected peak, canonical SWR
+excursion, temperature increase, missing samples, stale input,
+disconnect/reconnect, the 12,000-slot maximum ring and the 480-point limit with
+peak preservation for every group. Offline Stage-E validation: PASS. Deployment,
+passive runtime checks and actual 800×480 kiosk/TX/TUNE acceptance are recorded
+after the staged deployment.
+
+Stage-E deployment: PASS, 99 nodes, revision
+`b4e5c8ab8c854a06070559325037a49650d4085b924b8e5aff35af77ada4d282`.
+The runtime flow is byte-for-byte equal to `flows.json`. Ten passive RX seconds
+delivered 107 RADIO, 107 PA, 106 METER, ten DIAG LIVE and ten DIAG TREND updates.
+Every TREND payload contained the eleven expected series; TX-only current values
+were null in RX while the other eight live HEALTH values advanced. DIAG remained
+CONNECTED/RADIO_RX with Slice A, SQLite READY, queue 0, ring errors 0, no active
+capture and no incident. HISTORY remained READY and empty.
+
+The maximum-ring benchmark used 12,000 records with 1,200 complete HEALTH
+snapshots and all eleven series. The peak-preserving projection produced no more
+than the configured 480 points per series (437 for this deterministic fixture),
+a 133,301-byte JSON snapshot and averaged 16.111 ms per projection over 100
+runs. Only this bounded snapshot is sent at 1 Hz; the complete ring is never sent
+to a browser.
+
+Actual Stage-E 800×480 kiosk, normal operator TX and normal operator TUNE
+acceptance: PASS, explicitly confirmed by the user on 9 October 2026. POWER,
+SWR, TEMP and the four PA subgroups were readable and usable; relative axes,
+current/minimum/maximum values and context were correct; refresh and view
+switching remained smooth; no scrollbar, clipping or overlap was present. TX
+and TUNE produced the expected truthful live responses and contexts without a
+false incident. LIVE, HISTORY, RADIO, PA, AGC-T and METER remained functional,
+with SQLite READY. This completes the required v4.31 runtime acceptance gate.
