@@ -159,3 +159,15 @@ exclude handles, sessions, raw sources, journal/process metadata and temporary
 paths. SQLite failure degrades persistence only. No DIAG UI is added.
 Older database paths, schema proposals and rollout notes below describe earlier
 planning; the Stage-4 implementation is authoritative for current persistence.
+
+## DIAG HISTORY incident export (v4.30)
+
+The existing HISTORY view adds a compact EXPORT action for the selected incident.
+An isolated SELECT-only SQLite worker writes four strictly allowlisted ZIP entries
+under ignored `data/exports/`; fixed limits and incremental writing protect memory.
+Known generated ZIPs download through random capability IDs with no filesystem
+path parameter. Seven-day retention runs at startup/every six hours and does not
+modify incident rows. LIVE, HISTORY reading, logger, radio connections,
+subscriptions, health sampling and canonical meter pipelines are unchanged.
+See [Stage 7 export and acceptance](au510m-stage7-v4.30.md) for fields, security,
+file lifecycle, offline fixtures and actual kiosk acceptance status.
