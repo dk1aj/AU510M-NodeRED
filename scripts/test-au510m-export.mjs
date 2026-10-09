@@ -58,8 +58,10 @@ try{
  fetchImpl=async(url,opts)=>{assert.equal(url,'/au510m-diag/incident/'+incident.incident_id+'/export');assert.equal(opts.method,'POST');assert.equal(view.exportStatus,'EXPORTING');assert.equal(view.canExport,false);return {ok:true,json:async()=>r};};await view.exportIncident();assert.equal(view.exportStatus,'READY');assert.equal(clicks,1);
  view.liveSnapshot={diagState:'RADIO_RX'};fetchImpl=async()=>{throw Error('failure');};await view.exportIncident();assert.equal(view.exportStatus,'EXPORT ERROR');assert.equal(view.liveSnapshot.diagState,'RADIO_RX');assert.equal(view.detailState,'ready');
  assert(source.includes(':disabled="!canExport"'));assert(!source.includes('this.send('));
- // Scope guard: existing non-DIAG nodes and canonical observer are byte-for-byte unchanged (except central release env).
+ // Scope guard: existing nodes remain byte-for-byte unchanged except the authorized one-way TREND branch and central release env.
  const before=JSON.parse(execFileSync('git',['show','HEAD:flows.json'],{encoding:'utf8'})),after=JSON.parse(fs.readFileSync('flows.json'));
- for(const n of before)if(!['9b1bcb4b21cd24ff','au510m_agct_watcher_tab'].includes(n.id)&&!n.env?.some(e=>e.name==='WATCHER_VERSION'))assert.deepEqual(after.find(x=>x.id===n.id),n,'Unrelated flow changed: '+n.id);
+ const scopeClean=n=>n.id==='au510m_diag_live_tick'?{...n,wires:n.wires.map(output=>output.filter(id=>id!=='au510m_diag_trend_project'))}:n;
+ for(const n of before)if(!['9b1bcb4b21cd24ff','au510m_agct_watcher_tab'].includes(n.id)&&!n.env?.some(e=>e.name==='WATCHER_VERSION'))assert.deepEqual(scopeClean(after.find(x=>x.id===n.id)),n,'Unrelated flow changed: '+n.id);
+ const tick=after.find(n=>n.id==='au510m_diag_live_tick');assert.equal(tick.wires[0].filter(id=>id==='au510m_diag_trend_project').length,1);assert(tick.wires[0].includes('au510m_diag_live_project'));
  console.log('PASS export: four valid ZIP entries/CRC, immutable natural 38-cycle fixture, chronological records, NULL/UNKNOWN/zero, strict allowlists, read-only selected SQL, empty/missing/oversize/failure cleanup, seven-day retention, ignored data, worker metrics, streamed capability downloads, traversal/symlink rejection, UI states/failure isolation and unchanged canonical paths.');
 }finally{await client?.close();store?.close();fs.rmSync(dir,{recursive:true,force:true});}

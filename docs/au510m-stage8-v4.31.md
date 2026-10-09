@@ -78,6 +78,47 @@ user on 9 October 2026 for every group/subgroup, curves, legends, axes and
 statistics, with smooth switching and no scrollbar, clipping or overlap. This
 is the accepted reversible checkpoint before Stage D.
 
+Stage-C commit/push: `925455aebee4d7eec71d14eb20d3d65ba8fe412e`,
+`HEAD == origin/main`, clean working tree.
+
+## Stage D — first real ring value
+
+All simulation arrays and labels are removed. A new display-only branch from
+the existing one-second DIAG display tick reads the existing Stage-1 context and
+projects only canonical HEALTH `TX-/1/FWDPWR` Watts from the existing RAM ring.
+There is no new ring, subscription, parser, conversion, sampler, database query
+or HTTP endpoint. Other groups remain visible but explicitly say PENDING STAGE E
+and display only `--`.
+
+The server sends age/value pairs rather than timestamps/records. It uses only
+the latest 240 seconds and at most 480 points. When more raw samples exist, 120
+fixed time buckets retain unique first, minimum, maximum and last samples in
+chronological order; no averaging occurs. Current becomes unavailable after the
+canonical 15-second freshness bound or disconnect, while valid historical
+points remain. DISCONNECTED / UNKNOWN is shown without clearing the graph.
+Technical validation, deployment/runtime checks, TX response and actual kiosk
+acceptance are recorded below.
+
+Stage-D offline/full repository validation: PASS. Initial deployment: PASS,
+99 nodes, revision
+`72c7d7807e946d21ac33cf9047a70db8ea60423c45a4b385bf4d1b22a662f51d`.
+The first passive runtime observation exposed a Stage-D presentation bug: a
+retained fresh TX point could appear as current after return to RX. Before kiosk
+acceptance, the projector was corrected and fully revalidated/redeployed so
+current power is allowed only in existing TX or fresh TUNE context. Ten actual
+RX payloads then all had current null while retaining 381 historical samples
+and the truthful 478.63 W visible-window maximum. RADIO/PA/METER/DIAG continued
+delivering, SQLite stayed READY with zero incidents/errors, and no radio action
+was sent by the observer. Actual Stage-D kiosk and controlled normal-TX visual
+acceptance were the remaining acceptance gate.
+
+Actual Stage-D 800×480 kiosk and normal operator TX acceptance: PASS,
+explicitly confirmed by the user on 9 October 2026. RX showed current `--`, TX
+showed truthful FWDPWR response and graph growth, return to RX cleared only the
+current value while preserving history, pending groups contained no simulation,
+existing pages remained functional and no visual overflow/regression or false
+incident occurred. This is the accepted reversible checkpoint before Stage E.
+
 ## Planned final projection
 
 The final view will read only existing HEALTH-lane records from the canonical
