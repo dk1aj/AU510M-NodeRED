@@ -70,3 +70,35 @@ reversible Git checkpoint: PASS, explicitly confirmed by the user on 9 October
 five summary cards fit without overlap, clipping or scrollbar, and existing
 pages remained functional. This is the accepted reversible checkpoint before
 Stage C.
+
+Stage-B commit/push: `794657c452657a2a8304db484ecb3e6916d37b54`,
+`HEAD == origin/main`, clean working tree.
+
+## Stage C — display-only simulation
+
+The final card layout receives one fixed browser-only fixture: amber WARNING,
+primary reason SWR HIGH and `+2`. The card explicitly says SIMULATION. The
+fixture is created once inside the Vue component's `data()` and has no timer,
+Node-RED output, live input, classifier, threshold evaluation, ring access,
+SQLite access or radio path. It exists only to validate the compact warning
+hierarchy and color at 800×480 before any real status is connected.
+
+An initial Stage-C deployment was rolled back immediately when the unrelated
+AGC-T runtime reported its persistent `RADIO REQUEST ERROR`; the same error
+remained on the byte-identical Stage-B rollback, proving it was not introduced
+by PA HEALTH. The user explicitly instructed that AGC-T be ignored for now.
+PA HEALTH does not modify or invoke AGC-T, and all other existing pages remain
+inside the staged regression checks.
+
+Technical/full repository validation: PASS. Deployment: PASS, 99 nodes,
+revision `9885033bd797fae28ad1bd7eb8feeb506ed2acecc0bb7effdca3a278ed54ed0a`.
+Runtime and source are byte-for-byte equal. Ten passive RX seconds delivered
+107 RADIO, 107 PA, 106 METER, ten DIAG LIVE and ten DIAG TREND updates; all
+eleven trend series remained intact. SQLite stayed READY with queue 0, ring
+errors 0, no active capture and zero incidents. AGC-T was excluded from this
+runtime acceptance by explicit user instruction and was not modified or
+invoked. Actual 800×480 kiosk acceptance and the reversible Git checkpoint
+are PASS, explicitly confirmed by the user on 9 October 2026. Amber WARNING,
+SWR HIGH, `+2` and the SIMULATION label were readable; the five-card row fit
+without clipping, overlap or scrollbar, and existing evaluated pages remained
+functional. This is the accepted reversible checkpoint before Stage D.

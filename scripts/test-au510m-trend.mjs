@@ -61,7 +61,8 @@ assert.equal(data.ringBuffer.count,12000,'Maximum-ring fixture incomplete');asse
 const flows=JSON.parse(fs.readFileSync('/mnt/dietpi_userdata/node-red/flows.json','utf8'));
 const dashboard=JSON.parse(fs.readFileSync('/mnt/dietpi_userdata/node-red/flows/dashboard.json','utf8'));
 const source=flows.find(node=>node.id==='9b1bcb4b21cd24ff')?.format;
-assert(source,'DIAG widget missing');assert(source.includes(`selectDiagView('trend')`));assert(source.includes('LIVE HEALTH RING'));assert(source.includes('STALE DELIVERY'));assert(!source.includes('SIMULATION'));assert(!source.includes('PENDING STAGE E'));assert(!source.includes('trendSimulation'));
+assert(source,'DIAG widget missing');const trendMarkup=source.match(/<main v-if="diagView === 'trend'"[\s\S]*?<\/main>/)?.[0];assert(trendMarkup);
+assert(source.includes(`selectDiagView('trend')`));assert(source.includes('LIVE HEALTH RING'));assert(source.includes('STALE DELIVERY'));assert(!trendMarkup.includes('SIMULATION'));assert(!source.includes('PENDING STAGE E'));assert(!source.includes('trendSimulation'));
 for(const label of ['POWER','SWR','TEMP','PA','CURRENT','EFF','SUPPLY','FAN','-4m','NOW'])assert(source.includes(label),`Missing label ${label}`);
 assert.equal(flows.filter(node=>node.type==='flexradio-radio').length,2,'Trend added a radio connection');
 const tick=flows.find(node=>node.id==='au510m_diag_live_tick'),node=flows.find(node=>node.id==='au510m_diag_trend_project');
