@@ -17,6 +17,7 @@ function canonical(tx,interlock){core.interlock({state:interlock});core.canonica
 let p=project(args());assert.equal(p.diagState,'UNKNOWN');assert(p.health.every(h=>h.value===null));
 canonical('RX','READY');core.tune(0);health();p=project(args());
 assert.equal(p.diagState,'RADIO_RX');assert.equal(p.tune,0);assert.equal(p.paFault,'READY');assert.equal(p.frequency,'7.0672 MHz');assert.equal(p.interlockReason,'PA_FAULT');
+assert.deepEqual(p.paHealth,{state:'UNKNOWN',primaryReason:'NUMERIC RULES PENDING',activeReasons:[],additional:0,confidence:'DERIVED'});
 assert.equal(p.health.find(h=>h.key==='FWDPWR_W').value,null);assert.equal(p.health.find(h=>h.key==='SWR').value,null);assert.equal(p.health.find(h=>h.key==='PATEMP_C').value,4);
 now+=100;mono+=100;canonical('TX','TRANSMITTING');health();p=project(args());assert.equal(p.diagState,'TRANSMITTING');assert.equal(p.health.find(h=>h.key==='FWDPWR_W').value,.25);assert.equal(p.health.find(h=>h.key==='SWR').value,3);
 now+=100;mono+=100;canonical('RX','READY');p=project(args());assert.equal(p.health.find(h=>h.key==='FWDPWR_W').value,null,'RX clears the previous TX sample immediately');assert.equal(p.health.find(h=>h.key==='SWR').value,null);core.tune(1);health();p=project(args());assert.equal(p.tune,1);assert.equal(p.tuneFresh,true);assert.equal(p.diagState,'TUNE_REQUESTED');assert.equal(p.health.find(h=>h.key==='SWR').value,null);
@@ -26,10 +27,10 @@ const original=JSON.stringify(core.data);project(args());assert.equal(JSON.strin
 Object.assign(core.data.metrics,{sqlite_status:'ERROR',sqlite_queue_records:2,sqlite_dropped_records:1,persistence_active_captures:1,last_incident_type:'TUNE_RX_OSCILLATION'});
 p=project(args());assert.equal(p.sqlite.state,'ERROR');assert.equal(p.diagState,'RADIO_RX');assert.equal(p.health.find(h=>h.key==='PATEMP_C').value,4);assert.equal(p.incident.state,'COLLECTING');assert.equal(p.incident.type,'TUNE_RX_OSCILLATION');
 const privateData={...args(),paFault:{...args().paFault,reason:'192.168.1.1 client@example.com'}};assert.equal(project(privateData).interlockReason,null);
-core.interlock({state:'TX_FAULT'});health();const faultArgs=args();faultArgs.paFault.faultLatched=true;p=project(faultArgs);assert.equal(p.paFault,'FAULT');assert.equal(p.diagState,'FAULT');
+core.interlock({state:'TX_FAULT'});health();const faultArgs=args();faultArgs.paFault.faultLatched=true;p=project(faultArgs);assert.equal(p.paFault,'FAULT');assert.equal(p.diagState,'FAULT');assert.deepEqual(p.paHealth,{state:'CRITICAL',primaryReason:'PA FAULT',activeReasons:['PA_FAULT'],additional:0,confidence:'DIRECT_SOURCE / DERIVED_HEALTH_CLASSIFICATION'});
 const staleFault=args();staleFault.paFault.stateSeen=now-16000;assert.equal(project(staleFault).paFault,'UNKNOWN');
 now+=16000;mono+=16000;core.tick(rows);p=project(args());assert.equal(p.tune,null);assert.equal(p.health.find(h=>h.key==='PATEMP_C').value,null);
-core.connection(false);p=project(args());assert.equal(p.connection,'DISCONNECTED');assert.equal(p.diagState,'UNKNOWN');assert.equal(p.paFault,'UNKNOWN');assert(p.health.every(h=>h.value===null));assert.equal(p.slice,null);
+core.connection(false);p=project(args());assert.equal(p.connection,'DISCONNECTED');assert.equal(p.diagState,'UNKNOWN');assert.equal(p.paFault,'UNKNOWN');assert.equal(p.paHealth.state,'UNKNOWN');assert.equal(p.paHealth.primaryReason,'DATA STALE');assert(p.health.every(h=>h.value===null));assert.equal(p.slice,null);
 core.connection(true);p=project(args());assert.equal(p.diagState,'UNKNOWN');assert.equal(p.tune,null);assert.equal(p.frequency,null);
 assert(!/run_id|client_handle|client_ip|client_id|raw_source|records":/.test(JSON.stringify(p)));
 const options=vm.runInNewContext('('+node('9b1bcb4b21cd24ff').format.match(/<script>([\s\S]*?)<\/script>/)[1].replace(/^\s*export default/,'')+')');
@@ -37,4 +38,4 @@ const view=options.data();for(const[k,v]of Object.entries(options.methods))view[
 p.serverNow=now;options.watch.msg.handler.call(view,{payload:p});view.now=Date.now();assert.equal(view.live.connection,p.connection);const before=view.liveSnapshot;options.watch.msg.handler.call(view,{payload:{section:'external',rows:[]}});assert.equal(view.liveSnapshot,before,'Old meter snapshot overwrote diagnostics');
 view.now=view.liveReceivedAt+15001;assert.equal(view.live.connection,'STALE');assert.equal(view.live.diagState,'UNKNOWN');assert(view.healthRows.every(h=>h.value===null));assert.equal(view.number(null),'--');assert.equal(view.number(0),'0');
 assert.equal(node('au510m_diag_live_tick').repeat,'1');assert.deepEqual(node('au510m_diag_live_project').wires,[['9b1bcb4b21cd24ff']]);assert(!/node\.send|\.set\(/.test(node('au510m_diag_live_project').func));
-console.log('PASS: DIAG LIVE real core RX/TX/TUNE projection, unchanged canonical PA_FAULT, canonical health/Watts and RX gate, disconnect/reconnect/stale, SQLite failure isolation, collecting status, privacy, source immutability and UI delivery expiry.');
+console.log('PASS: DIAG LIVE real core RX/TX/TUNE projection, canonical PA_FAULT-derived CRITICAL only, numeric-pending UNKNOWN, canonical health/Watts and RX gate, disconnect/reconnect/stale, SQLite failure isolation, privacy and UI delivery expiry.');

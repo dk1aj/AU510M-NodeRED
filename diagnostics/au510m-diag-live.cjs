@@ -22,13 +22,17 @@ function createProjector(meterTemplate){
   const view={msg:{payload},serverReceivedAt:now,liveClock:now,freshForwardTimestamp:canonicalFresh};
   const fault=canonicalFault.call(view);
   const reason=available&&paFault?.state===s.interlock_state&&fresh(paFault.reasonSeen,now,15000)?safe(paFault.reason):null;
+  const paHealth=!available?{state:'UNKNOWN',primaryReason:'DATA STALE',activeReasons:['DATA_STALE'],additional:0,confidence:'UNKNOWN'}:
+   fault.value==='FAULT'?{state:'CRITICAL',primaryReason:'PA FAULT',activeReasons:['PA_FAULT'],additional:0,confidence:'DIRECT_SOURCE / DERIVED_HEALTH_CLASSIFICATION'}:
+   fault.value==='READY'?{state:'UNKNOWN',primaryReason:'NUMERIC RULES PENDING',activeReasons:[],additional:0,confidence:'DERIVED'}:
+   {state:'UNKNOWN',primaryReason:'DIRECT FAULT UNKNOWN',activeReasons:[],additional:0,confidence:'UNKNOWN'};
   const active=finite(m.persistence_active_captures);
   return {kind:'au510m-diag-live',serverNow:now,available,
    connection:connected?(available?'CONNECTED':'STALE'):safe(d.connectionState)??'UNKNOWN',
    diagState:available?safe(d.stateMachine?.diag_state)??'UNKNOWN':'UNKNOWN',
    diagConfidence:available?safe(d.stateMachine?.diag_state_confidence)??'UNKNOWN':'UNKNOWN',
    diagReason:available?safe(d.stateMachine?.diag_state_reason):null,
-   paFault:available?fault.value:'UNKNOWN',paFaultTone:available?fault.tone:'unknown',
+   paFault:available?fault.value:'UNKNOWN',paFaultTone:available?fault.tone:'unknown',paHealth,
    tune:available&&t.tune_fresh===true&&(t.tune_value===0||t.tune_value===1)?t.tune_value:null,
    tuneFresh:available&&t.tune_fresh===true,tuneAgeMs:finite(t.tune_age_ms),
    interlock:available?safe(s.interlock_state):null,interlockReason:reason,

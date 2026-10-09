@@ -102,3 +102,32 @@ are PASS, explicitly confirmed by the user on 9 October 2026. Amber WARNING,
 SWR HIGH, `+2` and the SIMULATION label were readable; the five-card row fit
 without clipping, overlap or scrollbar, and existing evaluated pages remained
 functional. This is the accepted reversible checkpoint before Stage D.
+
+Stage-C commit/push: `7dd2fee3960d8fa6451fd5f8990b6fd3c73e98a5`,
+`HEAD == origin/main`, clean working tree.
+
+## Stage D — direct fault evidence only
+
+The browser simulation is removed. The existing read-only DIAG LIVE projector
+reuses the already accepted canonical PA_FAULT classification and connection/
+freshness gates. A directly observed PA_FAULT `FAULT` is presented as CRITICAL
+with primary reason PA FAULT and confidence
+`DIRECT_SOURCE / DERIVED_HEALTH_CLASSIFICATION`. READY does not yet claim full
+PA health OK: until Stage-E numeric rules are connected it remains UNKNOWN with
+`NUMERIC RULES PENDING`. Startup, stale data, disconnect and insufficient direct
+evidence remain UNKNOWN. No numeric threshold, health-change event, radio
+command, new connection/subscription, ring, SQLite write or incident type is
+added in this stage.
+
+Technical/full repository validation: PASS. Deployment: PASS, 99 nodes,
+revision `55994f0f2d58632b9782c5da093e708766acf0e95cc38a5955f16da97f2e6cec`.
+Runtime and source are byte-for-byte equal. Ten passive RX snapshots reported
+PA_FAULT READY and PA HEALTH `UNKNOWN / NUMERIC RULES PENDING / DERIVED`, with
+RADIO_RX, Slice A, SQLite READY, queue/drop/ring errors 0, no active capture and
+zero incidents. RADIO, PA, METER, DIAG LIVE/HISTORY/TREND and EXPORT paths
+remained intact. AGC-T remained excluded by explicit user instruction. Actual
+800×480 kiosk acceptance: PASS, explicitly confirmed by the user on 9 October
+2026. UNKNOWN, NUMERIC RULES PENDING and DERIVED were readable, no simulation or
+false warning was visible, the five-card layout remained intact and all
+evaluated existing pages remained functional. This is the accepted reversible
+checkpoint before Stage E and baseline-driven numeric classification.
