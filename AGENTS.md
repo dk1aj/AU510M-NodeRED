@@ -74,6 +74,30 @@ is in archive/station-dashboard/. Run `bash scripts/validate-repository.sh`.
 runtime files. Repository-only cleanup needs no version bump and must not deploy.
 Preserve AGC+ compatibility keys; AGC-only radio inventory must remain supported.
 
+## Repository Workflow: RTK and CodeGraph
+
+- Use RTK for supported repository/Git inspection where practical; prefer compact
+  status, log and diff output. Use Git directly when RTK does not correctly support
+  a required operation.
+- Before non-trivial runtime or architecture changes, use CodeGraph to inspect
+  dependencies and impact and locate canonical producers/consumers. Reuse canonical
+  paths rather than duplicate parsers, subscriptions, state logic or data pipelines.
+- After non-trivial changes, use CodeGraph again to check for unintended duplicate
+  paths or unexpected dependencies.
+
+### Required diagnostic/radio dependency checks
+
+Where relevant, map these paths with CodeGraph:
+
+- Canonical radio/Flex inputs, interlock, TX/RX state and TUNE.
+- PA_FAULT / PA_HEALTH.
+- EVENT lane / ring buffer and SQLite incident persistence.
+- DIAG LIVE/HISTORY/TREND consumers and EXPORT consumers.
+
+CodeGraph provides dependency/impact analysis only; it must never justify invented
+runtime semantics. Existing provenance rules still apply. Preserve DIRECT / DERIVED /
+UNKNOWN distinctions.
+
 ## High-risk Dashboard changes
 
 FlowFuse Dashboard version in this project: 1.30.2.
@@ -394,3 +418,37 @@ Documentation-only changes do not deploy or increment the runtime version.
 - PA health classification is diagnostic and derived, never a direct radio state.
 - No automatic radio protection action is authorized without explicit future
   user authorization.
+
+<!-- CODEGRAPH_START -->
+## CodeGraph
+
+In repositories indexed by CodeGraph (a `.codegraph/` directory exists at the repo root), reach for it BEFORE grep/find or reading files when you need to understand or locate code:
+
+- **MCP tool** (when available): `codegraph_explore` answers most code questions in one call — the relevant symbols' verbatim source plus the call paths between them, including dynamic-dispatch hops grep can't follow. Name a file or symbol in the query to read its current line-numbered source. If it's listed but deferred, load it by name via tool search.
+- **Shell** (always works): `codegraph explore "<symbol names or question>"` prints the same output.
+
+If there is no `.codegraph/` directory, skip CodeGraph entirely — indexing is the user's decision.
+<!-- CODEGRAPH_END -->
+
+@RTK.md
+
+## RTK usage
+
+Use CodeGraph for code discovery and RTK explicitly for verbose shell output.
+
+- Use CodeGraph first for symbols, call paths, dependencies, code relationships, and impact analysis.
+- Prefer RTK for verbose read-only shell commands:
+  - `rtk git status`
+  - `rtk git diff`
+  - `rtk git log`
+  - `rtk grep`
+  - `rtk find`
+  - `rtk read`
+- Also use RTK for supported test, build, npm, log, and diagnostic output.
+- Use raw commands only when RTK is unsupported, incomplete, or exact unfiltered output is required.
+- Do not use `rtk proxy` by default.
+- Keep responsibilities separate:
+  - CodeGraph = code structure, symbols, call paths, dependencies
+  - RTK = compressed Git, shell, test, build, log, and diagnostic output
+- Do not modify files, deploy, commit, or push just to test RTK.
+- When RTK has been used for several commands, `rtk gain` may be used to verify savings.
