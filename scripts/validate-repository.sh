@@ -8,6 +8,8 @@ while IFS= read -r -d '' file; do node --check "$file"; done < <(find scripts di
 while IFS= read -r -d '' file; do bash -n "$file"; done < <(find scripts -type f -name '*.sh' -print0)
 node --experimental-vm-modules --disable-warning=ExperimentalWarning scripts/validate-repository.mjs
 node scripts/export-repository-flows.mjs --check
+node scripts/apply-flexradio-reconnect-patch.mjs --check
+node scripts/test-flexradio-reconnect.mjs
 node scripts/test-agct-watcher.mjs
 node scripts/test-agct-dashboard.mjs
 node scripts/test-au510m-diag.mjs

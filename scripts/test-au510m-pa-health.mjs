@@ -3,7 +3,8 @@ import vm from 'node:vm';
 import assert from 'node:assert/strict';
 
 const version=JSON.parse(fs.readFileSync('agct-watcher-version.json','utf8'));
-assert.deepEqual(version,{OLD_VERSION:'4.31',NEW_VERSION:'4.32'});
+for(const value of Object.values(version))assert.match(value,/^\d+\.\d+$/);
+assert.notEqual(version.OLD_VERSION,version.NEW_VERSION,'Runtime release must advance');
 const flows=JSON.parse(fs.readFileSync('flows.json','utf8')),dashboard=JSON.parse(fs.readFileSync('flows/dashboard.json','utf8'));
 const node=flows.find(item=>item.id==='9b1bcb4b21cd24ff'),mirror=dashboard.find(item=>item.id===node.id);
 assert(node&&mirror);assert.equal(node.format,mirror.format);

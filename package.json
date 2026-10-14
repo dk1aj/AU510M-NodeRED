@@ -2,7 +2,7 @@
   "dependencies": {
     "@flowfuse/node-red-dashboard": "~1.30.2",
     "node-red": "^5.0.0",
-    "node-red-contrib-flexradio": "^1.2.5",
+    "node-red-contrib-flexradio": "1.2.5",
     "node-red-contrib-msg-resend": "~1.0.0",
     "node-red-contrib-startup-trigger": "^0.1.0",
     "node-red-contrib-string": "~1.0.0",
@@ -16,5 +16,9 @@
     "node-red-node-ui-list": "^0.3.6",
     "node-red-node-ui-table": "^0.4.5",
     "node-red-node-wol": "~0.2.0"
+  },
+  "scripts": {
+    "postinstall": "node scripts/apply-flexradio-reconnect-patch.mjs",
+    "test:flexradio-reconnect": "node scripts/test-flexradio-reconnect.mjs"
   }
 }

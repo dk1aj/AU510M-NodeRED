@@ -1,0 +1,237 @@
+--- a/node_modules/node-red-contrib-flexradio/flexradio-radio.js
++++ b/node_modules/node-red-contrib-flexradio/flexradio-radio.js
+@@ -4,6 +4,10 @@
+  */
+ const { Radio } = require('flexradio-js/Radio');
+ const { discovery_listener } = require('flexradio-js/DiscoveryListener');
++
++const fs = require('fs');
++const path = require('path');
++const net = require('net');
+ 
+ const log_debug = function(msg) { };
+ 
+@@ -49,6 +53,15 @@
+ 		node.name = config.name;
+ 		node.timeoutSeconds = config.timeout || 15;
+ 		node.closing = false;
++		node.attemptGeneration = 0;
++		node.suspended = false;
++		node.radio_event = {};
++		const identityPath = process.env.FLEXRADIO_IDENTITY_FILE || path.resolve(__dirname, '../../flexradio-identities.json');
++		const identities = fs.existsSync(identityPath) ? JSON.parse(fs.readFileSync(identityPath, 'utf8')) : {};
++		node.discoverySerial = config.serial || identities[node.id]?.serial || null;
++		node.discoveryStatus = { radio_discovery_status: 'DISCONNECTED', radio_discovered_ip: null,
++			radio_identity: node.discoverySerial, last_discovery_ts: null, last_discovery_error: null };
++		node.context().set('radioDiscovery', node.discoveryStatus);
+ 
+ 		node.radio_descriptor = null;
+ 		node.radio = null;
+@@ -63,28 +76,32 @@
+ 
+ 		node._connect = function(descriptor) {
+ 			log_debug(`flexradio-radio[${node.node_id}]._connect(${descriptor.ip}:${descriptor.port})`);
+-			if (node.radio) {
+-				node.unsubscribe();
+-				node.radio = null;
+-			}
+-
++			if (node.closing || node.suspended) return;
++			node.cleanupAttempt();
++			const generation = node.attemptGeneration;
+ 			node.log('connecting to host=' + descriptor.ip + ' port=' + descriptor.port);
+-			node.radio = new Radio(descriptor);
++			if (!node.radio) node.radio = new Radio(descriptor);
++			else Object.assign(node.radio, descriptor);
++			node.radio.host = descriptor.ip;
++			node.radio.port = Number(descriptor.port);
++			node.radio.connect_timeout_ms = node.timeoutSeconds * 1000;
+ 			if (node.radio) {
+ 				const radio = node.radio;
+ 				node.radio_descriptor = descriptor;
+ 
+ 				// Radio event handlers for handling events FROM radio
+ 				node.radio_event = {};
+-				node.radio_event['connecting'] = (msg) => { updateNodeStatus(msg); };
+-				node.radio_event['connected'] = (msg) => { updateNodeStatus(msg); };
++				node.radio_event['connecting'] = (msg) => { if (msg === 'tcp') updateNodeStatus(msg); };
++				node.radio_event['connected'] = (msg) => { if (msg === 'tcp') updateNodeStatus(msg); };
+ 				node.radio_event['disconnected'] = (msg) => {
++					if (msg !== 'tcp') return;
+ 					updateNodeStatus(msg);
+-
+-					clearInterval(node.reconnectTimer);
+-					if (!node.closing && config.host_mode != 'dynamic') {
++					clearTimeout(node.reconnectTimer);
++					if (!node.closing && !node.suspended && config.host_mode !== 'dynamic') {
+ 						node.reconnectTimer = setTimeout(() => {
+-							radio.connect();
++							if (generation !== node.attemptGeneration || node.closing || node.suspended) return;
++							node.reconnectTimer = null;
++							node._connect(node.latestDescriptor || node.radio_descriptor);
+ 						}, node.timeoutSeconds * 1000);
+ 					}
+ 				};
+@@ -125,12 +142,16 @@
+ 
+ 				// don't re-emit errors. They are treated differently by
+ 				// the EventEmitter and will crash if not handled.
+-				node.radio_event['error'] = (error) => { node.error(error); };
++				node.radio_event['error'] = (error) => { node.discoveryStatus.last_discovery_error = error.message; node.error(error); };
+ 
+ 				// Subscribe to radio events with our listeners
+ 				Object.entries(node.radio_event).forEach(([event, handler]) => {
+ 					if (handler) {
+-						radio.on(event, handler);
++						const guarded = (...args) => {
++							if (generation === node.attemptGeneration && !node.closing) handler(...args);
++						};
++						node.radio_event[event] = guarded;
++						radio.on(event, guarded);
+ 					}
+ 				});
+ 
+@@ -153,49 +174,60 @@
+ 			// The connection will be done via a message.
+ 		};
+ 
+-		// Connect to first discovered radio
+-		node.connectAutomatic = function(config) {
+-			const handler = function(discovery) {
+-				if (!node.closing && node.connectionState() === 'disconnected') {
+-					node.log('automatic connect to host=' + discovery.payload.ip + ' port=' + discovery.payload.port);
+-					node._connect(discovery.payload);
+-					discovery_listener().off('discovery', handler);
+-				}
++		// Keep the shared passive listener attached across retries and DHCP changes.
++		node.connectAutomatic = function(selection) {
++			if (node.discoveryHandler) return;
++			if (!node.discoverySerial) {
++				node.discoveryStatus.last_discovery_error = 'Automatic discovery requires a configured serial';
++				node.discoveryStatus.radio_discovery_status = 'ERROR';
++				node.error(node.discoveryStatus.last_discovery_error);
++				return;
++			}
++			node.discoveryStatus.radio_discovery_status = 'DISCOVERING';
++			node.discoveryHandler = discovery => {
++				const d = discovery.payload;
++				if (node.closing || node.suspended || !d || d.serial !== node.discoverySerial) return;
++				if (selection.nickname && selection.nickname !== d.nickname) return;
++				if (net.isIP(d.ip) !== 4 || !Number.isInteger(Number(d.port)) || Number(d.port) < 1 || Number(d.port) > 65535) return;
++				const previous = node.latestDescriptor;
++				node.latestDescriptor = { ...d, port: Number(d.port) };
++				Object.assign(node.discoveryStatus, { radio_discovered_ip: d.ip, radio_identity: d.serial,
++					last_discovery_ts: new Date().toISOString(), last_discovery_error: null });
++				const changed = previous && (previous.ip !== d.ip || Number(previous.port) !== Number(d.port));
++				if (changed) node.log('RADIO_ADDRESS_CHANGED ' + previous.ip + ' -> ' + d.ip);
++				const state = node.connectionState();
++				// A healthy established socket remains authoritative until it fails.
++				if (state === 'connected') return;
++				if (state === 'connecting' && !changed) return;
++				if (node.reconnectTimer && !changed) return;
++				node._connect(node.latestDescriptor);
+ 			};
+-
+-			discovery_listener().on('discovery', handler);
+-		};
+-
+-		// Connect to discovered radio with configured nickname
+-		node.connectNickname = function(config) {
+-			const handler = function(discovery) {
+-				if (!node.closing && node.connectionState() === 'disconnected') {
+-					if (config.nickname == discovery.payload.nickname) {
+-						node.log('connect to discovered host=' + discovery.payload.ip + ' port=' + discovery.payload.port);
+-						node._connect(discovery.payload);
+-						discovery_listener().off('discovery', handler);
+-					}
+-				}
+-			};
+-
+-			discovery_listener().on('discovery', handler);
+-		};
++			discovery_listener().on('discovery', node.discoveryHandler);
++		};
++		node.connectNickname = node.connectAutomatic;
+ 
+ 		// Connect to radio with host and port
+ 		node.connectManual = function(config) {
+ 			if (!node.closing && node.connectionState() === 'disconnected') {
+-				const descriptor = { ip: config.host, port: config.port };
++				const descriptor = { ip: config.host, port: Number(config.port) };
++				node.latestDescriptor = descriptor;
+ 				node.log('connecting to host=' + descriptor.ip + ' port=' + descriptor.port);
+ 				node._connect(descriptor);
+ 			}
+ 		};
+ 
+ 		node.connect = function(dynamic_config) {
++			if (node.closing) return;
++			node.suspended = false;
+ 			if (node.connectionState() !== 'disconnected') {
+-				node.log('Ignoring connect() wile already connected.');
+-				return;
+-			}
+-
++				if (!dynamic_config) return;
++				node.cleanupAttempt();
++			}
++			if (dynamic_config && node.discoveryHandler) {
++				discovery_listener().off('discovery', node.discoveryHandler);
++				node.discoveryHandler = null;
++				node.latestDescriptor = null;
++			}
+ 			const connection_config = dynamic_config ? dynamic_config : config;
+ 			node.log('connect mode ' + connection_config.host_mode);
+ 			switch (connection_config.host_mode) {
+@@ -225,24 +257,30 @@
+ 			});
+ 		}
+ 
++		node.cleanupAttempt = function() {
++			++node.attemptGeneration;
++			clearTimeout(node.reconnectTimer);
++			node.reconnectTimer = null;
++			if (node.radio) {
++				node.unsubscribe();
++				node.radio.disconnect();
++			}
++			node.radio_event = {};
++			node.radio_descriptor = null;
++		};
++
+ 		node.disconnect = function() {
+-			if (node.connectionState() === 'connected') {
+-				const radio = node.radio;
+-				if (radio) {
+-					radio.disconnect();
+-				}
+-			}
+-		}
++			node.suspended = true;
++			node.cleanupAttempt();
++			node.discoveryStatus.radio_discovery_status = 'DISCONNECTED';
++			node.emit('disconnected', { topic: 'connection/tcp', payload: 'disconnected' });
++		};
+ 
+ 		node.on('close', function(done) {
+-			log_debug(`flexradio-radio[${node.node_id}].on.close()`);
+-			const descriptor = node.radio_descriptor;
+-			node.log('closing host=' + descriptor.ip + ' port=' + descriptor.port);
+ 			node.closing = true;
+-
++			if (node.discoveryHandler) discovery_listener().off('discovery', node.discoveryHandler);
++			node.discoveryHandler = null;
+ 			node.disconnect();
+-			node.unsubscribe();
+-
+ 			done();
+ 		});
+ 
+@@ -418,6 +456,7 @@
+ 
+ 		function updateNodeStatus(data) {
+ 			node.state = node.connectionState();
++			node.discoveryStatus.radio_discovery_status = node.state.toUpperCase();
+ 
+ 			log_debug(`flexradio-radio[${node.node_id}].updateNodeStatus(${node.state})`);
+ 

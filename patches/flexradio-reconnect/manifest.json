@@ -1,0 +1,27 @@
+{
+  "revision": "au510m-reconnect-r1",
+  "upstream": {
+    "node-red-contrib-flexradio": "1.2.5",
+    "flexradio-js": "1.2.5"
+  },
+  "files": [
+    {
+      "path": "node_modules/node-red-contrib-flexradio/flexradio-radio.js",
+      "patch": "flexradio-radio.js.patch",
+      "before": "8578a69394378f91eac9718bc846fa2eb42046da720dd5a131b284ed2dc8e93e",
+      "after": "adf8d69af47d97628c154e3dc5ed52f78c7c6c186e4ad551bfd52d6f16de93f8"
+    },
+    {
+      "path": "node_modules/flexradio-js/Radio.js",
+      "patch": "Radio.js.patch",
+      "before": "9c2821e5e651a7aea835c80b30b00785a24aac6eb283283c8600ce927baa3aa6",
+      "after": "994de0deefc8a9e770f4124471a837ef0bd1599abb2c15fe0164cddc074a6644"
+    },
+    {
+      "path": "node_modules/flexradio-js/DiscoveryListener.js",
+      "patch": "DiscoveryListener.js.patch",
+      "before": "989897d83b2dae9947cbb96c2d2da2e3bf8189da3ad006ced28df740c3335489",
+      "after": "ec75be359e835da22a85787cc45a0158a04cf3634b64db05241d98672ed560d5"
+    }
+  ]
+}

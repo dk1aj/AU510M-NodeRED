@@ -1,0 +1,225 @@
+--- a/node_modules/flexradio-js/Radio.js
++++ b/node_modules/flexradio-js/Radio.js
+@@ -66,6 +66,8 @@
+ 
+ 		this.connectionState = ConnectionStates.disconnected;
+ 		this.connection = null;
++		this._connectionGeneration = 0;
++		this.connectTimer = null;
+ 
+ 		this.realtimeListenerPort = this.port;
+ 		this.realtimeListenerState = ConnectionStates.disconnected;
+@@ -105,111 +107,105 @@
+ 		this._disconnectFromRadio();
+ 	}
+ 
+-	// Connect to radio and setup handlers for TCP/IP data and state changes.
++	// Local AU510M reconnect patch r1. One transport generation owns every callback.
++	_cleanupConnection() {
++		++this._connectionGeneration;
++		clearTimeout(this.connectTimer);
++		this.connectTimer = null;
++		const tcp = this.connection, realtime = this.realtimeListener;
++		this.connection = null;
++		this.realtimeListener = null;
++		this.realtimeListenerState = ConnectionStates.disconnected;
++		for (const socket of [tcp, realtime]) {
++			if (!socket) continue;
++			socket.removeAllListeners();
++			// A queued transport error must remain handled until destruction completes.
++			socket.on('error', () => {});
++			socket.once('close', () => socket.removeAllListeners());
++			if (socket === tcp) socket.destroy();
++			else {
++				try { socket.close(); }
++				catch (error) {
++					if (error.code !== 'ERR_SOCKET_DGRAM_NOT_RUNNING') throw error;
++					socket.removeAllListeners();
++				}
++			}
++		}
++		this.requests = {};
++		this.streamBuffer = '';
++		this.client_handle = null;
++		this.meters = {};
++		this.streams = {};
++		if (this.connectionState !== ConnectionStates.disconnected) {
++			this._setConnectionState(ConnectionStates.disconnected);
++		}
++	}
++
+ 	_connectToRadio() {
+-		log_info(`Radio[${this.radio_id}]._connectToRadio():`);
+-		if (this.connectionState === ConnectionStates.disconnected) {
+-			this._setConnectionState(ConnectionStates.connecting);
+-
+-			const radio = this;
+-			this.connection = net.connect(radio.port, radio.host, function() {
+-				log_info(`Radio[${radio.radio_id}].connection.on('connect')`);
+-
+-				Promise.all([radio._startRealtimeListener(), 
+-								radio._getMeterList(),
+-								// triggers new format UDP packets
+-								radio.send('client set enforce_network_mtu=1'),
+-								// triggers new API
+-								radio.send('client set send_reduced_bw_dax=0')
+-							])
+-					.then(function() {
+-						radio._setConnectionState(ConnectionStates.connected);
+-					});
++		if (this.connectionState !== ConnectionStates.disconnected) return;
++		this._cleanupConnection();
++		const generation = this._connectionGeneration;
++		const current = () => generation === this._connectionGeneration;
++		const fail = error => {
++			if (!current()) return;
++			try { this.emit(MessageTypes.error, error); }
++			finally { if (current()) this._cleanupConnection(); }
++		};
++		this._setConnectionState(ConnectionStates.connecting);
++		this.connectTimer = setTimeout(() => fail(new Error('FlexRadio connect/setup timeout')), this.connect_timeout_ms || 15000);
++		try {
++			this.connection = net.connect(this.port, this.host, () => {
++				if (!current()) return;
++				// Upstream setup requests are preserved; no new radio-control requests.
++				Promise.all([this._startRealtimeListener(), this._getMeterList(),
++					this.send('client set enforce_network_mtu=1'),
++					this.send('client set send_reduced_bw_dax=0')])
++					.then(() => {
++						if (!current()) return;
++						clearTimeout(this.connectTimer);
++						this.connectTimer = null;
++						this._setConnectionState(ConnectionStates.connected);
++					}).catch(fail);
+ 			});
+-
+-			this.connection.on('data', function(data) {
+-				radio._receiveData(data);
++			this.connection.on('data', data => { if (current()) this._receiveData(data); });
++			this.connection.on('error', fail);
++			this.connection.on('close', () => { if (current()) this._cleanupConnection(); });
++		} catch (error) { fail(error); }
++	}
++
++	_disconnectFromRadio() { this._cleanupConnection(); }
++
++	_startRealtimeListener() {
++		const generation = this._connectionGeneration;
++		const current = () => generation === this._connectionGeneration;
++		return new Promise((resolve, reject) => {
++			if (!current()) return resolve();
++			const socket = udp.createSocket({ type: 'udp4', reuseAddr: false });
++			this.realtimeListener = socket;
++			socket.on('listening', () => {
++				if (!current()) return;
++				this.realtimeListenerPort = socket.address().port;
++				this._setRealtimeListenerState(ConnectionStates.listening);
++				this.send('client udpport ' + this.realtimeListenerPort, () => { if (current()) resolve(); });
+ 			});
+-
+-			this.connection.on('error', function(error) {
+-				// Called when there is an error on the channel
+-				// MUST be handled by a listener somewhere or will
+-				// CRASH the program with an unhandled exception.
+-				console.error(`Radio[${radio.radio_id}].connection.on('error')`);
+-				try {
+-					radio.emit(MessageTypes.error, error);
+-				} catch (err) {
+-					console.log(err);	
+-				}
++			socket.on('error', error => {
++				if (!current()) return;
++				reject(error);
++				try { this.emit(MessageTypes.error, error); }
++				finally { if (current()) this._cleanupConnection(); }
+ 			});
+-
+-			this.connection.on('close', function() {
+-				log_info(`Radio[${radio.radio_id}].connection.on('close')`);
+-				radio._stopRealtimeListener();
+-				radio._setConnectionState(ConnectionStates.disconnected);
++			socket.on('message', (data, info) => { if (current()) this._receiveRealtimeData(data, info); });
++			socket.on('close', () => {
++				if (!current()) return;
++				reject(new Error('FlexRadio realtime socket closed'));
++				this._cleanupConnection();
+ 			});
+-		}
+-	}
+-
+-	_disconnectFromRadio() {
+-		log_info(`Radio[${this.radio_id}]._disconnectFromRadio()`);
+-		if (this.connectionState !== ConnectionStates.disconnected) {
+-			this.connection.destroy();
+-		}
+-	}
+-
+-	_startRealtimeListener() {
+-		const radio = this;
+-		return new Promise(function(resolve, reject) {
+-			log_info(`Radio[${radio.radio_id}]._startRealtimeListener():`);
+-			if (radio.realtimeListenerState === ConnectionStates.disconnected) {
+-				radio.realtimeListener = udp.createSocket({ type: 'udp4', reuseAddr: false });
+-
+-				const realtimeListener = radio.realtimeListener;
+-				realtimeListener.on('listening', function() {
+-					log_info(`Radio[${radio.radio_id}].realtimeListener.on('listening')`);
+-
+-					const listenAddress = realtimeListener.address();
+-					radio.realtimeListenerPort = listenAddress.port;
+-
+-					log_info(`Radio[${radio.radio_id}].realtimeListener listening on udp4: ${radio.realtimeListenerPort}`);
+-					radio._setRealtimeListenerState(ConnectionStates.listening);
+-
+-					radio.send('client udpport ' + radio.realtimeListenerPort, function(response) {
+-						resolve();
+-					});
+-				});
+-
+-				realtimeListener.on('error', function(error) {
+-					// MUST be handled by a listener somewhere or will
+-					// CRASH the program with an unhandled exception.
+-					console.error(`Radio[${radio.radio_id}].realtimeListener.on('error')`);
+-					radio.emit(MessageTypes.error, error);
+-				});
+-
+-				realtimeListener.on('message', function(data, info) {
+-					radio._receiveRealtimeData(data, info);
+-				});
+-
+-				realtimeListener.on('close', function() {
+-					log_info(`Radio[${radio.radio_id}].realtimeListener.on('close')`);
+-					radio._setRealtimeListenerState(ConnectionStates.disconnected);
+-				});
+-
+-				radio._setRealtimeListenerState(ConnectionStates.connecting);
+-				realtimeListener.bind();
+-			} else {
+-				resolve();
+-			}
++			this._setRealtimeListenerState(ConnectionStates.connecting);
++			socket.bind();
+ 		});
+ 	}
+ 
+-	_stopRealtimeListener() {
+-		log_info(`Radio[${this.radio_id}]._stopRealtimeListener()`);
+-		if (this.realtimeListenerState !== ConnectionStates.disconnected) {
+-			this.realtimeListener.close();
+-		}
+-	}
++	_stopRealtimeListener() { this._cleanupConnection(); }
+ 
+ 	_sendRequest(request, callback) {
+ 		const sequenceNumber = this.nextRequestSequenceNumber++;
+@@ -436,8 +432,10 @@
+ 
+ 	_getMeterList() {
+ 		const radio = this;
++		const generation = this._connectionGeneration;
+ 		return new Promise(function(resolve, reject) {
+ 			radio.send('meter list', function(response) {
++				if (generation !== radio._connectionGeneration) return;
+ 				radio._updateMeterList(response.payload);
+ 				resolve();
+ 			});

@@ -1,0 +1,11 @@
+--- a/node_modules/flexradio-js/DiscoveryListener.js
++++ b/node_modules/flexradio-js/DiscoveryListener.js
+@@ -118,7 +118,7 @@
+ 		this.expireInterval = setInterval(() => {
+ 			const now = new Date();
+ 			var filtered = Object.fromEntries(Object.entries(this.discovered_radios).filter(([k, v]) => {
+-				return (now - v.timestamp) > expireTimeMS;
++				return (now - v.timestamp) <= expireTimeMS;
+ 			}));
+ 
+ 			this.discovered_radios = filtered;
