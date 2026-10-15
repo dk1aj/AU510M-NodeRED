@@ -1,0 +1,57 @@
+{
+  "checked_at_utc": "2026-10-15T12:27:54.925Z",
+  "watcher": {
+    "version": "4.34",
+    "state": "IDLE",
+    "rxTx": "RX",
+    "activeSlice": "0",
+    "level_age_ms": 392,
+    "agc_age_ms": 393
+  },
+  "health": {
+    "TX-/1/FWDPWR": {
+      "quality": "RX_NOT_TX_MEASUREMENT",
+      "age_ms": 304
+    },
+    "TX-/2/REFPWR": {
+      "quality": "RX_NOT_TX_MEASUREMENT",
+      "age_ms": 304
+    },
+    "TX-/3/SWR": {
+      "quality": "RX_NOT_TX_MEASUREMENT",
+      "age_ms": 303
+    },
+    "TX-/4/PATEMP": {
+      "quality": "FRESH",
+      "age_ms": 908
+    },
+    "RAD/8/PAFETQ1TEMP": {
+      "quality": "FRESH",
+      "age_ms": 911
+    },
+    "RAD/9/PAFETQ2TEMP": {
+      "quality": "FRESH",
+      "age_ms": 910
+    },
+    "RAD/300/PACURRENT": {
+      "quality": "FRESH",
+      "age_ms": 912
+    },
+    "TX-/6/PAEFF": {
+      "quality": "FRESH",
+      "age_ms": 364
+    },
+    "RAD/334/+13.8A": {
+      "quality": "FRESH",
+      "age_ms": 913
+    },
+    "RAD/0/+13.8B": {
+      "quality": "FRESH",
+      "age_ms": 912
+    },
+    "RAD/3/MAINFAN": {
+      "quality": "FRESH",
+      "age_ms": 911
+    }
+  }
+}

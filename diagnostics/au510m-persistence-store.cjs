@@ -2,6 +2,7 @@
 // Synchronous SQLite implementation runs exclusively inside the writer worker in production.
 const fs=require('node:fs'),path=require('node:path');
 const {DatabaseSync}=require('node:sqlite');
+const Command=require('./au510m-command-policy.cjs');
 const {HEALTH}=require('./au510m-persistence-sanitize.cjs');
 const INCIDENT=`incident_id TEXT PRIMARY KEY,incident_type TEXT,trigger_ts TEXT,trigger_ts_ms INTEGER,trigger_seq INTEGER,window_start_ts TEXT,window_end_ts TEXT,cycle_count INTEGER,duration_ms INTEGER,first_cycle_seq INTEGER,last_cycle_seq INTEGER,first_abnormal_event TEXT,first_abnormal_seq INTEGER,precursor_fault TEXT,precursor_fault_ts TEXT,precursor_fault_seq INTEGER,precursor_fault_age_ms INTEGER,precursor_fault_source TEXT,precursor_fault_reason TEXT,precursor_fault_confidence TEXT,frequency_hz REAL,mode TEXT,active_slice TEXT,tune_active_at_trigger INTEGER,tune_fresh_at_trigger INTEGER,trigger_origin TEXT,command_origin TEXT,origin_confidence TEXT,post_capture_state TEXT,pre_trigger_complete INTEGER,post_trigger_complete INTEGER,created_at TEXT,completed_at TEXT,pre_window_available_seconds REAL,dropped_records INTEGER,incomplete_reason TEXT`;
 const COMMON='ts TEXT,ts_ms INTEGER,seq INTEGER,frequency_hz REAL,mode TEXT,active_slice TEXT,interlock_state TEXT,interlock_reason TEXT,tune_value INTEGER,tune_fresh INTEGER';
@@ -19,6 +20,9 @@ class Store {
    INSERT OR IGNORE INTO logger_meta VALUES('schema_version','1');
    CREATE INDEX IF NOT EXISTS state_events_incident ON state_events(incident_id);CREATE INDEX IF NOT EXISTS state_events_time ON state_events(ts_ms);CREATE INDEX IF NOT EXISTS state_events_seq ON state_events(seq);
    CREATE INDEX IF NOT EXISTS health_samples_incident ON health_samples(incident_id);CREATE INDEX IF NOT EXISTS health_samples_time ON health_samples(ts_ms);CREATE INDEX IF NOT EXISTS health_samples_seq ON health_samples(seq);`);
+  // Additive nullable columns leave all historical evidence rows untouched.
+  const existing=new Set(this.db.prepare('PRAGMA table_info(state_events)').all().map(c=>c.name));
+  for(const field of Command.FIELDS)if(!existing.has(field))this.db.exec(`ALTER TABLE state_events ADD COLUMN ${field} ${['command_seq','request_seq','ack_seq','ack_status'].includes(field)?'INTEGER':field==='ack_latency_ms'?'REAL':'TEXT'}`);
   this.columns={};this.inserts={};for(const table of ['incidents','state_events','health_samples']){const cols=this.db.prepare(`PRAGMA table_info(${table})`).all().map(c=>c.name).filter(c=>c!=='id');this.columns[table]=cols;const onConflict=table==='incidents'?'ON CONFLICT(incident_id) DO UPDATE SET '+cols.filter(c=>c!=='incident_id').map(c=>`${c}=excluded.${c}`).join(','):'ON CONFLICT DO NOTHING';this.inserts[table]=this.db.prepare(`INSERT INTO ${table}(${cols.join(',')}) VALUES(${cols.map(()=>'?').join(',')}) ${onConflict}`);}
   this.db.prepare("UPDATE incidents SET post_capture_state='INTERRUPTED',post_trigger_complete=0,incomplete_reason='RUNTIME_RESTART',completed_at=? WHERE post_capture_state='COLLECTING'").run(new Date(now()).toISOString());
   for(const suffix of ['-wal','-shm'])if(fs.existsSync(dbPath+suffix))fs.chmodSync(dbPath+suffix,0o600);

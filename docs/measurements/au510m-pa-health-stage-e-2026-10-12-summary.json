@@ -1,0 +1,445 @@
+{
+  "schema": 1,
+  "status": "OBSERVATION_COMPLETE_REVIEW_PENDING",
+  "version": "4.32",
+  "baseline_approved": false,
+  "numeric_activation": "DISABLED",
+  "canonical_tune_state": "UNKNOWN",
+  "source_run_id": "2924a34a-4716-4ddc-b57f-03decbd4db4b",
+  "operator_report": "User reported tune; no exact operation timestamp supplied; association with individual records not proven",
+  "files": [
+    {
+      "file": "au510m-pa-health-stage-e-2026-10-12-prewindow.json",
+      "sha256": "99e25731c066b35e4dcea14b186b9a01dbf4782004efb2b545083570ba7fb540"
+    },
+    {
+      "file": "au510m-pa-health-stage-e-2026-10-12.json",
+      "sha256": "a1bf7768c4c5c98ce107af83d6bdbda1d1c6798c139eb46a6a8c4a7d56243794"
+    }
+  ],
+  "coverage": {
+    "first": "2026-10-12T11:37:06.296Z",
+    "last": "2026-10-12T11:43:34.549Z",
+    "span_seconds": 388.253,
+    "records": 909,
+    "health_samples": 421,
+    "sequence_gaps": [],
+    "missing_pre_window_slots": 0,
+    "capture_errors": [],
+    "stop_reason": "PLANNED_180_SECOND_WINDOW_COMPLETE"
+  },
+  "contexts": {
+    "RX": {
+      "samples": 370,
+      "meters": {
+        "TX-/1/FWDPWR": {
+          "fresh_count": 0,
+          "excluded_count": 370,
+          "min": null,
+          "max": null,
+          "units": [
+            "W"
+          ]
+        },
+        "TX-/2/REFPWR": {
+          "fresh_count": 0,
+          "excluded_count": 370,
+          "min": null,
+          "max": null,
+          "units": [
+            "W"
+          ]
+        },
+        "TX-/3/SWR": {
+          "fresh_count": 0,
+          "excluded_count": 370,
+          "min": null,
+          "max": null,
+          "units": [
+            ""
+          ]
+        },
+        "TX-/4/PATEMP": {
+          "fresh_count": 370,
+          "excluded_count": 0,
+          "min": 23.47,
+          "max": 23.98,
+          "units": [
+            "°C"
+          ]
+        },
+        "RAD/8/PAFETQ1TEMP": {
+          "fresh_count": 370,
+          "excluded_count": 0,
+          "min": 25,
+          "max": 25,
+          "units": [
+            "°C"
+          ]
+        },
+        "RAD/9/PAFETQ2TEMP": {
+          "fresh_count": 370,
+          "excluded_count": 0,
+          "min": 25,
+          "max": 25,
+          "units": [
+            "°C"
+          ]
+        },
+        "RAD/300/PACURRENT": {
+          "fresh_count": 370,
+          "excluded_count": 0,
+          "min": 0,
+          "max": 1.09,
+          "units": [
+            "A"
+          ]
+        },
+        "TX-/6/PAEFF": {
+          "fresh_count": 370,
+          "excluded_count": 0,
+          "min": 0,
+          "max": 0,
+          "units": [
+            "%"
+          ]
+        },
+        "RAD/334/+13.8A": {
+          "fresh_count": 370,
+          "excluded_count": 0,
+          "min": 11.98,
+          "max": 12.02,
+          "units": [
+            "V"
+          ]
+        },
+        "RAD/0/+13.8B": {
+          "fresh_count": 370,
+          "excluded_count": 0,
+          "min": 12.07,
+          "max": 12.42,
+          "units": [
+            "V"
+          ]
+        },
+        "RAD/3/MAINFAN": {
+          "fresh_count": 370,
+          "excluded_count": 0,
+          "min": 988,
+          "max": 992,
+          "units": [
+            "RPM"
+          ]
+        }
+      }
+    },
+    "TX": {
+      "samples": 51,
+      "meters": {
+        "TX-/1/FWDPWR": {
+          "fresh_count": 50,
+          "excluded_count": 1,
+          "min": 3.706807217825758,
+          "max": 14.028137045619575,
+          "units": [
+            "W"
+          ]
+        },
+        "TX-/2/REFPWR": {
+          "fresh_count": 50,
+          "excluded_count": 1,
+          "min": 0.1981527025805098,
+          "max": 3.1622776601683795,
+          "units": [
+            "W"
+          ]
+        },
+        "TX-/3/SWR": {
+          "fresh_count": 50,
+          "excluded_count": 1,
+          "min": 1,
+          "max": 6.42,
+          "units": [
+            ""
+          ]
+        },
+        "TX-/4/PATEMP": {
+          "fresh_count": 51,
+          "excluded_count": 0,
+          "min": 23.91,
+          "max": 23.98,
+          "units": [
+            "°C"
+          ]
+        },
+        "RAD/8/PAFETQ1TEMP": {
+          "fresh_count": 51,
+          "excluded_count": 0,
+          "min": 25,
+          "max": 25,
+          "units": [
+            "°C"
+          ]
+        },
+        "RAD/9/PAFETQ2TEMP": {
+          "fresh_count": 51,
+          "excluded_count": 0,
+          "min": 25,
+          "max": 25,
+          "units": [
+            "°C"
+          ]
+        },
+        "RAD/300/PACURRENT": {
+          "fresh_count": 51,
+          "excluded_count": 0,
+          "min": 0,
+          "max": 1.17,
+          "units": [
+            "A"
+          ]
+        },
+        "TX-/6/PAEFF": {
+          "fresh_count": 51,
+          "excluded_count": 0,
+          "min": 0,
+          "max": 80,
+          "units": [
+            "%"
+          ]
+        },
+        "RAD/334/+13.8A": {
+          "fresh_count": 51,
+          "excluded_count": 0,
+          "min": 11.98,
+          "max": 12.02,
+          "units": [
+            "V"
+          ]
+        },
+        "RAD/0/+13.8B": {
+          "fresh_count": 51,
+          "excluded_count": 0,
+          "min": 12.07,
+          "max": 12.37,
+          "units": [
+            "V"
+          ]
+        },
+        "RAD/3/MAINFAN": {
+          "fresh_count": 51,
+          "excluded_count": 0,
+          "min": 988,
+          "max": 988,
+          "units": [
+            "RPM"
+          ]
+        }
+      }
+    },
+    "TX_candidate_TUNE_1": {
+      "samples": 51,
+      "meters": {
+        "TX-/1/FWDPWR": {
+          "fresh_count": 50,
+          "excluded_count": 1,
+          "min": 3.706807217825758,
+          "max": 14.028137045619575,
+          "units": [
+            "W"
+          ]
+        },
+        "TX-/2/REFPWR": {
+          "fresh_count": 50,
+          "excluded_count": 1,
+          "min": 0.1981527025805098,
+          "max": 3.1622776601683795,
+          "units": [
+            "W"
+          ]
+        },
+        "TX-/3/SWR": {
+          "fresh_count": 50,
+          "excluded_count": 1,
+          "min": 1,
+          "max": 6.42,
+          "units": [
+            ""
+          ]
+        },
+        "TX-/4/PATEMP": {
+          "fresh_count": 51,
+          "excluded_count": 0,
+          "min": 23.91,
+          "max": 23.98,
+          "units": [
+            "°C"
+          ]
+        },
+        "RAD/8/PAFETQ1TEMP": {
+          "fresh_count": 51,
+          "excluded_count": 0,
+          "min": 25,
+          "max": 25,
+          "units": [
+            "°C"
+          ]
+        },
+        "RAD/9/PAFETQ2TEMP": {
+          "fresh_count": 51,
+          "excluded_count": 0,
+          "min": 25,
+          "max": 25,
+          "units": [
+            "°C"
+          ]
+        },
+        "RAD/300/PACURRENT": {
+          "fresh_count": 51,
+          "excluded_count": 0,
+          "min": 0,
+          "max": 1.17,
+          "units": [
+            "A"
+          ]
+        },
+        "TX-/6/PAEFF": {
+          "fresh_count": 51,
+          "excluded_count": 0,
+          "min": 0,
+          "max": 80,
+          "units": [
+            "%"
+          ]
+        },
+        "RAD/334/+13.8A": {
+          "fresh_count": 51,
+          "excluded_count": 0,
+          "min": 11.98,
+          "max": 12.02,
+          "units": [
+            "V"
+          ]
+        },
+        "RAD/0/+13.8B": {
+          "fresh_count": 51,
+          "excluded_count": 0,
+          "min": 12.07,
+          "max": 12.37,
+          "units": [
+            "V"
+          ]
+        },
+        "RAD/3/MAINFAN": {
+          "fresh_count": 51,
+          "excluded_count": 0,
+          "min": 988,
+          "max": 988,
+          "units": [
+            "RPM"
+          ]
+        }
+      }
+    },
+    "TX_candidate_TUNE_0": {
+      "samples": 0,
+      "meters": {}
+    }
+  },
+  "candidate_enter_comparison": {
+    "PA_TEMP_HIGH": {
+      "eligible_samples": 421,
+      "enter_threshold_samples": 0,
+      "source_seq": []
+    },
+    "FET_TEMP_HIGH": {
+      "eligible_samples": 421,
+      "enter_threshold_samples": 0,
+      "source_seq": []
+    },
+    "FET_IMBALANCE": {
+      "eligible_samples": 421,
+      "enter_threshold_samples": 0,
+      "source_seq": []
+    },
+    "SUPPLY_LOW": {
+      "eligible_samples": 421,
+      "enter_threshold_samples": 0,
+      "source_seq": []
+    },
+    "SUPPLY_IMBALANCE": {
+      "eligible_samples": 421,
+      "enter_threshold_samples": 0,
+      "source_seq": []
+    },
+    "PA_CURRENT_HIGH": {
+      "eligible_samples": 421,
+      "enter_threshold_samples": 0,
+      "source_seq": []
+    },
+    "SWR_HIGH": {
+      "eligible_samples": 0,
+      "enter_threshold_samples": 0,
+      "source_seq": []
+    },
+    "PA_EFFICIENCY_LOW": {
+      "eligible_samples": 0,
+      "enter_threshold_samples": 0,
+      "source_seq": []
+    }
+  },
+  "tune_candidate_transitions": [
+    {
+      "seq": 2711,
+      "at": "2026-10-12T11:40:12.013Z",
+      "old_value": 0,
+      "new_value": 1
+    },
+    {
+      "seq": 2784,
+      "at": "2026-10-12T11:40:21.062Z",
+      "old_value": 1,
+      "new_value": 0
+    },
+    {
+      "seq": 2850,
+      "at": "2026-10-12T11:40:48.809Z",
+      "old_value": 0,
+      "new_value": 1
+    },
+    {
+      "seq": 2869,
+      "at": "2026-10-12T11:40:50.262Z",
+      "old_value": 1,
+      "new_value": 0
+    }
+  ],
+  "runtime_checks": {
+    "count": 36,
+    "states": [
+      "UNKNOWN"
+    ],
+    "reasons": [
+      "NUMERIC RULES PENDING"
+    ],
+    "confidences": [
+      "DERIVED"
+    ],
+    "all_connected": true,
+    "all_slice_present": true,
+    "all_sqlite_ready": true,
+    "max_errors": 0,
+    "max_incidents": 0,
+    "max_dropped_by_limit": 0,
+    "max_dropped_by_memory": 0,
+    "max_source_overflow": 0
+  },
+  "limitations": [
+    "Short normal-operation observation, not comprehensive thermal/load/environment coverage.",
+    "TUNE candidate cohorts overlap canonical TX; candidate status is not confirmed radio TUNE.",
+    "Operator report has no exact timestamp or proven record linkage.",
+    "Candidate comparisons count fresh eligible samples crossing entry values; they do not activate or simulate debounce/latching.",
+    "No TX with fresh candidate TUNE=0 means ordinary non-TUNE TX baseline coverage is still pending.",
+    "No threshold is approved or represented as a manufacturer limit."
+  ]
+}

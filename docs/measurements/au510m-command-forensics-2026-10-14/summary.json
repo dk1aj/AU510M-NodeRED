@@ -1,0 +1,664 @@
+{
+  "evidence": "AU510M-20261014-084537-TUNE_RX_OSCILLATION-e1b76a640dbcd841ead02fb6df13ef28.zip",
+  "sha256_before": "c4fc6798745da4349b1a7bf22e20886e761edcc08f3a9ddcf39edf400ca48238",
+  "sha256_after": "c4fc6798745da4349b1a7bf22e20886e761edcc08f3a9ddcf39edf400ca48238",
+  "incident": {
+    "incident_id": "AU510M-20261014084537444-95566ee3-f3aa-4ce7-9832-cc9c839bcb71",
+    "incident_type": "TUNE_RX_OSCILLATION",
+    "trigger_ts": "2026-10-14T08:45:37.444Z",
+    "trigger_ts_ms": 1791967537444,
+    "trigger_seq": 5880,
+    "cycle_count": 79,
+    "duration_ms": 17289.124433000106,
+    "frequency_hz": 14074000,
+    "mode": "DIGU",
+    "active_slice": "A",
+    "precursor_fault": null,
+    "precursor_fault_ts": null,
+    "precursor_fault_age_ms": null,
+    "precursor_fault_confidence": "UNKNOWN",
+    "first_abnormal_event": "TUNE_REACTIVATED_AFTER_RX",
+    "first_abnormal_seq": 5858,
+    "tune_active_at_trigger": 0,
+    "tune_fresh_at_trigger": 1,
+    "pre_trigger_complete": 1,
+    "post_trigger_complete": 1,
+    "post_capture_state": "COMPLETE",
+    "completed_at": "2026-10-14T08:47:54.241Z",
+    "pre_window_available_seconds": 120,
+    "dropped_records": 0,
+    "incomplete_reason": null,
+    "trigger_origin": "UNKNOWN",
+    "command_origin": "UNKNOWN",
+    "origin_confidence": "UNKNOWN",
+    "export_version": "4.33",
+    "event_row_count": 2221,
+    "health_row_count": 372,
+    "estimated_export_size_bytes": 3994055
+  },
+  "first_abnormal_time": "2026-10-14T08:45:37.425Z",
+  "command_requests": 130,
+  "acks": 128,
+  "successful_acks": 128,
+  "linked_acks": 4,
+  "command_identity": "UNKNOWN_COMMAND",
+  "windows": {
+    "first-abnormal": {
+      "anchor": "2026-10-14T08:45:37.425Z",
+      "records": 400,
+      "requests": 4,
+      "acks": 4
+    },
+    "detector-trigger": {
+      "anchor": "2026-10-14T08:45:37.444Z",
+      "records": 400,
+      "requests": 4,
+      "acks": 4
+    }
+  },
+  "request_groups": [
+    {
+      "start": 1791967420637,
+      "time": "2026-10-14T08:43:40.637Z",
+      "count": 2,
+      "seqs": [
+        5371,
+        5372
+      ],
+      "delta_ms": null
+    },
+    {
+      "start": 1791967425661,
+      "time": "2026-10-14T08:43:45.661Z",
+      "count": 2,
+      "seqs": [
+        5380,
+        5381
+      ],
+      "delta_ms": 5024
+    },
+    {
+      "start": 1791967430678,
+      "time": "2026-10-14T08:43:50.678Z",
+      "count": 2,
+      "seqs": [
+        5389,
+        5390
+      ],
+      "delta_ms": 5017
+    },
+    {
+      "start": 1791967435701,
+      "time": "2026-10-14T08:43:55.701Z",
+      "count": 2,
+      "seqs": [
+        5397,
+        5398
+      ],
+      "delta_ms": 5023
+    },
+    {
+      "start": 1791967440765,
+      "time": "2026-10-14T08:44:00.765Z",
+      "count": 2,
+      "seqs": [
+        5406,
+        5407
+      ],
+      "delta_ms": 5064
+    },
+    {
+      "start": 1791967445837,
+      "time": "2026-10-14T08:44:05.837Z",
+      "count": 2,
+      "seqs": [
+        5415,
+        5416
+      ],
+      "delta_ms": 5072
+    },
+    {
+      "start": 1791967450848,
+      "time": "2026-10-14T08:44:10.848Z",
+      "count": 2,
+      "seqs": [
+        5424,
+        5425
+      ],
+      "delta_ms": 5011
+    },
+    {
+      "start": 1791967455873,
+      "time": "2026-10-14T08:44:15.873Z",
+      "count": 2,
+      "seqs": [
+        5433,
+        5434
+      ],
+      "delta_ms": 5025
+    },
+    {
+      "start": 1791967460872,
+      "time": "2026-10-14T08:44:20.872Z",
+      "count": 2,
+      "seqs": [
+        5442,
+        5443
+      ],
+      "delta_ms": 4999
+    },
+    {
+      "start": 1791967465923,
+      "time": "2026-10-14T08:44:25.923Z",
+      "count": 2,
+      "seqs": [
+        5451,
+        5452
+      ],
+      "delta_ms": 5051
+    },
+    {
+      "start": 1791967470907,
+      "time": "2026-10-14T08:44:30.907Z",
+      "count": 2,
+      "seqs": [
+        5460,
+        5461
+      ],
+      "delta_ms": 4984
+    },
+    {
+      "start": 1791967471706,
+      "time": "2026-10-14T08:44:31.706Z",
+      "count": 1,
+      "seqs": [
+        5465
+      ],
+      "delta_ms": 799
+    },
+    {
+      "start": 1791967471907,
+      "time": "2026-10-14T08:44:31.907Z",
+      "count": 7,
+      "seqs": [
+        5467,
+        5468,
+        5469,
+        5470,
+        5471,
+        5477,
+        5478
+      ],
+      "delta_ms": 201
+    },
+    {
+      "start": 1791967475930,
+      "time": "2026-10-14T08:44:35.930Z",
+      "count": 2,
+      "seqs": [
+        5485,
+        5486
+      ],
+      "delta_ms": 4023
+    },
+    {
+      "start": 1791967481946,
+      "time": "2026-10-14T08:44:41.946Z",
+      "count": 2,
+      "seqs": [
+        5495,
+        5496
+      ],
+      "delta_ms": 6016
+    },
+    {
+      "start": 1791967486979,
+      "time": "2026-10-14T08:44:46.979Z",
+      "count": 2,
+      "seqs": [
+        5504,
+        5505
+      ],
+      "delta_ms": 5033
+    },
+    {
+      "start": 1791967491991,
+      "time": "2026-10-14T08:44:51.991Z",
+      "count": 2,
+      "seqs": [
+        5513,
+        5514
+      ],
+      "delta_ms": 5012
+    },
+    {
+      "start": 1791967497001,
+      "time": "2026-10-14T08:44:57.001Z",
+      "count": 2,
+      "seqs": [
+        5536,
+        5537
+      ],
+      "delta_ms": 5010
+    },
+    {
+      "start": 1791967503001,
+      "time": "2026-10-14T08:45:03.001Z",
+      "count": 2,
+      "seqs": [
+        5545,
+        5546
+      ],
+      "delta_ms": 6000
+    },
+    {
+      "start": 1791967508016,
+      "time": "2026-10-14T08:45:08.016Z",
+      "count": 2,
+      "seqs": [
+        5554,
+        5555
+      ],
+      "delta_ms": 5015
+    },
+    {
+      "start": 1791967513022,
+      "time": "2026-10-14T08:45:13.022Z",
+      "count": 2,
+      "seqs": [
+        5578,
+        5579
+      ],
+      "delta_ms": 5006
+    },
+    {
+      "start": 1791967518030,
+      "time": "2026-10-14T08:45:18.030Z",
+      "count": 2,
+      "seqs": [
+        5606,
+        5607
+      ],
+      "delta_ms": 5008
+    },
+    {
+      "start": 1791967523032,
+      "time": "2026-10-14T08:45:23.032Z",
+      "count": 2,
+      "seqs": [
+        5648,
+        5649
+      ],
+      "delta_ms": 5002
+    },
+    {
+      "start": 1791967528033,
+      "time": "2026-10-14T08:45:28.033Z",
+      "count": 2,
+      "seqs": [
+        5668,
+        5669
+      ],
+      "delta_ms": 5001
+    },
+    {
+      "start": 1791967531786,
+      "time": "2026-10-14T08:45:31.786Z",
+      "count": 1,
+      "seqs": [
+        5697
+      ],
+      "delta_ms": 3753
+    },
+    {
+      "start": 1791967532043,
+      "time": "2026-10-14T08:45:32.043Z",
+      "count": 7,
+      "seqs": [
+        5701,
+        5702,
+        5703,
+        5704,
+        5705,
+        5711,
+        5712
+      ],
+      "delta_ms": 257
+    },
+    {
+      "start": 1791967533048,
+      "time": "2026-10-14T08:45:33.048Z",
+      "count": 2,
+      "seqs": [
+        5725,
+        5726
+      ],
+      "delta_ms": 1005
+    },
+    {
+      "start": 1791967539047,
+      "time": "2026-10-14T08:45:39.047Z",
+      "count": 2,
+      "seqs": [
+        6016,
+        6017
+      ],
+      "delta_ms": 5999
+    },
+    {
+      "start": 1791967544104,
+      "time": "2026-10-14T08:45:44.104Z",
+      "count": 2,
+      "seqs": [
+        6616,
+        6617
+      ],
+      "delta_ms": 5057
+    },
+    {
+      "start": 1791967549139,
+      "time": "2026-10-14T08:45:49.139Z",
+      "count": 2,
+      "seqs": [
+        7223,
+        7224
+      ],
+      "delta_ms": 5035
+    },
+    {
+      "start": 1791967554141,
+      "time": "2026-10-14T08:45:54.141Z",
+      "count": 2,
+      "seqs": [
+        7648,
+        7649
+      ],
+      "delta_ms": 5002
+    },
+    {
+      "start": 1791967559141,
+      "time": "2026-10-14T08:45:59.141Z",
+      "count": 2,
+      "seqs": [
+        7730,
+        7731
+      ],
+      "delta_ms": 5000
+    },
+    {
+      "start": 1791967564148,
+      "time": "2026-10-14T08:46:04.148Z",
+      "count": 2,
+      "seqs": [
+        7739,
+        7740
+      ],
+      "delta_ms": 5007
+    },
+    {
+      "start": 1791967569149,
+      "time": "2026-10-14T08:46:09.149Z",
+      "count": 2,
+      "seqs": [
+        7747,
+        7748
+      ],
+      "delta_ms": 5001
+    },
+    {
+      "start": 1791967574151,
+      "time": "2026-10-14T08:46:14.151Z",
+      "count": 2,
+      "seqs": [
+        7756,
+        7757
+      ],
+      "delta_ms": 5002
+    },
+    {
+      "start": 1791967579153,
+      "time": "2026-10-14T08:46:19.153Z",
+      "count": 2,
+      "seqs": [
+        7765,
+        7766
+      ],
+      "delta_ms": 5002
+    },
+    {
+      "start": 1791967584154,
+      "time": "2026-10-14T08:46:24.154Z",
+      "count": 2,
+      "seqs": [
+        7774,
+        7775
+      ],
+      "delta_ms": 5001
+    },
+    {
+      "start": 1791967589159,
+      "time": "2026-10-14T08:46:29.159Z",
+      "count": 2,
+      "seqs": [
+        7783,
+        7784
+      ],
+      "delta_ms": 5005
+    },
+    {
+      "start": 1791967591811,
+      "time": "2026-10-14T08:46:31.811Z",
+      "count": 1,
+      "seqs": [
+        7790
+      ],
+      "delta_ms": 2652
+    },
+    {
+      "start": 1791967592159,
+      "time": "2026-10-14T08:46:32.159Z",
+      "count": 5,
+      "seqs": [
+        7792,
+        7793,
+        7794,
+        7795,
+        7796
+      ],
+      "delta_ms": 348
+    },
+    {
+      "start": 1791967594159,
+      "time": "2026-10-14T08:46:34.159Z",
+      "count": 2,
+      "seqs": [
+        7804,
+        7805
+      ],
+      "delta_ms": 2000
+    },
+    {
+      "start": 1791967599160,
+      "time": "2026-10-14T08:46:39.160Z",
+      "count": 2,
+      "seqs": [
+        7813,
+        7814
+      ],
+      "delta_ms": 5001
+    },
+    {
+      "start": 1791967604162,
+      "time": "2026-10-14T08:46:44.162Z",
+      "count": 2,
+      "seqs": [
+        7822,
+        7823
+      ],
+      "delta_ms": 5002
+    },
+    {
+      "start": 1791967609168,
+      "time": "2026-10-14T08:46:49.168Z",
+      "count": 2,
+      "seqs": [
+        7831,
+        7832
+      ],
+      "delta_ms": 5006
+    },
+    {
+      "start": 1791967614175,
+      "time": "2026-10-14T08:46:54.175Z",
+      "count": 2,
+      "seqs": [
+        7840,
+        7841
+      ],
+      "delta_ms": 5007
+    },
+    {
+      "start": 1791967619173,
+      "time": "2026-10-14T08:46:59.173Z",
+      "count": 2,
+      "seqs": [
+        7849,
+        7850
+      ],
+      "delta_ms": 4998
+    },
+    {
+      "start": 1791967624176,
+      "time": "2026-10-14T08:47:04.176Z",
+      "count": 2,
+      "seqs": [
+        7858,
+        7859
+      ],
+      "delta_ms": 5003
+    },
+    {
+      "start": 1791967629178,
+      "time": "2026-10-14T08:47:09.178Z",
+      "count": 2,
+      "seqs": [
+        7867,
+        7868
+      ],
+      "delta_ms": 5002
+    },
+    {
+      "start": 1791967634179,
+      "time": "2026-10-14T08:47:14.179Z",
+      "count": 2,
+      "seqs": [
+        7876,
+        7877
+      ],
+      "delta_ms": 5001
+    },
+    {
+      "start": 1791967639182,
+      "time": "2026-10-14T08:47:19.182Z",
+      "count": 2,
+      "seqs": [
+        7885,
+        7886
+      ],
+      "delta_ms": 5003
+    },
+    {
+      "start": 1791967644183,
+      "time": "2026-10-14T08:47:24.183Z",
+      "count": 2,
+      "seqs": [
+        7894,
+        7895
+      ],
+      "delta_ms": 5001
+    },
+    {
+      "start": 1791967649186,
+      "time": "2026-10-14T08:47:29.186Z",
+      "count": 2,
+      "seqs": [
+        7903,
+        7904
+      ],
+      "delta_ms": 5003
+    },
+    {
+      "start": 1791967651852,
+      "time": "2026-10-14T08:47:31.852Z",
+      "count": 1,
+      "seqs": [
+        7909
+      ],
+      "delta_ms": 2666
+    },
+    {
+      "start": 1791967652187,
+      "time": "2026-10-14T08:47:32.187Z",
+      "count": 5,
+      "seqs": [
+        7911,
+        7912,
+        7913,
+        7914,
+        7915
+      ],
+      "delta_ms": 335
+    },
+    {
+      "start": 1791967654186,
+      "time": "2026-10-14T08:47:34.186Z",
+      "count": 2,
+      "seqs": [
+        7923,
+        7924
+      ],
+      "delta_ms": 1999
+    },
+    {
+      "start": 1791967659192,
+      "time": "2026-10-14T08:47:39.192Z",
+      "count": 2,
+      "seqs": [
+        7932,
+        7933
+      ],
+      "delta_ms": 5006
+    },
+    {
+      "start": 1791967664188,
+      "time": "2026-10-14T08:47:44.188Z",
+      "count": 2,
+      "seqs": [
+        7941,
+        7942
+      ],
+      "delta_ms": 4996
+    },
+    {
+      "start": 1791967669189,
+      "time": "2026-10-14T08:47:49.189Z",
+      "count": 2,
+      "seqs": [
+        7950,
+        7951
+      ],
+      "delta_ms": 5001
+    },
+    {
+      "start": 1791967674192,
+      "time": "2026-10-14T08:47:54.192Z",
+      "count": 2,
+      "seqs": [
+        7959,
+        7960
+      ],
+      "delta_ms": 5003
+    }
+  ],
+  "causality": "UNKNOWN; repository paths and timing do not identify historical commands or establish a causal source"
+}

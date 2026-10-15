@@ -1,0 +1,4053 @@
+{
+  "schema": 1,
+  "purpose": "Stage E meaningful-power normal TX baseline extension; numeric activation DISABLED; baseline approval PENDING",
+  "version": "4.32",
+  "source_run_id": "2924a34a-4716-4ddc-b57f-03decbd4db4b",
+  "started_at": "2026-10-12T12:10:33.013Z",
+  "initial_seq": 6966,
+  "method": "Read-only existing canonical EVENT/HEALTH ring records via nested Node-RED context API; no new radio subscriptions or conversions",
+  "records": [
+    {
+      "seq": 6967,
+      "ts_ms": 1791807033358,
+      "ts_wall": "2026-10-12T12:10:33.358Z",
+      "record_type": "HEALTH",
+      "source": "2702052aa13cacd0",
+      "tx_state": "RX",
+      "interlock_state": "READY",
+      "active_slice": "A",
+      "mode": "LSB",
+      "tune_value": 0,
+      "tune_fresh": true,
+      "tune_age_ms": 530.8144400008023,
+      "canonical_tune_state": "UNKNOWN",
+      "meters": {
+        "TX-/1/FWDPWR": {
+          "value": 0.001,
+          "unit": "W",
+          "quality": "RX_NOT_TX_MEASUREMENT",
+          "seen": 1791807033333
+        },
+        "TX-/2/REFPWR": {
+          "value": 0.001,
+          "unit": "W",
+          "quality": "RX_NOT_TX_MEASUREMENT",
+          "seen": 1791807033333
+        },
+        "TX-/3/SWR": {
+          "value": 1,
+          "unit": "",
+          "quality": "RX_NOT_TX_MEASUREMENT",
+          "seen": 1791807033334
+        },
+        "TX-/4/PATEMP": {
+          "value": 23.98,
+          "unit": "°C",
+          "quality": "FRESH",
+          "seen": 1791807032384
+        },
+        "RAD/8/PAFETQ1TEMP": {
+          "value": 25,
+          "unit": "°C",
+          "quality": "FRESH",
+          "seen": 1791807032380
+        },
+        "RAD/9/PAFETQ2TEMP": {
+          "value": 25,
+          "unit": "°C",
+          "quality": "FRESH",
+          "seen": 1791807032381
+        },
+        "RAD/300/PACURRENT": {
+          "value": 0.09,
+          "unit": "A",
+          "quality": "FRESH",
+          "seen": 1791807032378
+        },
+        "TX-/6/PAEFF": {
+          "value": 0,
+          "unit": "%",
+          "quality": "FRESH",
+          "seen": 1791807033332
+        },
+        "RAD/334/+13.8A": {
+          "value": 11.99,
+          "unit": "V",
+          "quality": "FRESH",
+          "seen": 1791807032378
+        },
+        "RAD/0/+13.8B": {
+          "value": 12.35,
+          "unit": "V",
+          "quality": "FRESH",
+          "seen": 1791807032379
+        },
+        "RAD/3/MAINFAN": {
+          "value": 988,
+          "unit": "RPM",
+          "quality": "FRESH",
+          "seen": 1791807032379
+        }
+      }
+    },
+    {
+      "seq": 6968,
+      "ts_ms": 1791807034396,
+      "ts_wall": "2026-10-12T12:10:34.396Z",
+      "record_type": "HEALTH",
+      "source": "2702052aa13cacd0",
+      "tx_state": "RX",
+      "interlock_state": "READY",
+      "active_slice": "A",
+      "mode": "LSB",
+      "tune_value": 0,
+      "tune_fresh": true,
+      "tune_age_ms": 1569.5675650015473,
+      "canonical_tune_state": "UNKNOWN",
+      "meters": {
+        "TX-/1/FWDPWR": {
+          "value": 0.001,
+          "unit": "W",
+          "quality": "RX_NOT_TX_MEASUREMENT",
+          "seen": 1791807034350
+        },
+        "TX-/2/REFPWR": {
+          "value": 0.001,
+          "unit": "W",
+          "quality": "RX_NOT_TX_MEASUREMENT",
+          "seen": 1791807034350
+        },
+        "TX-/3/SWR": {
+          "value": 1,
+          "unit": "",
+          "quality": "RX_NOT_TX_MEASUREMENT",
+          "seen": 1791807034351
+        },
+        "TX-/4/PATEMP": {
+          "value": 23.98,
+          "unit": "°C",
+          "quality": "FRESH",
+          "seen": 1791807032384
+        },
+        "RAD/8/PAFETQ1TEMP": {
+          "value": 25,
+          "unit": "°C",
+          "quality": "FRESH",
+          "seen": 1791807032380
+        },
+        "RAD/9/PAFETQ2TEMP": {
+          "value": 25,
+          "unit": "°C",
+          "quality": "FRESH",
+          "seen": 1791807032381
+        },
+        "RAD/300/PACURRENT": {
+          "value": 0.09,
+          "unit": "A",
+          "quality": "FRESH",
+          "seen": 1791807032378
+        },
+        "TX-/6/PAEFF": {
+          "value": 0,
+          "unit": "%",
+          "quality": "FRESH",
+          "seen": 1791807034349
+        },
+        "RAD/334/+13.8A": {
+          "value": 11.99,
+          "unit": "V",
+          "quality": "FRESH",
+          "seen": 1791807032378
+        },
+        "RAD/0/+13.8B": {
+          "value": 12.35,
+          "unit": "V",
+          "quality": "FRESH",
+          "seen": 1791807032379
+        },
+        "RAD/3/MAINFAN": {
+          "value": 988,
+          "unit": "RPM",
+          "quality": "FRESH",
+          "seen": 1791807032379
+        }
+      }
+    },
+    {
+      "seq": 6969,
+      "ts_ms": 1791807035417,
+      "ts_wall": "2026-10-12T12:10:35.417Z",
+      "record_type": "HEALTH",
+      "source": "2702052aa13cacd0",
+      "tx_state": "RX",
+      "interlock_state": "READY",
+      "active_slice": "A",
+      "mode": "LSB",
+      "tune_value": 0,
+      "tune_fresh": true,
+      "tune_age_ms": 2590.038736000657,
+      "canonical_tune_state": "UNKNOWN",
+      "meters": {
+        "TX-/1/FWDPWR": {
+          "value": 0.001,
+          "unit": "W",
+          "quality": "RX_NOT_TX_MEASUREMENT",
+          "seen": 1791807035369
+        },
+        "TX-/2/REFPWR": {
+          "value": 0.001,
+          "unit": "W",
+          "quality": "RX_NOT_TX_MEASUREMENT",
+          "seen": 1791807035370
+        },
+        "TX-/3/SWR": {
+          "value": 1,
+          "unit": "",
+          "quality": "RX_NOT_TX_MEASUREMENT",
+          "seen": 1791807035371
+        },
+        "TX-/4/PATEMP": {
+          "value": 23.98,
+          "unit": "°C",
+          "quality": "FRESH",
+          "seen": 1791807034514
+        },
+        "RAD/8/PAFETQ1TEMP": {
+          "value": 25,
+          "unit": "°C",
+          "quality": "FRESH",
+          "seen": 1791807034513
+        },
+        "RAD/9/PAFETQ2TEMP": {
+          "value": 25,
+          "unit": "°C",
+          "quality": "FRESH",
+          "seen": 1791807034514
+        },
+        "RAD/300/PACURRENT": {
+          "value": 0.01,
+          "unit": "A",
+          "quality": "FRESH",
+          "seen": 1791807034512
+        },
+        "TX-/6/PAEFF": {
+          "value": 0,
+          "unit": "%",
+          "quality": "FRESH",
+          "seen": 1791807035369
+        },
+        "RAD/334/+13.8A": {
+          "value": 11.99,
+          "unit": "V",
+          "quality": "FRESH",
+          "seen": 1791807034512
+        },
+        "RAD/0/+13.8B": {
+          "value": 12.35,
+          "unit": "V",
+          "quality": "FRESH",
+          "seen": 1791807034513
+        },
+        "RAD/3/MAINFAN": {
+          "value": 988,
+          "unit": "RPM",
+          "quality": "FRESH",
+          "seen": 1791807034513
+        }
+      }
+    },
+    {
+      "seq": 6970,
+      "ts_ms": 1791807036436,
+      "ts_wall": "2026-10-12T12:10:36.436Z",
+      "record_type": "HEALTH",
+      "source": "2702052aa13cacd0",
+      "tx_state": "RX",
+      "interlock_state": "READY",
+      "active_slice": "A",
+      "mode": "LSB",
+      "tune_value": 0,
+      "tune_fresh": true,
+      "tune_age_ms": 3609.7372730001807,
+      "canonical_tune_state": "UNKNOWN",
+      "meters": {
+        "TX-/1/FWDPWR": {
+          "value": 0.001,
+          "unit": "W",
+          "quality": "RX_NOT_TX_MEASUREMENT",
+          "seen": 1791807036388
+        },
+        "TX-/2/REFPWR": {
+          "value": 0.001,
+          "unit": "W",
+          "quality": "RX_NOT_TX_MEASUREMENT",
+          "seen": 1791807036389
+        },
+        "TX-/3/SWR": {
+          "value": 1,
+          "unit": "",
+          "quality": "RX_NOT_TX_MEASUREMENT",
+          "seen": 1791807036390
+        },
+        "TX-/4/PATEMP": {
+          "value": 23.98,
+          "unit": "°C",
+          "quality": "FRESH",
+          "seen": 1791807034514
+        },
+        "RAD/8/PAFETQ1TEMP": {
+          "value": 25,
+          "unit": "°C",
+          "quality": "FRESH",
+          "seen": 1791807034513
+        },
+        "RAD/9/PAFETQ2TEMP": {
+          "value": 25,
+          "unit": "°C",
+          "quality": "FRESH",
+          "seen": 1791807034514
+        },
+        "RAD/300/PACURRENT": {
+          "value": 0.01,
+          "unit": "A",
+          "quality": "FRESH",
+          "seen": 1791807034512
+        },
+        "TX-/6/PAEFF": {
+          "value": 0,
+          "unit": "%",
+          "quality": "FRESH",
+          "seen": 1791807036388
+        },
+        "RAD/334/+13.8A": {
+          "value": 11.99,
+          "unit": "V",
+          "quality": "FRESH",
+          "seen": 1791807034512
+        },
+        "RAD/0/+13.8B": {
+          "value": 12.35,
+          "unit": "V",
+          "quality": "FRESH",
+          "seen": 1791807034513
+        },
+        "RAD/3/MAINFAN": {
+          "value": 988,
+          "unit": "RPM",
+          "quality": "FRESH",
+          "seen": 1791807034513
+        }
+      }
+    },
+    {
+      "seq": 6971,
+      "ts_ms": 1791807037485,
+      "ts_wall": "2026-10-12T12:10:37.485Z",
+      "record_type": "HEALTH",
+      "source": "2702052aa13cacd0",
+      "tx_state": "RX",
+      "interlock_state": "READY",
+      "active_slice": "A",
+      "mode": "LSB",
+      "tune_value": 0,
+      "tune_fresh": true,
+      "tune_age_ms": 4657.985499002039,
+      "canonical_tune_state": "UNKNOWN",
+      "meters": {
+        "TX-/1/FWDPWR": {
+          "value": 0.001,
+          "unit": "W",
+          "quality": "RX_NOT_TX_MEASUREMENT",
+          "seen": 1791807037475
+        },
+        "TX-/2/REFPWR": {
+          "value": 0.001,
+          "unit": "W",
+          "quality": "RX_NOT_TX_MEASUREMENT",
+          "seen": 1791807037475
+        },
+        "TX-/3/SWR": {
+          "value": 1,
+          "unit": "",
+          "quality": "RX_NOT_TX_MEASUREMENT",
+          "seen": 1791807037476
+        },
+        "TX-/4/PATEMP": {
+          "value": 23.98,
+          "unit": "°C",
+          "quality": "FRESH",
+          "seen": 1791807036653
+        },
+        "RAD/8/PAFETQ1TEMP": {
+          "value": 25,
+          "unit": "°C",
+          "quality": "FRESH",
+          "seen": 1791807036649
+        },
+        "RAD/9/PAFETQ2TEMP": {
+          "value": 25,
+          "unit": "°C",
+          "quality": "FRESH",
+          "seen": 1791807036650
+        },
+        "RAD/300/PACURRENT": {
+          "value": 0.03,
+          "unit": "A",
+          "quality": "FRESH",
+          "seen": 1791807036647
+        },
+        "TX-/6/PAEFF": {
+          "value": 0,
+          "unit": "%",
+          "quality": "FRESH",
+          "seen": 1791807037412
+        },
+        "RAD/334/+13.8A": {
+          "value": 12.02,
+          "unit": "V",
+          "quality": "FRESH",
+          "seen": 1791807036646
+        },
+        "RAD/0/+13.8B": {
+          "value": 12.35,
+          "unit": "V",
+          "quality": "FRESH",
+          "seen": 1791807036647
+        },
+        "RAD/3/MAINFAN": {
+          "value": 988,
+          "unit": "RPM",
+          "quality": "FRESH",
+          "seen": 1791807036648
+        }
+      }
+    },
+    {
+      "seq": 6972,
+      "ts_ms": 1791807037806,
+      "ts_wall": "2026-10-12T12:10:37.806Z",
+      "record_type": "COMMAND_REQUEST",
+      "source": "07c61c6741eb8fad",
+      "tx_state": "RX",
+      "interlock_state": "READY",
+      "active_slice": "A",
+      "mode": "LSB",
+      "tune_value": 0,
+      "tune_fresh": true,
+      "derived_from_seq": null,
+      "new_value": "sub tx all"
+    },
+    {
+      "seq": 6973,
+      "ts_ms": 1791807037807,
+      "ts_wall": "2026-10-12T12:10:37.807Z",
+      "record_type": "COMMAND_REQUEST",
+      "source": "07c61c6741eb8fad",
+      "tx_state": "RX",
+      "interlock_state": "READY",
+      "active_slice": "A",
+      "mode": "LSB",
+      "tune_value": 0,
+      "tune_fresh": true,
+      "derived_from_seq": null,
+      "new_value": "sub radio all"
+    },
+    {
+      "seq": 6974,
+      "ts_ms": 1791807037887,
+      "ts_wall": "2026-10-12T12:10:37.887Z",
+      "record_type": "ACK_RESPONSE",
+      "source": "07c61c6741eb8fad",
+      "tx_state": "RX",
+      "interlock_state": "READY",
+      "active_slice": "A",
+      "mode": "LSB",
+      "tune_value": 0,
+      "tune_fresh": true,
+      "derived_from_seq": null,
+      "new_value": 0
+    },
+    {
+      "seq": 6975,
+      "ts_ms": 1791807037889,
+      "ts_wall": "2026-10-12T12:10:37.889Z",
+      "record_type": "ACK_RESPONSE",
+      "source": "07c61c6741eb8fad",
+      "tx_state": "RX",
+      "interlock_state": "READY",
+      "active_slice": "A",
+      "mode": "LSB",
+      "tune_value": 0,
+      "tune_fresh": true,
+      "derived_from_seq": null,
+      "new_value": 0
+    },
+    {
+      "seq": 6976,
+      "ts_ms": 1791807038509,
+      "ts_wall": "2026-10-12T12:10:38.509Z",
+      "record_type": "HEALTH",
+      "source": "2702052aa13cacd0",
+      "tx_state": "RX",
+      "interlock_state": "READY",
+      "active_slice": "A",
+      "mode": "LSB",
+      "tune_value": 0,
+      "tune_fresh": true,
+      "tune_age_ms": 631.9037090018392,
+      "canonical_tune_state": "UNKNOWN",
+      "meters": {
+        "TX-/1/FWDPWR": {
+          "value": 0.001,
+          "unit": "W",
+          "quality": "RX_NOT_TX_MEASUREMENT",
+          "seen": 1791807038498
+        },
+        "TX-/2/REFPWR": {
+          "value": 0.001,
+          "unit": "W",
+          "quality": "RX_NOT_TX_MEASUREMENT",
+          "seen": 1791807038499
+        },
+        "TX-/3/SWR": {
+          "value": 1,
+          "unit": "",
+          "quality": "RX_NOT_TX_MEASUREMENT",
+          "seen": 1791807038499
+        },
+        "TX-/4/PATEMP": {
+          "value": 23.98,
+          "unit": "°C",
+          "quality": "FRESH",
+          "seen": 1791807036653
+        },
+        "RAD/8/PAFETQ1TEMP": {
+          "value": 25,
+          "unit": "°C",
+          "quality": "FRESH",
+          "seen": 1791807036649
+        },
+        "RAD/9/PAFETQ2TEMP": {
+          "value": 25,
+          "unit": "°C",
+          "quality": "FRESH",
+          "seen": 1791807036650
+        },
+        "RAD/300/PACURRENT": {
+          "value": 0.03,
+          "unit": "A",
+          "quality": "FRESH",
+          "seen": 1791807036647
+        },
+        "TX-/6/PAEFF": {
+          "value": 0,
+          "unit": "%",
+          "quality": "FRESH",
+          "seen": 1791807038435
+        },
+        "RAD/334/+13.8A": {
+          "value": 12.02,
+          "unit": "V",
+          "quality": "FRESH",
+          "seen": 1791807036646
+        },
+        "RAD/0/+13.8B": {
+          "value": 12.35,
+          "unit": "V",
+          "quality": "FRESH",
+          "seen": 1791807036647
+        },
+        "RAD/3/MAINFAN": {
+          "value": 988,
+          "unit": "RPM",
+          "quality": "FRESH",
+          "seen": 1791807036648
+        }
+      }
+    },
+    {
+      "seq": 6977,
+      "ts_ms": 1791807039533,
+      "ts_wall": "2026-10-12T12:10:39.533Z",
+      "record_type": "HEALTH",
+      "source": "2702052aa13cacd0",
+      "tx_state": "RX",
+      "interlock_state": "READY",
+      "active_slice": "A",
+      "mode": "LSB",
+      "tune_value": 0,
+      "tune_fresh": true,
+      "tune_age_ms": 1655.8611590005457,
+      "canonical_tune_state": "UNKNOWN",
+      "meters": {
+        "TX-/1/FWDPWR": {
+          "value": 0.001,
+          "unit": "W",
+          "quality": "RX_NOT_TX_MEASUREMENT",
+          "seen": 1791807039523
+        },
+        "TX-/2/REFPWR": {
+          "value": 0.001,
+          "unit": "W",
+          "quality": "RX_NOT_TX_MEASUREMENT",
+          "seen": 1791807039524
+        },
+        "TX-/3/SWR": {
+          "value": 1,
+          "unit": "",
+          "quality": "RX_NOT_TX_MEASUREMENT",
+          "seen": 1791807039524
+        },
+        "TX-/4/PATEMP": {
+          "value": 23.98,
+          "unit": "°C",
+          "quality": "FRESH",
+          "seen": 1791807038795
+        },
+        "RAD/8/PAFETQ1TEMP": {
+          "value": 25,
+          "unit": "°C",
+          "quality": "FRESH",
+          "seen": 1791807038794
+        },
+        "RAD/9/PAFETQ2TEMP": {
+          "value": 25,
+          "unit": "°C",
+          "quality": "FRESH",
+          "seen": 1791807038794
+        },
+        "RAD/300/PACURRENT": {
+          "value": 0.1,
+          "unit": "A",
+          "quality": "FRESH",
+          "seen": 1791807038792
+        },
+        "TX-/6/PAEFF": {
+          "value": 0,
+          "unit": "%",
+          "quality": "FRESH",
+          "seen": 1791807039460
+        },
+        "RAD/334/+13.8A": {
+          "value": 12.02,
+          "unit": "V",
+          "quality": "FRESH",
+          "seen": 1791807038791
+        },
+        "RAD/0/+13.8B": {
+          "value": 12.35,
+          "unit": "V",
+          "quality": "FRESH",
+          "seen": 1791807038792
+        },
+        "RAD/3/MAINFAN": {
+          "value": 988,
+          "unit": "RPM",
+          "quality": "FRESH",
+          "seen": 1791807038793
+        }
+      }
+    },
+    {
+      "seq": 6978,
+      "ts_ms": 1791807040548,
+      "ts_wall": "2026-10-12T12:10:40.548Z",
+      "record_type": "HEALTH",
+      "source": "2702052aa13cacd0",
+      "tx_state": "RX",
+      "interlock_state": "READY",
+      "active_slice": "A",
+      "mode": "LSB",
+      "tune_value": 0,
+      "tune_fresh": true,
+      "tune_age_ms": 2671.2449120022357,
+      "canonical_tune_state": "UNKNOWN",
+      "meters": {
+        "TX-/1/FWDPWR": {
+          "value": 0.001,
+          "unit": "W",
+          "quality": "RX_NOT_TX_MEASUREMENT",
+          "seen": 1791807040540
+        },
+        "TX-/2/REFPWR": {
+          "value": 0.001,
+          "unit": "W",
+          "quality": "RX_NOT_TX_MEASUREMENT",
+          "seen": 1791807040540
+        },
+        "TX-/3/SWR": {
+          "value": 1,
+          "unit": "",
+          "quality": "RX_NOT_TX_MEASUREMENT",
+          "seen": 1791807040540
+        },
+        "TX-/4/PATEMP": {
+          "value": 23.98,
+          "unit": "°C",
+          "quality": "FRESH",
+          "seen": 1791807038795
+        },
+        "RAD/8/PAFETQ1TEMP": {
+          "value": 25,
+          "unit": "°C",
+          "quality": "FRESH",
+          "seen": 1791807038794
+        },
+        "RAD/9/PAFETQ2TEMP": {
+          "value": 25,
+          "unit": "°C",
+          "quality": "FRESH",
+          "seen": 1791807038794
+        },
+        "RAD/300/PACURRENT": {
+          "value": 0.1,
+          "unit": "A",
+          "quality": "FRESH",
+          "seen": 1791807038792
+        },
+        "TX-/6/PAEFF": {
+          "value": 0,
+          "unit": "%",
+          "quality": "FRESH",
+          "seen": 1791807040478
+        },
+        "RAD/334/+13.8A": {
+          "value": 12.02,
+          "unit": "V",
+          "quality": "FRESH",
+          "seen": 1791807038791
+        },
+        "RAD/0/+13.8B": {
+          "value": 12.35,
+          "unit": "V",
+          "quality": "FRESH",
+          "seen": 1791807038792
+        },
+        "RAD/3/MAINFAN": {
+          "value": 988,
+          "unit": "RPM",
+          "quality": "FRESH",
+          "seen": 1791807038793
+        }
+      }
+    },
+    {
+      "seq": 6979,
+      "ts_ms": 1791807041574,
+      "ts_wall": "2026-10-12T12:10:41.574Z",
+      "record_type": "HEALTH",
+      "source": "2702052aa13cacd0",
+      "tx_state": "RX",
+      "interlock_state": "READY",
+      "active_slice": "A",
+      "mode": "LSB",
+      "tune_value": 0,
+      "tune_fresh": true,
+      "tune_age_ms": 3697.057883001864,
+      "canonical_tune_state": "UNKNOWN",
+      "meters": {
+        "TX-/1/FWDPWR": {
+          "value": 0.001,
+          "unit": "W",
+          "quality": "RX_NOT_TX_MEASUREMENT",
+          "seen": 1791807041559
+        },
+        "TX-/2/REFPWR": {
+          "value": 0.001,
+          "unit": "W",
+          "quality": "RX_NOT_TX_MEASUREMENT",
+          "seen": 1791807041560
+        },
+        "TX-/3/SWR": {
+          "value": 1,
+          "unit": "",
+          "quality": "RX_NOT_TX_MEASUREMENT",
+          "seen": 1791807041560
+        },
+        "TX-/4/PATEMP": {
+          "value": 23.98,
+          "unit": "°C",
+          "quality": "FRESH",
+          "seen": 1791807040930
+        },
+        "RAD/8/PAFETQ1TEMP": {
+          "value": 25,
+          "unit": "°C",
+          "quality": "FRESH",
+          "seen": 1791807040927
+        },
+        "RAD/9/PAFETQ2TEMP": {
+          "value": 25,
+          "unit": "°C",
+          "quality": "FRESH",
+          "seen": 1791807040927
+        },
+        "RAD/300/PACURRENT": {
+          "value": 0,
+          "unit": "A",
+          "quality": "FRESH",
+          "seen": 1791807040925
+        },
+        "TX-/6/PAEFF": {
+          "value": 0,
+          "unit": "%",
+          "quality": "FRESH",
+          "seen": 1791807041497
+        },
+        "RAD/334/+13.8A": {
+          "value": 12,
+          "unit": "V",
+          "quality": "FRESH",
+          "seen": 1791807040925
+        },
+        "RAD/0/+13.8B": {
+          "value": 12.37,
+          "unit": "V",
+          "quality": "FRESH",
+          "seen": 1791807040926
+        },
+        "RAD/3/MAINFAN": {
+          "value": 992,
+          "unit": "RPM",
+          "quality": "FRESH",
+          "seen": 1791807040926
+        }
+      }
+    },
+    {
+      "seq": 6980,
+      "ts_ms": 1791807042590,
+      "ts_wall": "2026-10-12T12:10:42.590Z",
+      "record_type": "HEALTH",
+      "source": "2702052aa13cacd0",
+      "tx_state": "RX",
+      "interlock_state": "READY",
+      "active_slice": "A",
+      "mode": "LSB",
+      "tune_value": 0,
+      "tune_fresh": true,
+      "tune_age_ms": 4712.545891001821,
+      "canonical_tune_state": "UNKNOWN",
+      "meters": {
+        "TX-/1/FWDPWR": {
+          "value": 0.001,
+          "unit": "W",
+          "quality": "RX_NOT_TX_MEASUREMENT",
+          "seen": 1791807042576
+        },
+        "TX-/2/REFPWR": {
+          "value": 0.001,
+          "unit": "W",
+          "quality": "RX_NOT_TX_MEASUREMENT",
+          "seen": 1791807042577
+        },
+        "TX-/3/SWR": {
+          "value": 1,
+          "unit": "",
+          "quality": "RX_NOT_TX_MEASUREMENT",
+          "seen": 1791807042577
+        },
+        "TX-/4/PATEMP": {
+          "value": 23.98,
+          "unit": "°C",
+          "quality": "FRESH",
+          "seen": 1791807040930
+        },
+        "RAD/8/PAFETQ1TEMP": {
+          "value": 25,
+          "unit": "°C",
+          "quality": "FRESH",
+          "seen": 1791807040927
+        },
+        "RAD/9/PAFETQ2TEMP": {
+          "value": 25,
+          "unit": "°C",
+          "quality": "FRESH",
+          "seen": 1791807040927
+        },
+        "RAD/300/PACURRENT": {
+          "value": 0,
+          "unit": "A",
+          "quality": "FRESH",
+          "seen": 1791807040925
+        },
+        "TX-/6/PAEFF": {
+          "value": 0,
+          "unit": "%",
+          "quality": "FRESH",
+          "seen": 1791807042513
+        },
+        "RAD/334/+13.8A": {
+          "value": 12,
+          "unit": "V",
+          "quality": "FRESH",
+          "seen": 1791807040925
+        },
+        "RAD/0/+13.8B": {
+          "value": 12.37,
+          "unit": "V",
+          "quality": "FRESH",
+          "seen": 1791807040926
+        },
+        "RAD/3/MAINFAN": {
+          "value": 992,
+          "unit": "RPM",
+          "quality": "FRESH",
+          "seen": 1791807040926
+        }
+      }
+    },
+    {
+      "seq": 6981,
+      "ts_ms": 1791807042825,
+      "ts_wall": "2026-10-12T12:10:42.825Z",
+      "record_type": "COMMAND_REQUEST",
+      "source": "07c61c6741eb8fad",
+      "tx_state": "RX",
+      "interlock_state": "READY",
+      "active_slice": "A",
+      "mode": "LSB",
+      "tune_value": 0,
+      "tune_fresh": true,
+      "derived_from_seq": null,
+      "new_value": "sub tx all"
+    },
+    {
+      "seq": 6982,
+      "ts_ms": 1791807042826,
+      "ts_wall": "2026-10-12T12:10:42.826Z",
+      "record_type": "COMMAND_REQUEST",
+      "source": "07c61c6741eb8fad",
+      "tx_state": "RX",
+      "interlock_state": "READY",
+      "active_slice": "A",
+      "mode": "LSB",
+      "tune_value": 0,
+      "tune_fresh": true,
+      "derived_from_seq": null,
+      "new_value": "sub radio all"
+    },
+    {
+      "seq": 6983,
+      "ts_ms": 1791807042860,
+      "ts_wall": "2026-10-12T12:10:42.860Z",
+      "record_type": "ACK_RESPONSE",
+      "source": "07c61c6741eb8fad",
+      "tx_state": "RX",
+      "interlock_state": "READY",
+      "active_slice": "A",
+      "mode": "LSB",
+      "tune_value": 0,
+      "tune_fresh": true,
+      "derived_from_seq": null,
+      "new_value": 0
+    },
+    {
+      "seq": 6984,
+      "ts_ms": 1791807042944,
+      "ts_wall": "2026-10-12T12:10:42.944Z",
+      "record_type": "ACK_RESPONSE",
+      "source": "07c61c6741eb8fad",
+      "tx_state": "RX",
+      "interlock_state": "READY",
+      "active_slice": "A",
+      "mode": "LSB",
+      "tune_value": 0,
+      "tune_fresh": true,
+      "derived_from_seq": null,
+      "new_value": 0
+    },
+    {
+      "seq": 6985,
+      "ts_ms": 1791807043610,
+      "ts_wall": "2026-10-12T12:10:43.610Z",
+      "record_type": "HEALTH",
+      "source": "2702052aa13cacd0",
+      "tx_state": "RX",
+      "interlock_state": "READY",
+      "active_slice": "A",
+      "mode": "LSB",
+      "tune_value": 0,
+      "tune_fresh": true,
+      "tune_age_ms": 757.5967830009758,
+      "canonical_tune_state": "UNKNOWN",
+      "meters": {
+        "TX-/1/FWDPWR": {
+          "value": 0.001,
+          "unit": "W",
+          "quality": "RX_NOT_TX_MEASUREMENT",
+          "seen": 1791807043596
+        },
+        "TX-/2/REFPWR": {
+          "value": 0.001,
+          "unit": "W",
+          "quality": "RX_NOT_TX_MEASUREMENT",
+          "seen": 1791807043597
+        },
+        "TX-/3/SWR": {
+          "value": 1,
+          "unit": "",
+          "quality": "RX_NOT_TX_MEASUREMENT",
+          "seen": 1791807043597
+        },
+        "TX-/4/PATEMP": {
+          "value": 23.98,
+          "unit": "°C",
+          "quality": "FRESH",
+          "seen": 1791807043063
+        },
+        "RAD/8/PAFETQ1TEMP": {
+          "value": 25,
+          "unit": "°C",
+          "quality": "FRESH",
+          "seen": 1791807043062
+        },
+        "RAD/9/PAFETQ2TEMP": {
+          "value": 25,
+          "unit": "°C",
+          "quality": "FRESH",
+          "seen": 1791807043062
+        },
+        "RAD/300/PACURRENT": {
+          "value": 0,
+          "unit": "A",
+          "quality": "FRESH",
+          "seen": 1791807043060
+        },
+        "TX-/6/PAEFF": {
+          "value": 0,
+          "unit": "%",
+          "quality": "FRESH",
+          "seen": 1791807043533
+        },
+        "RAD/334/+13.8A": {
+          "value": 12,
+          "unit": "V",
+          "quality": "FRESH",
+          "seen": 1791807043060
+        },
+        "RAD/0/+13.8B": {
+          "value": 12.35,
+          "unit": "V",
+          "quality": "FRESH",
+          "seen": 1791807043061
+        },
+        "RAD/3/MAINFAN": {
+          "value": 992,
+          "unit": "RPM",
+          "quality": "FRESH",
+          "seen": 1791807043061
+        }
+      }
+    },
+    {
+      "seq": 6986,
+      "ts_ms": 1791807044653,
+      "ts_wall": "2026-10-12T12:10:44.653Z",
+      "record_type": "HEALTH",
+      "source": "2702052aa13cacd0",
+      "tx_state": "RX",
+      "interlock_state": "READY",
+      "active_slice": "A",
+      "mode": "LSB",
+      "tune_value": 0,
+      "tune_fresh": true,
+      "tune_age_ms": 1801.0729850009084,
+      "canonical_tune_state": "UNKNOWN",
+      "meters": {
+        "TX-/1/FWDPWR": {
+          "value": 0.001,
+          "unit": "W",
+          "quality": "RX_NOT_TX_MEASUREMENT",
+          "seen": 1791807044615
+        },
+        "TX-/2/REFPWR": {
+          "value": 0.001,
+          "unit": "W",
+          "quality": "RX_NOT_TX_MEASUREMENT",
+          "seen": 1791807044616
+        },
+        "TX-/3/SWR": {
+          "value": 1,
+          "unit": "",
+          "quality": "RX_NOT_TX_MEASUREMENT",
+          "seen": 1791807044616
+        },
+        "TX-/4/PATEMP": {
+          "value": 23.98,
+          "unit": "°C",
+          "quality": "FRESH",
+          "seen": 1791807043063
+        },
+        "RAD/8/PAFETQ1TEMP": {
+          "value": 25,
+          "unit": "°C",
+          "quality": "FRESH",
+          "seen": 1791807043062
+        },
+        "RAD/9/PAFETQ2TEMP": {
+          "value": 25,
+          "unit": "°C",
+          "quality": "FRESH",
+          "seen": 1791807043062
+        },
+        "RAD/300/PACURRENT": {
+          "value": 0,
+          "unit": "A",
+          "quality": "FRESH",
+          "seen": 1791807043060
+        },
+        "TX-/6/PAEFF": {
+          "value": 0,
+          "unit": "%",
+          "quality": "FRESH",
+          "seen": 1791807044554
+        },
+        "RAD/334/+13.8A": {
+          "value": 12,
+          "unit": "V",
+          "quality": "FRESH",
+          "seen": 1791807043060
+        },
+        "RAD/0/+13.8B": {
+          "value": 12.35,
+          "unit": "V",
+          "quality": "FRESH",
+          "seen": 1791807043061
+        },
+        "RAD/3/MAINFAN": {
+          "value": 992,
+          "unit": "RPM",
+          "quality": "FRESH",
+          "seen": 1791807043061
+        }
+      }
+    },
+    {
+      "seq": 6987,
+      "ts_ms": 1791807045680,
+      "ts_wall": "2026-10-12T12:10:45.680Z",
+      "record_type": "HEALTH",
+      "source": "2702052aa13cacd0",
+      "tx_state": "RX",
+      "interlock_state": "READY",
+      "active_slice": "A",
+      "mode": "LSB",
+      "tune_value": 0,
+      "tune_fresh": true,
+      "tune_age_ms": 2828.125027999282,
+      "canonical_tune_state": "UNKNOWN",
+      "meters": {
+        "TX-/1/FWDPWR": {
+          "value": 0.001,
+          "unit": "W",
+          "quality": "RX_NOT_TX_MEASUREMENT",
+          "seen": 1791807045638
+        },
+        "TX-/2/REFPWR": {
+          "value": 0.001,
+          "unit": "W",
+          "quality": "RX_NOT_TX_MEASUREMENT",
+          "seen": 1791807045638
+        },
+        "TX-/3/SWR": {
+          "value": 1,
+          "unit": "",
+          "quality": "RX_NOT_TX_MEASUREMENT",
+          "seen": 1791807045639
+        },
+        "TX-/4/PATEMP": {
+          "value": 23.98,
+          "unit": "°C",
+          "quality": "FRESH",
+          "seen": 1791807045201
+        },
+        "RAD/8/PAFETQ1TEMP": {
+          "value": 25,
+          "unit": "°C",
+          "quality": "FRESH",
+          "seen": 1791807045197
+        },
+        "RAD/9/PAFETQ2TEMP": {
+          "value": 25,
+          "unit": "°C",
+          "quality": "FRESH",
+          "seen": 1791807045197
+        },
+        "RAD/300/PACURRENT": {
+          "value": 0,
+          "unit": "A",
+          "quality": "FRESH",
+          "seen": 1791807045195
+        },
+        "TX-/6/PAEFF": {
+          "value": 0,
+          "unit": "%",
+          "quality": "FRESH",
+          "seen": 1791807045584
+        },
+        "RAD/334/+13.8A": {
+          "value": 12,
+          "unit": "V",
+          "quality": "FRESH",
+          "seen": 1791807045194
+        },
+        "RAD/0/+13.8B": {
+          "value": 12.35,
+          "unit": "V",
+          "quality": "FRESH",
+          "seen": 1791807045195
+        },
+        "RAD/3/MAINFAN": {
+          "value": 992,
+          "unit": "RPM",
+          "quality": "FRESH",
+          "seen": 1791807045196
+        }
+      }
+    },
+    {
+      "seq": 6988,
+      "ts_ms": 1791807046694,
+      "ts_wall": "2026-10-12T12:10:46.694Z",
+      "record_type": "HEALTH",
+      "source": "2702052aa13cacd0",
+      "tx_state": "RX",
+      "interlock_state": "READY",
+      "active_slice": "A",
+      "mode": "LSB",
+      "tune_value": 0,
+      "tune_fresh": true,
+      "tune_age_ms": 3841.479141999036,
+      "canonical_tune_state": "UNKNOWN",
+      "meters": {
+        "TX-/1/FWDPWR": {
+          "value": 0.001,
+          "unit": "W",
+          "quality": "RX_NOT_TX_MEASUREMENT",
+          "seen": 1791807046656
+        },
+        "TX-/2/REFPWR": {
+          "value": 0.001,
+          "unit": "W",
+          "quality": "RX_NOT_TX_MEASUREMENT",
+          "seen": 1791807046656
+        },
+        "TX-/3/SWR": {
+          "value": 1,
+          "unit": "",
+          "quality": "RX_NOT_TX_MEASUREMENT",
+          "seen": 1791807046657
+        },
+        "TX-/4/PATEMP": {
+          "value": 23.98,
+          "unit": "°C",
+          "quality": "FRESH",
+          "seen": 1791807045201
+        },
+        "RAD/8/PAFETQ1TEMP": {
+          "value": 25,
+          "unit": "°C",
+          "quality": "FRESH",
+          "seen": 1791807045197
+        },
+        "RAD/9/PAFETQ2TEMP": {
+          "value": 25,
+          "unit": "°C",
+          "quality": "FRESH",
+          "seen": 1791807045197
+        },
+        "RAD/300/PACURRENT": {
+          "value": 0,
+          "unit": "A",
+          "quality": "FRESH",
+          "seen": 1791807045195
+        },
+        "TX-/6/PAEFF": {
+          "value": 0,
+          "unit": "%",
+          "quality": "FRESH",
+          "seen": 1791807046592
+        },
+        "RAD/334/+13.8A": {
+          "value": 12,
+          "unit": "V",
+          "quality": "FRESH",
+          "seen": 1791807045194
+        },
+        "RAD/0/+13.8B": {
+          "value": 12.35,
+          "unit": "V",
+          "quality": "FRESH",
+          "seen": 1791807045195
+        },
+        "RAD/3/MAINFAN": {
+          "value": 992,
+          "unit": "RPM",
+          "quality": "FRESH",
+          "seen": 1791807045196
+        }
+      }
+    },
+    {
+      "seq": 6989,
+      "ts_ms": 1791807047713,
+      "ts_wall": "2026-10-12T12:10:47.713Z",
+      "record_type": "HEALTH",
+      "source": "2702052aa13cacd0",
+      "tx_state": "RX",
+      "interlock_state": "READY",
+      "active_slice": "A",
+      "mode": "LSB",
+      "tune_value": 0,
+      "tune_fresh": true,
+      "tune_age_ms": 4860.201630998403,
+      "canonical_tune_state": "UNKNOWN",
+      "meters": {
+        "TX-/1/FWDPWR": {
+          "value": 0.001,
+          "unit": "W",
+          "quality": "RX_NOT_TX_MEASUREMENT",
+          "seen": 1791807047680
+        },
+        "TX-/2/REFPWR": {
+          "value": 0.001,
+          "unit": "W",
+          "quality": "RX_NOT_TX_MEASUREMENT",
+          "seen": 1791807047681
+        },
+        "TX-/3/SWR": {
+          "value": 1,
+          "unit": "",
+          "quality": "RX_NOT_TX_MEASUREMENT",
+          "seen": 1791807047682
+        },
+        "TX-/4/PATEMP": {
+          "value": 23.98,
+          "unit": "°C",
+          "quality": "FRESH",
+          "seen": 1791807047332
+        },
+        "RAD/8/PAFETQ1TEMP": {
+          "value": 25,
+          "unit": "°C",
+          "quality": "FRESH",
+          "seen": 1791807047330
+        },
+        "RAD/9/PAFETQ2TEMP": {
+          "value": 25,
+          "unit": "°C",
+          "quality": "FRESH",
+          "seen": 1791807047331
+        },
+        "RAD/300/PACURRENT": {
+          "value": 0.12,
+          "unit": "A",
+          "quality": "FRESH",
+          "seen": 1791807047329
+        },
+        "TX-/6/PAEFF": {
+          "value": 0,
+          "unit": "%",
+          "quality": "FRESH",
+          "seen": 1791807047614
+        },
+        "RAD/334/+13.8A": {
+          "value": 12,
+          "unit": "V",
+          "quality": "FRESH",
+          "seen": 1791807047328
+        },
+        "RAD/0/+13.8B": {
+          "value": 12.32,
+          "unit": "V",
+          "quality": "FRESH",
+          "seen": 1791807047329
+        },
+        "RAD/3/MAINFAN": {
+          "value": 992,
+          "unit": "RPM",
+          "quality": "FRESH",
+          "seen": 1791807047330
+        }
+      }
+    },
+    {
+      "seq": 6990,
+      "ts_ms": 1791807048739,
+      "ts_wall": "2026-10-12T12:10:48.739Z",
+      "record_type": "HEALTH",
+      "source": "2702052aa13cacd0",
+      "tx_state": "RX",
+      "interlock_state": "READY",
+      "active_slice": "A",
+      "mode": "LSB",
+      "tune_value": 0,
+      "tune_fresh": true,
+      "tune_age_ms": 5886.1757140010595,
+      "canonical_tune_state": "UNKNOWN",
+      "meters": {
+        "TX-/1/FWDPWR": {
+          "value": 0.001,
+          "unit": "W",
+          "quality": "RX_NOT_TX_MEASUREMENT",
+          "seen": 1791807048698
+        },
+        "TX-/2/REFPWR": {
+          "value": 0.001,
+          "unit": "W",
+          "quality": "RX_NOT_TX_MEASUREMENT",
+          "seen": 1791807048699
+        },
+        "TX-/3/SWR": {
+          "value": 1,
+          "unit": "",
+          "quality": "RX_NOT_TX_MEASUREMENT",
+          "seen": 1791807048700
+        },
+        "TX-/4/PATEMP": {
+          "value": 23.98,
+          "unit": "°C",
+          "quality": "FRESH",
+          "seen": 1791807047332
+        },
+        "RAD/8/PAFETQ1TEMP": {
+          "value": 25,
+          "unit": "°C",
+          "quality": "FRESH",
+          "seen": 1791807047330
+        },
+        "RAD/9/PAFETQ2TEMP": {
+          "value": 25,
+          "unit": "°C",
+          "quality": "FRESH",
+          "seen": 1791807047331
+        },
+        "RAD/300/PACURRENT": {
+          "value": 0.12,
+          "unit": "A",
+          "quality": "FRESH",
+          "seen": 1791807047329
+        },
+        "TX-/6/PAEFF": {
+          "value": 0,
+          "unit": "%",
+          "quality": "FRESH",
+          "seen": 1791807048634
+        },
+        "RAD/334/+13.8A": {
+          "value": 12,
+          "unit": "V",
+          "quality": "FRESH",
+          "seen": 1791807047328
+        },
+        "RAD/0/+13.8B": {
+          "value": 12.32,
+          "unit": "V",
+          "quality": "FRESH",
+          "seen": 1791807047329
+        },
+        "RAD/3/MAINFAN": {
+          "value": 992,
+          "unit": "RPM",
+          "quality": "FRESH",
+          "seen": 1791807047330
+        }
+      }
+    },
+    {
+      "seq": 6991,
+      "ts_ms": 1791807048821,
+      "ts_wall": "2026-10-12T12:10:48.821Z",
+      "record_type": "COMMAND_REQUEST",
+      "source": "07c61c6741eb8fad",
+      "tx_state": "RX",
+      "interlock_state": "READY",
+      "active_slice": "A",
+      "mode": "LSB",
+      "tune_value": 0,
+      "tune_fresh": true,
+      "derived_from_seq": null,
+      "new_value": "sub tx all"
+    },
+    {
+      "seq": 6992,
+      "ts_ms": 1791807048821,
+      "ts_wall": "2026-10-12T12:10:48.821Z",
+      "record_type": "COMMAND_REQUEST",
+      "source": "07c61c6741eb8fad",
+      "tx_state": "RX",
+      "interlock_state": "READY",
+      "active_slice": "A",
+      "mode": "LSB",
+      "tune_value": 0,
+      "tune_fresh": true,
+      "derived_from_seq": null,
+      "new_value": "sub radio all"
+    },
+    {
+      "seq": 6993,
+      "ts_ms": 1791807048869,
+      "ts_wall": "2026-10-12T12:10:48.869Z",
+      "record_type": "ACK_RESPONSE",
+      "source": "07c61c6741eb8fad",
+      "tx_state": "RX",
+      "interlock_state": "READY",
+      "active_slice": "A",
+      "mode": "LSB",
+      "tune_value": 0,
+      "tune_fresh": true,
+      "derived_from_seq": null,
+      "new_value": 0
+    },
+    {
+      "seq": 6994,
+      "ts_ms": 1791807048948,
+      "ts_wall": "2026-10-12T12:10:48.948Z",
+      "record_type": "ACK_RESPONSE",
+      "source": "07c61c6741eb8fad",
+      "tx_state": "RX",
+      "interlock_state": "READY",
+      "active_slice": "A",
+      "mode": "LSB",
+      "tune_value": 0,
+      "tune_fresh": true,
+      "derived_from_seq": null,
+      "new_value": 0
+    },
+    {
+      "seq": 6995,
+      "ts_ms": 1791807049771,
+      "ts_wall": "2026-10-12T12:10:49.771Z",
+      "record_type": "HEALTH",
+      "source": "2702052aa13cacd0",
+      "tx_state": "RX",
+      "interlock_state": "READY",
+      "active_slice": "A",
+      "mode": "LSB",
+      "tune_value": 0,
+      "tune_fresh": true,
+      "tune_age_ms": 906.6961230002344,
+      "canonical_tune_state": "UNKNOWN",
+      "meters": {
+        "TX-/1/FWDPWR": {
+          "value": 0.001,
+          "unit": "W",
+          "quality": "RX_NOT_TX_MEASUREMENT",
+          "seen": 1791807049721
+        },
+        "TX-/2/REFPWR": {
+          "value": 0.001,
+          "unit": "W",
+          "quality": "RX_NOT_TX_MEASUREMENT",
+          "seen": 1791807049721
+        },
+        "TX-/3/SWR": {
+          "value": 1,
+          "unit": "",
+          "quality": "RX_NOT_TX_MEASUREMENT",
+          "seen": 1791807049722
+        },
+        "TX-/4/PATEMP": {
+          "value": 23.98,
+          "unit": "°C",
+          "quality": "FRESH",
+          "seen": 1791807049472
+        },
+        "RAD/8/PAFETQ1TEMP": {
+          "value": 25,
+          "unit": "°C",
+          "quality": "FRESH",
+          "seen": 1791807049469
+        },
+        "RAD/9/PAFETQ2TEMP": {
+          "value": 25,
+          "unit": "°C",
+          "quality": "FRESH",
+          "seen": 1791807049470
+        },
+        "RAD/300/PACURRENT": {
+          "value": 0,
+          "unit": "A",
+          "quality": "FRESH",
+          "seen": 1791807049467
+        },
+        "TX-/6/PAEFF": {
+          "value": 0,
+          "unit": "%",
+          "quality": "FRESH",
+          "seen": 1791807049657
+        },
+        "RAD/334/+13.8A": {
+          "value": 12.02,
+          "unit": "V",
+          "quality": "FRESH",
+          "seen": 1791807049467
+        },
+        "RAD/0/+13.8B": {
+          "value": 12.35,
+          "unit": "V",
+          "quality": "FRESH",
+          "seen": 1791807049468
+        },
+        "RAD/3/MAINFAN": {
+          "value": 988,
+          "unit": "RPM",
+          "quality": "FRESH",
+          "seen": 1791807049468
+        }
+      }
+    },
+    {
+      "seq": 6996,
+      "ts_ms": 1791807049829,
+      "ts_wall": "2026-10-12T12:10:49.829Z",
+      "record_type": "COMMAND_REQUEST",
+      "source": "07c61c6741eb8fad",
+      "tx_state": "RX",
+      "interlock_state": "READY",
+      "active_slice": "A",
+      "mode": "LSB",
+      "tune_value": 0,
+      "tune_fresh": true,
+      "derived_from_seq": null,
+      "new_value": "sub client all"
+    },
+    {
+      "seq": 6997,
+      "ts_ms": 1791807049829,
+      "ts_wall": "2026-10-12T12:10:49.829Z",
+      "record_type": "COMMAND_REQUEST",
+      "source": "07c61c6741eb8fad",
+      "tx_state": "RX",
+      "interlock_state": "READY",
+      "active_slice": "A",
+      "mode": "LSB",
+      "tune_value": 0,
+      "tune_fresh": true,
+      "derived_from_seq": null,
+      "new_value": "sub slice all"
+    },
+    {
+      "seq": 6998,
+      "ts_ms": 1791807049830,
+      "ts_wall": "2026-10-12T12:10:49.830Z",
+      "record_type": "COMMAND_REQUEST",
+      "source": "07c61c6741eb8fad",
+      "tx_state": "RX",
+      "interlock_state": "READY",
+      "active_slice": "A",
+      "mode": "LSB",
+      "tune_value": 0,
+      "tune_fresh": true,
+      "derived_from_seq": null,
+      "new_value": "sub tx all"
+    },
+    {
+      "seq": 6999,
+      "ts_ms": 1791807049830,
+      "ts_wall": "2026-10-12T12:10:49.830Z",
+      "record_type": "COMMAND_REQUEST",
+      "source": "07c61c6741eb8fad",
+      "tx_state": "RX",
+      "interlock_state": "READY",
+      "active_slice": "A",
+      "mode": "LSB",
+      "tune_value": 0,
+      "tune_fresh": true,
+      "derived_from_seq": null,
+      "new_value": "sub pan all"
+    },
+    {
+      "seq": 7000,
+      "ts_ms": 1791807049830,
+      "ts_wall": "2026-10-12T12:10:49.830Z",
+      "record_type": "COMMAND_REQUEST",
+      "source": "07c61c6741eb8fad",
+      "tx_state": "RX",
+      "interlock_state": "READY",
+      "active_slice": "A",
+      "mode": "LSB",
+      "tune_value": 0,
+      "tune_fresh": true,
+      "derived_from_seq": null,
+      "new_value": "meter list"
+    },
+    {
+      "seq": 7001,
+      "ts_ms": 1791807049909,
+      "ts_wall": "2026-10-12T12:10:49.909Z",
+      "record_type": "ACK_RESPONSE",
+      "source": "07c61c6741eb8fad",
+      "tx_state": "RX",
+      "interlock_state": "READY",
+      "active_slice": "A",
+      "mode": "LSB",
+      "tune_value": 0,
+      "tune_fresh": true,
+      "derived_from_seq": null,
+      "new_value": 0
+    },
+    {
+      "seq": 7002,
+      "ts_ms": 1791807049919,
+      "ts_wall": "2026-10-12T12:10:49.919Z",
+      "record_type": "ACK_RESPONSE",
+      "source": "07c61c6741eb8fad",
+      "tx_state": "RX",
+      "interlock_state": "READY",
+      "active_slice": "A",
+      "mode": "LSB",
+      "tune_value": 0,
+      "tune_fresh": true,
+      "derived_from_seq": null,
+      "new_value": 0
+    },
+    {
+      "seq": 7003,
+      "ts_ms": 1791807049927,
+      "ts_wall": "2026-10-12T12:10:49.927Z",
+      "record_type": "ACK_RESPONSE",
+      "source": "07c61c6741eb8fad",
+      "tx_state": "RX",
+      "interlock_state": "READY",
+      "active_slice": "A",
+      "mode": "LSB",
+      "tune_value": 0,
+      "tune_fresh": true,
+      "derived_from_seq": null,
+      "new_value": 0
+    },
+    {
+      "seq": 7004,
+      "ts_ms": 1791807049930,
+      "ts_wall": "2026-10-12T12:10:49.930Z",
+      "record_type": "ACK_RESPONSE",
+      "source": "07c61c6741eb8fad",
+      "tx_state": "RX",
+      "interlock_state": "READY",
+      "active_slice": "A",
+      "mode": "LSB",
+      "tune_value": 0,
+      "tune_fresh": true,
+      "derived_from_seq": null,
+      "new_value": 0
+    },
+    {
+      "seq": 7005,
+      "ts_ms": 1791807049934,
+      "ts_wall": "2026-10-12T12:10:49.934Z",
+      "record_type": "ACK_RESPONSE",
+      "source": "07c61c6741eb8fad",
+      "tx_state": "RX",
+      "interlock_state": "READY",
+      "active_slice": "A",
+      "mode": "LSB",
+      "tune_value": 0,
+      "tune_fresh": true,
+      "derived_from_seq": null,
+      "new_value": 0
+    },
+    {
+      "seq": 7006,
+      "ts_ms": 1791807049944,
+      "ts_wall": "2026-10-12T12:10:49.944Z",
+      "record_type": "COMMAND_REQUEST",
+      "source": "07c61c6741eb8fad",
+      "tx_state": "RX",
+      "interlock_state": "READY",
+      "active_slice": "A",
+      "mode": "LSB",
+      "tune_value": 0,
+      "tune_fresh": true,
+      "derived_from_seq": null,
+      "new_value": "sub meter 21"
+    },
+    {
+      "seq": 7007,
+      "ts_ms": 1791807049945,
+      "ts_wall": "2026-10-12T12:10:49.945Z",
+      "record_type": "COMMAND_REQUEST",
+      "source": "07c61c6741eb8fad",
+      "tx_state": "RX",
+      "interlock_state": "READY",
+      "active_slice": "A",
+      "mode": "LSB",
+      "tune_value": 0,
+      "tune_fresh": true,
+      "derived_from_seq": null,
+      "new_value": "sub meter 25"
+    },
+    {
+      "seq": 7008,
+      "ts_ms": 1791807050009,
+      "ts_wall": "2026-10-12T12:10:50.009Z",
+      "record_type": "ACK_RESPONSE",
+      "source": "07c61c6741eb8fad",
+      "tx_state": "RX",
+      "interlock_state": "READY",
+      "active_slice": "A",
+      "mode": "LSB",
+      "tune_value": 0,
+      "tune_fresh": true,
+      "derived_from_seq": null,
+      "new_value": 0
+    },
+    {
+      "seq": 7009,
+      "ts_ms": 1791807050010,
+      "ts_wall": "2026-10-12T12:10:50.010Z",
+      "record_type": "ACK_RESPONSE",
+      "source": "07c61c6741eb8fad",
+      "tx_state": "RX",
+      "interlock_state": "READY",
+      "active_slice": "A",
+      "mode": "LSB",
+      "tune_value": 0,
+      "tune_fresh": true,
+      "derived_from_seq": null,
+      "new_value": 0
+    },
+    {
+      "seq": 7010,
+      "ts_ms": 1791807050802,
+      "ts_wall": "2026-10-12T12:10:50.802Z",
+      "record_type": "HEALTH",
+      "source": "2702052aa13cacd0",
+      "tx_state": "RX",
+      "interlock_state": "READY",
+      "active_slice": "A",
+      "mode": "LSB",
+      "tune_value": 0,
+      "tune_fresh": true,
+      "tune_age_ms": 882.7864299975336,
+      "canonical_tune_state": "UNKNOWN",
+      "meters": {
+        "TX-/1/FWDPWR": {
+          "value": 0.001,
+          "unit": "W",
+          "quality": "RX_NOT_TX_MEASUREMENT",
+          "seen": 1791807050743
+        },
+        "TX-/2/REFPWR": {
+          "value": 0.001,
+          "unit": "W",
+          "quality": "RX_NOT_TX_MEASUREMENT",
+          "seen": 1791807050744
+        },
+        "TX-/3/SWR": {
+          "value": 1,
+          "unit": "",
+          "quality": "RX_NOT_TX_MEASUREMENT",
+          "seen": 1791807050745
+        },
+        "TX-/4/PATEMP": {
+          "value": 23.98,
+          "unit": "°C",
+          "quality": "FRESH",
+          "seen": 1791807049472
+        },
+        "RAD/8/PAFETQ1TEMP": {
+          "value": 25,
+          "unit": "°C",
+          "quality": "FRESH",
+          "seen": 1791807049469
+        },
+        "RAD/9/PAFETQ2TEMP": {
+          "value": 25,
+          "unit": "°C",
+          "quality": "FRESH",
+          "seen": 1791807049470
+        },
+        "RAD/300/PACURRENT": {
+          "value": 0,
+          "unit": "A",
+          "quality": "FRESH",
+          "seen": 1791807049467
+        },
+        "TX-/6/PAEFF": {
+          "value": 0,
+          "unit": "%",
+          "quality": "FRESH",
+          "seen": 1791807050679
+        },
+        "RAD/334/+13.8A": {
+          "value": 12.02,
+          "unit": "V",
+          "quality": "FRESH",
+          "seen": 1791807049467
+        },
+        "RAD/0/+13.8B": {
+          "value": 12.35,
+          "unit": "V",
+          "quality": "FRESH",
+          "seen": 1791807049468
+        },
+        "RAD/3/MAINFAN": {
+          "value": 988,
+          "unit": "RPM",
+          "quality": "FRESH",
+          "seen": 1791807049468
+        }
+      }
+    },
+    {
+      "seq": 7011,
+      "ts_ms": 1791807051829,
+      "ts_wall": "2026-10-12T12:10:51.829Z",
+      "record_type": "HEALTH",
+      "source": "2702052aa13cacd0",
+      "tx_state": "RX",
+      "interlock_state": "READY",
+      "active_slice": "A",
+      "mode": "LSB",
+      "tune_value": 0,
+      "tune_fresh": true,
+      "tune_age_ms": 1909.578490998596,
+      "canonical_tune_state": "UNKNOWN",
+      "meters": {
+        "TX-/1/FWDPWR": {
+          "value": 0.001,
+          "unit": "W",
+          "quality": "RX_NOT_TX_MEASUREMENT",
+          "seen": 1791807051764
+        },
+        "TX-/2/REFPWR": {
+          "value": 0.001,
+          "unit": "W",
+          "quality": "RX_NOT_TX_MEASUREMENT",
+          "seen": 1791807051764
+        },
+        "TX-/3/SWR": {
+          "value": 1,
+          "unit": "",
+          "quality": "RX_NOT_TX_MEASUREMENT",
+          "seen": 1791807051764
+        },
+        "TX-/4/PATEMP": {
+          "value": 23.98,
+          "unit": "°C",
+          "quality": "FRESH",
+          "seen": 1791807051612
+        },
+        "RAD/8/PAFETQ1TEMP": {
+          "value": 25,
+          "unit": "°C",
+          "quality": "FRESH",
+          "seen": 1791807051611
+        },
+        "RAD/9/PAFETQ2TEMP": {
+          "value": 25,
+          "unit": "°C",
+          "quality": "FRESH",
+          "seen": 1791807051612
+        },
+        "RAD/300/PACURRENT": {
+          "value": 0.06,
+          "unit": "A",
+          "quality": "FRESH",
+          "seen": 1791807051610
+        },
+        "TX-/6/PAEFF": {
+          "value": 0,
+          "unit": "%",
+          "quality": "FRESH",
+          "seen": 1791807051701
+        },
+        "RAD/334/+13.8A": {
+          "value": 12.02,
+          "unit": "V",
+          "quality": "FRESH",
+          "seen": 1791807051609
+        },
+        "RAD/0/+13.8B": {
+          "value": 12.37,
+          "unit": "V",
+          "quality": "FRESH",
+          "seen": 1791807051610
+        },
+        "RAD/3/MAINFAN": {
+          "value": 988,
+          "unit": "RPM",
+          "quality": "FRESH",
+          "seen": 1791807051611
+        }
+      }
+    },
+    {
+      "seq": 7012,
+      "ts_ms": 1791807052849,
+      "ts_wall": "2026-10-12T12:10:52.849Z",
+      "record_type": "HEALTH",
+      "source": "2702052aa13cacd0",
+      "tx_state": "RX",
+      "interlock_state": "READY",
+      "active_slice": "A",
+      "mode": "LSB",
+      "tune_value": 0,
+      "tune_fresh": true,
+      "tune_age_ms": 2929.5756030008197,
+      "canonical_tune_state": "UNKNOWN",
+      "meters": {
+        "TX-/1/FWDPWR": {
+          "value": 0.001,
+          "unit": "W",
+          "quality": "RX_NOT_TX_MEASUREMENT",
+          "seen": 1791807052846
+        },
+        "TX-/2/REFPWR": {
+          "value": 0.001,
+          "unit": "W",
+          "quality": "RX_NOT_TX_MEASUREMENT",
+          "seen": 1791807052847
+        },
+        "TX-/3/SWR": {
+          "value": 1,
+          "unit": "",
+          "quality": "RX_NOT_TX_MEASUREMENT",
+          "seen": 1791807052848
+        },
+        "TX-/4/PATEMP": {
+          "value": 23.98,
+          "unit": "°C",
+          "quality": "FRESH",
+          "seen": 1791807051612
+        },
+        "RAD/8/PAFETQ1TEMP": {
+          "value": 25,
+          "unit": "°C",
+          "quality": "FRESH",
+          "seen": 1791807051611
+        },
+        "RAD/9/PAFETQ2TEMP": {
+          "value": 25,
+          "unit": "°C",
+          "quality": "FRESH",
+          "seen": 1791807051612
+        },
+        "RAD/300/PACURRENT": {
+          "value": 0.06,
+          "unit": "A",
+          "quality": "FRESH",
+          "seen": 1791807051610
+        },
+        "TX-/6/PAEFF": {
+          "value": 0,
+          "unit": "%",
+          "quality": "FRESH",
+          "seen": 1791807052846
+        },
+        "RAD/334/+13.8A": {
+          "value": 12.02,
+          "unit": "V",
+          "quality": "FRESH",
+          "seen": 1791807051609
+        },
+        "RAD/0/+13.8B": {
+          "value": 12.37,
+          "unit": "V",
+          "quality": "FRESH",
+          "seen": 1791807051610
+        },
+        "RAD/3/MAINFAN": {
+          "value": 988,
+          "unit": "RPM",
+          "quality": "FRESH",
+          "seen": 1791807051611
+        }
+      }
+    },
+    {
+      "seq": 7013,
+      "ts_ms": 1791807053829,
+      "ts_wall": "2026-10-12T12:10:53.829Z",
+      "record_type": "COMMAND_REQUEST",
+      "source": "07c61c6741eb8fad",
+      "tx_state": "RX",
+      "interlock_state": "READY",
+      "active_slice": "A",
+      "mode": "LSB",
+      "tune_value": 0,
+      "tune_fresh": true,
+      "derived_from_seq": null,
+      "new_value": "sub tx all"
+    },
+    {
+      "seq": 7014,
+      "ts_ms": 1791807053829,
+      "ts_wall": "2026-10-12T12:10:53.829Z",
+      "record_type": "COMMAND_REQUEST",
+      "source": "07c61c6741eb8fad",
+      "tx_state": "RX",
+      "interlock_state": "READY",
+      "active_slice": "A",
+      "mode": "LSB",
+      "tune_value": 0,
+      "tune_fresh": true,
+      "derived_from_seq": null,
+      "new_value": "sub radio all"
+    },
+    {
+      "seq": 7015,
+      "ts_ms": 1791807053862,
+      "ts_wall": "2026-10-12T12:10:53.862Z",
+      "record_type": "ACK_RESPONSE",
+      "source": "07c61c6741eb8fad",
+      "tx_state": "RX",
+      "interlock_state": "READY",
+      "active_slice": "A",
+      "mode": "LSB",
+      "tune_value": 0,
+      "tune_fresh": true,
+      "derived_from_seq": null,
+      "new_value": 0
+    },
+    {
+      "seq": 7016,
+      "ts_ms": 1791807053865,
+      "ts_wall": "2026-10-12T12:10:53.865Z",
+      "record_type": "ACK_RESPONSE",
+      "source": "07c61c6741eb8fad",
+      "tx_state": "RX",
+      "interlock_state": "READY",
+      "active_slice": "A",
+      "mode": "LSB",
+      "tune_value": 0,
+      "tune_fresh": true,
+      "derived_from_seq": null,
+      "new_value": 0
+    },
+    {
+      "seq": 7017,
+      "ts_ms": 1791807053892,
+      "ts_wall": "2026-10-12T12:10:53.892Z",
+      "record_type": "HEALTH",
+      "source": "2702052aa13cacd0",
+      "tx_state": "RX",
+      "interlock_state": "READY",
+      "active_slice": "A",
+      "mode": "LSB",
+      "tune_value": 0,
+      "tune_fresh": true,
+      "tune_age_ms": 38.391503002494574,
+      "canonical_tune_state": "UNKNOWN",
+      "meters": {
+        "TX-/1/FWDPWR": {
+          "value": 0.001,
+          "unit": "W",
+          "quality": "RX_NOT_TX_MEASUREMENT",
+          "seen": 1791807053872
+        },
+        "TX-/2/REFPWR": {
+          "value": 0.001,
+          "unit": "W",
+          "quality": "RX_NOT_TX_MEASUREMENT",
+          "seen": 1791807053872
+        },
+        "TX-/3/SWR": {
+          "value": 1,
+          "unit": "",
+          "quality": "RX_NOT_TX_MEASUREMENT",
+          "seen": 1791807053873
+        },
+        "TX-/4/PATEMP": {
+          "value": 23.98,
+          "unit": "°C",
+          "quality": "FRESH",
+          "seen": 1791807053741
+        },
+        "RAD/8/PAFETQ1TEMP": {
+          "value": 25,
+          "unit": "°C",
+          "quality": "FRESH",
+          "seen": 1791807053739
+        },
+        "RAD/9/PAFETQ2TEMP": {
+          "value": 25,
+          "unit": "°C",
+          "quality": "FRESH",
+          "seen": 1791807053739
+        },
+        "RAD/300/PACURRENT": {
+          "value": 0.07,
+          "unit": "A",
+          "quality": "FRESH",
+          "seen": 1791807053738
+        },
+        "TX-/6/PAEFF": {
+          "value": 0,
+          "unit": "%",
+          "quality": "FRESH",
+          "seen": 1791807053871
+        },
+        "RAD/334/+13.8A": {
+          "value": 12.01,
+          "unit": "V",
+          "quality": "FRESH",
+          "seen": 1791807053737
+        },
+        "RAD/0/+13.8B": {
+          "value": 12.35,
+          "unit": "V",
+          "quality": "FRESH",
+          "seen": 1791807053738
+        },
+        "RAD/3/MAINFAN": {
+          "value": 988,
+          "unit": "RPM",
+          "quality": "FRESH",
+          "seen": 1791807053738
+        }
+      }
+    },
+    {
+      "seq": 7018,
+      "ts_ms": 1791807054932,
+      "ts_wall": "2026-10-12T12:10:54.932Z",
+      "record_type": "HEALTH",
+      "source": "2702052aa13cacd0",
+      "tx_state": "RX",
+      "interlock_state": "READY",
+      "active_slice": "A",
+      "mode": "LSB",
+      "tune_value": 0,
+      "tune_fresh": true,
+      "tune_age_ms": 1078.3010580018163,
+      "canonical_tune_state": "UNKNOWN",
+      "meters": {
+        "TX-/1/FWDPWR": {
+          "value": 0.001,
+          "unit": "W",
+          "quality": "RX_NOT_TX_MEASUREMENT",
+          "seen": 1791807054883
+        },
+        "TX-/2/REFPWR": {
+          "value": 0.001,
+          "unit": "W",
+          "quality": "RX_NOT_TX_MEASUREMENT",
+          "seen": 1791807054884
+        },
+        "TX-/3/SWR": {
+          "value": 1,
+          "unit": "",
+          "quality": "RX_NOT_TX_MEASUREMENT",
+          "seen": 1791807054885
+        },
+        "TX-/4/PATEMP": {
+          "value": 23.98,
+          "unit": "°C",
+          "quality": "FRESH",
+          "seen": 1791807053741
+        },
+        "RAD/8/PAFETQ1TEMP": {
+          "value": 25,
+          "unit": "°C",
+          "quality": "FRESH",
+          "seen": 1791807053739
+        },
+        "RAD/9/PAFETQ2TEMP": {
+          "value": 25,
+          "unit": "°C",
+          "quality": "FRESH",
+          "seen": 1791807053739
+        },
+        "RAD/300/PACURRENT": {
+          "value": 0.07,
+          "unit": "A",
+          "quality": "FRESH",
+          "seen": 1791807053738
+        },
+        "TX-/6/PAEFF": {
+          "value": 0,
+          "unit": "%",
+          "quality": "FRESH",
+          "seen": 1791807054883
+        },
+        "RAD/334/+13.8A": {
+          "value": 12.01,
+          "unit": "V",
+          "quality": "FRESH",
+          "seen": 1791807053737
+        },
+        "RAD/0/+13.8B": {
+          "value": 12.35,
+          "unit": "V",
+          "quality": "FRESH",
+          "seen": 1791807053738
+        },
+        "RAD/3/MAINFAN": {
+          "value": 988,
+          "unit": "RPM",
+          "quality": "FRESH",
+          "seen": 1791807053738
+        }
+      }
+    },
+    {
+      "seq": 7019,
+      "ts_ms": 1791807055979,
+      "ts_wall": "2026-10-12T12:10:55.979Z",
+      "record_type": "HEALTH",
+      "source": "2702052aa13cacd0",
+      "tx_state": "RX",
+      "interlock_state": "READY",
+      "active_slice": "A",
+      "mode": "LSB",
+      "tune_value": 0,
+      "tune_fresh": true,
+      "tune_age_ms": 2126.007056001574,
+      "canonical_tune_state": "UNKNOWN",
+      "meters": {
+        "TX-/1/FWDPWR": {
+          "value": 0.001,
+          "unit": "W",
+          "quality": "RX_NOT_TX_MEASUREMENT",
+          "seen": 1791807055965
+        },
+        "TX-/2/REFPWR": {
+          "value": 0.001,
+          "unit": "W",
+          "quality": "RX_NOT_TX_MEASUREMENT",
+          "seen": 1791807055966
+        },
+        "TX-/3/SWR": {
+          "value": 1,
+          "unit": "",
+          "quality": "RX_NOT_TX_MEASUREMENT",
+          "seen": 1791807055966
+        },
+        "TX-/4/PATEMP": {
+          "value": 23.98,
+          "unit": "°C",
+          "quality": "FRESH",
+          "seen": 1791807055874
+        },
+        "RAD/8/PAFETQ1TEMP": {
+          "value": 25,
+          "unit": "°C",
+          "quality": "FRESH",
+          "seen": 1791807055873
+        },
+        "RAD/9/PAFETQ2TEMP": {
+          "value": 25,
+          "unit": "°C",
+          "quality": "FRESH",
+          "seen": 1791807055874
+        },
+        "RAD/300/PACURRENT": {
+          "value": 0.09,
+          "unit": "A",
+          "quality": "FRESH",
+          "seen": 1791807055872
+        },
+        "TX-/6/PAEFF": {
+          "value": 0,
+          "unit": "%",
+          "quality": "FRESH",
+          "seen": 1791807055902
+        },
+        "RAD/334/+13.8A": {
+          "value": 12.02,
+          "unit": "V",
+          "quality": "FRESH",
+          "seen": 1791807055871
+        },
+        "RAD/0/+13.8B": {
+          "value": 12.39,
+          "unit": "V",
+          "quality": "FRESH",
+          "seen": 1791807055872
+        },
+        "RAD/3/MAINFAN": {
+          "value": 988,
+          "unit": "RPM",
+          "quality": "FRESH",
+          "seen": 1791807055873
+        }
+      }
+    },
+    {
+      "seq": 7020,
+      "ts_ms": 1791807056997,
+      "ts_wall": "2026-10-12T12:10:56.997Z",
+      "record_type": "HEALTH",
+      "source": "2702052aa13cacd0",
+      "tx_state": "RX",
+      "interlock_state": "READY",
+      "active_slice": "A",
+      "mode": "LSB",
+      "tune_value": 0,
+      "tune_fresh": true,
+      "tune_age_ms": 3143.780695002526,
+      "canonical_tune_state": "UNKNOWN",
+      "meters": {
+        "TX-/1/FWDPWR": {
+          "value": 0.001,
+          "unit": "W",
+          "quality": "RX_NOT_TX_MEASUREMENT",
+          "seen": 1791807056982
+        },
+        "TX-/2/REFPWR": {
+          "value": 0.001,
+          "unit": "W",
+          "quality": "RX_NOT_TX_MEASUREMENT",
+          "seen": 1791807056983
+        },
+        "TX-/3/SWR": {
+          "value": 1,
+          "unit": "",
+          "quality": "RX_NOT_TX_MEASUREMENT",
+          "seen": 1791807056983
+        },
+        "TX-/4/PATEMP": {
+          "value": 23.98,
+          "unit": "°C",
+          "quality": "FRESH",
+          "seen": 1791807055874
+        },
+        "RAD/8/PAFETQ1TEMP": {
+          "value": 25,
+          "unit": "°C",
+          "quality": "FRESH",
+          "seen": 1791807055873
+        },
+        "RAD/9/PAFETQ2TEMP": {
+          "value": 25,
+          "unit": "°C",
+          "quality": "FRESH",
+          "seen": 1791807055874
+        },
+        "RAD/300/PACURRENT": {
+          "value": 0.09,
+          "unit": "A",
+          "quality": "FRESH",
+          "seen": 1791807055872
+        },
+        "TX-/6/PAEFF": {
+          "value": 0,
+          "unit": "%",
+          "quality": "FRESH",
+          "seen": 1791807056919
+        },
+        "RAD/334/+13.8A": {
+          "value": 12.02,
+          "unit": "V",
+          "quality": "FRESH",
+          "seen": 1791807055871
+        },
+        "RAD/0/+13.8B": {
+          "value": 12.39,
+          "unit": "V",
+          "quality": "FRESH",
+          "seen": 1791807055872
+        },
+        "RAD/3/MAINFAN": {
+          "value": 988,
+          "unit": "RPM",
+          "quality": "FRESH",
+          "seen": 1791807055873
+        }
+      }
+    },
+    {
+      "seq": 7021,
+      "ts_ms": 1791807058043,
+      "ts_wall": "2026-10-12T12:10:58.043Z",
+      "record_type": "HEALTH",
+      "source": "2702052aa13cacd0",
+      "tx_state": "RX",
+      "interlock_state": "READY",
+      "active_slice": "A",
+      "mode": "LSB",
+      "tune_value": 0,
+      "tune_fresh": true,
+      "tune_age_ms": 4189.3547510020435,
+      "canonical_tune_state": "UNKNOWN",
+      "meters": {
+        "TX-/1/FWDPWR": {
+          "value": 0.001,
+          "unit": "W",
+          "quality": "RX_NOT_TX_MEASUREMENT",
+          "seen": 1791807058011
+        },
+        "TX-/2/REFPWR": {
+          "value": 0.001,
+          "unit": "W",
+          "quality": "RX_NOT_TX_MEASUREMENT",
+          "seen": 1791807058012
+        },
+        "TX-/3/SWR": {
+          "value": 1,
+          "unit": "",
+          "quality": "RX_NOT_TX_MEASUREMENT",
+          "seen": 1791807058012
+        },
+        "TX-/4/PATEMP": {
+          "value": 23.98,
+          "unit": "°C",
+          "quality": "FRESH",
+          "seen": 1791807058013
+        },
+        "RAD/8/PAFETQ1TEMP": {
+          "value": 25,
+          "unit": "°C",
+          "quality": "FRESH",
+          "seen": 1791807058008
+        },
+        "RAD/9/PAFETQ2TEMP": {
+          "value": 25,
+          "unit": "°C",
+          "quality": "FRESH",
+          "seen": 1791807058010
+        },
+        "RAD/300/PACURRENT": {
+          "value": 0,
+          "unit": "A",
+          "quality": "FRESH",
+          "seen": 1791807058006
+        },
+        "TX-/6/PAEFF": {
+          "value": 0,
+          "unit": "%",
+          "quality": "FRESH",
+          "seen": 1791807057939
+        },
+        "RAD/334/+13.8A": {
+          "value": 12.02,
+          "unit": "V",
+          "quality": "FRESH",
+          "seen": 1791807058005
+        },
+        "RAD/0/+13.8B": {
+          "value": 12.35,
+          "unit": "V",
+          "quality": "FRESH",
+          "seen": 1791807058006
+        },
+        "RAD/3/MAINFAN": {
+          "value": 988,
+          "unit": "RPM",
+          "quality": "FRESH",
+          "seen": 1791807058007
+        }
+      }
+    },
+    {
+      "seq": 7022,
+      "ts_ms": 1791807058878,
+      "ts_wall": "2026-10-12T12:10:58.878Z",
+      "record_type": "COMMAND_REQUEST",
+      "source": "07c61c6741eb8fad",
+      "tx_state": "RX",
+      "interlock_state": "READY",
+      "active_slice": "A",
+      "mode": "LSB",
+      "tune_value": 0,
+      "tune_fresh": true,
+      "derived_from_seq": null,
+      "new_value": "sub tx all"
+    },
+    {
+      "seq": 7023,
+      "ts_ms": 1791807058878,
+      "ts_wall": "2026-10-12T12:10:58.878Z",
+      "record_type": "COMMAND_REQUEST",
+      "source": "07c61c6741eb8fad",
+      "tx_state": "RX",
+      "interlock_state": "READY",
+      "active_slice": "A",
+      "mode": "LSB",
+      "tune_value": 0,
+      "tune_fresh": true,
+      "derived_from_seq": null,
+      "new_value": "sub radio all"
+    },
+    {
+      "seq": 7024,
+      "ts_ms": 1791807058917,
+      "ts_wall": "2026-10-12T12:10:58.917Z",
+      "record_type": "ACK_RESPONSE",
+      "source": "07c61c6741eb8fad",
+      "tx_state": "RX",
+      "interlock_state": "READY",
+      "active_slice": "A",
+      "mode": "LSB",
+      "tune_value": 0,
+      "tune_fresh": true,
+      "derived_from_seq": null,
+      "new_value": 0
+    },
+    {
+      "seq": 7025,
+      "ts_ms": 1791807059008,
+      "ts_wall": "2026-10-12T12:10:59.008Z",
+      "record_type": "ACK_RESPONSE",
+      "source": "07c61c6741eb8fad",
+      "tx_state": "RX",
+      "interlock_state": "READY",
+      "active_slice": "A",
+      "mode": "LSB",
+      "tune_value": 0,
+      "tune_fresh": true,
+      "derived_from_seq": null,
+      "new_value": 0
+    },
+    {
+      "seq": 7026,
+      "ts_ms": 1791807059074,
+      "ts_wall": "2026-10-12T12:10:59.074Z",
+      "record_type": "HEALTH",
+      "source": "2702052aa13cacd0",
+      "tx_state": "RX",
+      "interlock_state": "READY",
+      "active_slice": "A",
+      "mode": "LSB",
+      "tune_value": 0,
+      "tune_fresh": true,
+      "tune_age_ms": 165.60763800144196,
+      "canonical_tune_state": "UNKNOWN",
+      "meters": {
+        "TX-/1/FWDPWR": {
+          "value": 0.001,
+          "unit": "W",
+          "quality": "RX_NOT_TX_MEASUREMENT",
+          "seen": 1791807059021
+        },
+        "TX-/2/REFPWR": {
+          "value": 0.001,
+          "unit": "W",
+          "quality": "RX_NOT_TX_MEASUREMENT",
+          "seen": 1791807059022
+        },
+        "TX-/3/SWR": {
+          "value": 1,
+          "unit": "",
+          "quality": "RX_NOT_TX_MEASUREMENT",
+          "seen": 1791807059023
+        },
+        "TX-/4/PATEMP": {
+          "value": 23.98,
+          "unit": "°C",
+          "quality": "FRESH",
+          "seen": 1791807058013
+        },
+        "RAD/8/PAFETQ1TEMP": {
+          "value": 25,
+          "unit": "°C",
+          "quality": "FRESH",
+          "seen": 1791807058008
+        },
+        "RAD/9/PAFETQ2TEMP": {
+          "value": 25,
+          "unit": "°C",
+          "quality": "FRESH",
+          "seen": 1791807058010
+        },
+        "RAD/300/PACURRENT": {
+          "value": 0,
+          "unit": "A",
+          "quality": "FRESH",
+          "seen": 1791807058006
+        },
+        "TX-/6/PAEFF": {
+          "value": 0,
+          "unit": "%",
+          "quality": "FRESH",
+          "seen": 1791807058959
+        },
+        "RAD/334/+13.8A": {
+          "value": 12.02,
+          "unit": "V",
+          "quality": "FRESH",
+          "seen": 1791807058005
+        },
+        "RAD/0/+13.8B": {
+          "value": 12.35,
+          "unit": "V",
+          "quality": "FRESH",
+          "seen": 1791807058006
+        },
+        "RAD/3/MAINFAN": {
+          "value": 988,
+          "unit": "RPM",
+          "quality": "FRESH",
+          "seen": 1791807058007
+        }
+      }
+    },
+    {
+      "seq": 7027,
+      "ts_ms": 1791807060107,
+      "ts_wall": "2026-10-12T12:11:00.107Z",
+      "record_type": "HEALTH",
+      "source": "2702052aa13cacd0",
+      "tx_state": "RX",
+      "interlock_state": "READY",
+      "active_slice": "A",
+      "mode": "LSB",
+      "tune_value": 0,
+      "tune_fresh": true,
+      "tune_age_ms": 1198.4665030017495,
+      "canonical_tune_state": "UNKNOWN",
+      "meters": {
+        "TX-/1/FWDPWR": {
+          "value": 0.001,
+          "unit": "W",
+          "quality": "RX_NOT_TX_MEASUREMENT",
+          "seen": 1791807060105
+        },
+        "TX-/2/REFPWR": {
+          "value": 0.001,
+          "unit": "W",
+          "quality": "RX_NOT_TX_MEASUREMENT",
+          "seen": 1791807060106
+        },
+        "TX-/3/SWR": {
+          "value": 1,
+          "unit": "",
+          "quality": "RX_NOT_TX_MEASUREMENT",
+          "seen": 1791807060107
+        },
+        "TX-/4/PATEMP": {
+          "value": 23.98,
+          "unit": "°C",
+          "quality": "FRESH",
+          "seen": 1791807058013
+        },
+        "RAD/8/PAFETQ1TEMP": {
+          "value": 25,
+          "unit": "°C",
+          "quality": "FRESH",
+          "seen": 1791807058008
+        },
+        "RAD/9/PAFETQ2TEMP": {
+          "value": 25,
+          "unit": "°C",
+          "quality": "FRESH",
+          "seen": 1791807058010
+        },
+        "RAD/300/PACURRENT": {
+          "value": 0,
+          "unit": "A",
+          "quality": "FRESH",
+          "seen": 1791807058006
+        },
+        "TX-/6/PAEFF": {
+          "value": 0,
+          "unit": "%",
+          "quality": "FRESH",
+          "seen": 1791807060105
+        },
+        "RAD/334/+13.8A": {
+          "value": 12.02,
+          "unit": "V",
+          "quality": "FRESH",
+          "seen": 1791807058005
+        },
+        "RAD/0/+13.8B": {
+          "value": 12.35,
+          "unit": "V",
+          "quality": "FRESH",
+          "seen": 1791807058006
+        },
+        "RAD/3/MAINFAN": {
+          "value": 988,
+          "unit": "RPM",
+          "quality": "FRESH",
+          "seen": 1791807058007
+        }
+      }
+    },
+    {
+      "seq": 7028,
+      "ts_ms": 1791807061130,
+      "ts_wall": "2026-10-12T12:11:01.130Z",
+      "record_type": "HEALTH",
+      "source": "2702052aa13cacd0",
+      "tx_state": "RX",
+      "interlock_state": "READY",
+      "active_slice": "A",
+      "mode": "LSB",
+      "tune_value": 0,
+      "tune_fresh": true,
+      "tune_age_ms": 2221.146979998797,
+      "canonical_tune_state": "UNKNOWN",
+      "meters": {
+        "TX-/1/FWDPWR": {
+          "value": 0.001,
+          "unit": "W",
+          "quality": "RX_NOT_TX_MEASUREMENT",
+          "seen": 1791807061127
+        },
+        "TX-/2/REFPWR": {
+          "value": 0.001,
+          "unit": "W",
+          "quality": "RX_NOT_TX_MEASUREMENT",
+          "seen": 1791807061128
+        },
+        "TX-/3/SWR": {
+          "value": 1,
+          "unit": "",
+          "quality": "RX_NOT_TX_MEASUREMENT",
+          "seen": 1791807061129
+        },
+        "TX-/4/PATEMP": {
+          "value": 23.98,
+          "unit": "°C",
+          "quality": "FRESH",
+          "seen": 1791807060146
+        },
+        "RAD/8/PAFETQ1TEMP": {
+          "value": 25,
+          "unit": "°C",
+          "quality": "FRESH",
+          "seen": 1791807060145
+        },
+        "RAD/9/PAFETQ2TEMP": {
+          "value": 25,
+          "unit": "°C",
+          "quality": "FRESH",
+          "seen": 1791807060145
+        },
+        "RAD/300/PACURRENT": {
+          "value": 0,
+          "unit": "A",
+          "quality": "FRESH",
+          "seen": 1791807060143
+        },
+        "TX-/6/PAEFF": {
+          "value": 0,
+          "unit": "%",
+          "quality": "FRESH",
+          "seen": 1791807061127
+        },
+        "RAD/334/+13.8A": {
+          "value": 12,
+          "unit": "V",
+          "quality": "FRESH",
+          "seen": 1791807060143
+        },
+        "RAD/0/+13.8B": {
+          "value": 12.32,
+          "unit": "V",
+          "quality": "FRESH",
+          "seen": 1791807060144
+        },
+        "RAD/3/MAINFAN": {
+          "value": 988,
+          "unit": "RPM",
+          "quality": "FRESH",
+          "seen": 1791807060144
+        }
+      }
+    },
+    {
+      "seq": 7029,
+      "ts_ms": 1791807062166,
+      "ts_wall": "2026-10-12T12:11:02.166Z",
+      "record_type": "HEALTH",
+      "source": "2702052aa13cacd0",
+      "tx_state": "RX",
+      "interlock_state": "READY",
+      "active_slice": "A",
+      "mode": "LSB",
+      "tune_value": 0,
+      "tune_fresh": true,
+      "tune_age_ms": 3257.7886979989707,
+      "canonical_tune_state": "UNKNOWN",
+      "meters": {
+        "TX-/1/FWDPWR": {
+          "value": 0.001,
+          "unit": "W",
+          "quality": "RX_NOT_TX_MEASUREMENT",
+          "seen": 1791807062144
+        },
+        "TX-/2/REFPWR": {
+          "value": 0.001,
+          "unit": "W",
+          "quality": "RX_NOT_TX_MEASUREMENT",
+          "seen": 1791807062145
+        },
+        "TX-/3/SWR": {
+          "value": 1,
+          "unit": "",
+          "quality": "RX_NOT_TX_MEASUREMENT",
+          "seen": 1791807062145
+        },
+        "TX-/4/PATEMP": {
+          "value": 23.98,
+          "unit": "°C",
+          "quality": "FRESH",
+          "seen": 1791807060146
+        },
+        "RAD/8/PAFETQ1TEMP": {
+          "value": 25,
+          "unit": "°C",
+          "quality": "FRESH",
+          "seen": 1791807060145
+        },
+        "RAD/9/PAFETQ2TEMP": {
+          "value": 25,
+          "unit": "°C",
+          "quality": "FRESH",
+          "seen": 1791807060145
+        },
+        "RAD/300/PACURRENT": {
+          "value": 0,
+          "unit": "A",
+          "quality": "FRESH",
+          "seen": 1791807060143
+        },
+        "TX-/6/PAEFF": {
+          "value": 0,
+          "unit": "%",
+          "quality": "FRESH",
+          "seen": 1791807062144
+        },
+        "RAD/334/+13.8A": {
+          "value": 12,
+          "unit": "V",
+          "quality": "FRESH",
+          "seen": 1791807060143
+        },
+        "RAD/0/+13.8B": {
+          "value": 12.32,
+          "unit": "V",
+          "quality": "FRESH",
+          "seen": 1791807060144
+        },
+        "RAD/3/MAINFAN": {
+          "value": 988,
+          "unit": "RPM",
+          "quality": "FRESH",
+          "seen": 1791807060144
+        }
+      }
+    },
+    {
+      "seq": 7030,
+      "ts_ms": 1791807063190,
+      "ts_wall": "2026-10-12T12:11:03.190Z",
+      "record_type": "HEALTH",
+      "source": "2702052aa13cacd0",
+      "tx_state": "RX",
+      "interlock_state": "READY",
+      "active_slice": "A",
+      "mode": "LSB",
+      "tune_value": 0,
+      "tune_fresh": true,
+      "tune_age_ms": 4281.562564000487,
+      "canonical_tune_state": "UNKNOWN",
+      "meters": {
+        "TX-/1/FWDPWR": {
+          "value": 0.001,
+          "unit": "W",
+          "quality": "RX_NOT_TX_MEASUREMENT",
+          "seen": 1791807063165
+        },
+        "TX-/2/REFPWR": {
+          "value": 0.001,
+          "unit": "W",
+          "quality": "RX_NOT_TX_MEASUREMENT",
+          "seen": 1791807063166
+        },
+        "TX-/3/SWR": {
+          "value": 1,
+          "unit": "",
+          "quality": "RX_NOT_TX_MEASUREMENT",
+          "seen": 1791807063166
+        },
+        "TX-/4/PATEMP": {
+          "value": 23.98,
+          "unit": "°C",
+          "quality": "FRESH",
+          "seen": 1791807062281
+        },
+        "RAD/8/PAFETQ1TEMP": {
+          "value": 25,
+          "unit": "°C",
+          "quality": "FRESH",
+          "seen": 1791807062277
+        },
+        "RAD/9/PAFETQ2TEMP": {
+          "value": 25,
+          "unit": "°C",
+          "quality": "FRESH",
+          "seen": 1791807062277
+        },
+        "RAD/300/PACURRENT": {
+          "value": 0.13,
+          "unit": "A",
+          "quality": "FRESH",
+          "seen": 1791807062275
+        },
+        "TX-/6/PAEFF": {
+          "value": 0,
+          "unit": "%",
+          "quality": "FRESH",
+          "seen": 1791807063165
+        },
+        "RAD/334/+13.8A": {
+          "value": 12.01,
+          "unit": "V",
+          "quality": "FRESH",
+          "seen": 1791807062274
+        },
+        "RAD/0/+13.8B": {
+          "value": 12.39,
+          "unit": "V",
+          "quality": "FRESH",
+          "seen": 1791807062275
+        },
+        "RAD/3/MAINFAN": {
+          "value": 988,
+          "unit": "RPM",
+          "quality": "FRESH",
+          "seen": 1791807062276
+        }
+      }
+    },
+    {
+      "seq": 7031,
+      "ts_ms": 1791807063890,
+      "ts_wall": "2026-10-12T12:11:03.890Z",
+      "record_type": "COMMAND_REQUEST",
+      "source": "07c61c6741eb8fad",
+      "tx_state": "RX",
+      "interlock_state": "READY",
+      "active_slice": "A",
+      "mode": "LSB",
+      "tune_value": 0,
+      "tune_fresh": true,
+      "derived_from_seq": null,
+      "new_value": "sub tx all"
+    },
+    {
+      "seq": 7032,
+      "ts_ms": 1791807063891,
+      "ts_wall": "2026-10-12T12:11:03.891Z",
+      "record_type": "COMMAND_REQUEST",
+      "source": "07c61c6741eb8fad",
+      "tx_state": "RX",
+      "interlock_state": "READY",
+      "active_slice": "A",
+      "mode": "LSB",
+      "tune_value": 0,
+      "tune_fresh": true,
+      "derived_from_seq": null,
+      "new_value": "sub radio all"
+    },
+    {
+      "seq": 7033,
+      "ts_ms": 1791807063983,
+      "ts_wall": "2026-10-12T12:11:03.983Z",
+      "record_type": "ACK_RESPONSE",
+      "source": "07c61c6741eb8fad",
+      "tx_state": "RX",
+      "interlock_state": "READY",
+      "active_slice": "A",
+      "mode": "LSB",
+      "tune_value": 0,
+      "tune_fresh": true,
+      "derived_from_seq": null,
+      "new_value": 0
+    },
+    {
+      "seq": 7034,
+      "ts_ms": 1791807063984,
+      "ts_wall": "2026-10-12T12:11:03.984Z",
+      "record_type": "ACK_RESPONSE",
+      "source": "07c61c6741eb8fad",
+      "tx_state": "RX",
+      "interlock_state": "READY",
+      "active_slice": "A",
+      "mode": "LSB",
+      "tune_value": 0,
+      "tune_fresh": true,
+      "derived_from_seq": null,
+      "new_value": 0
+    },
+    {
+      "seq": 7035,
+      "ts_ms": 1791807064207,
+      "ts_wall": "2026-10-12T12:11:04.207Z",
+      "record_type": "HEALTH",
+      "source": "2702052aa13cacd0",
+      "tx_state": "RX",
+      "interlock_state": "READY",
+      "active_slice": "A",
+      "mode": "LSB",
+      "tune_value": 0,
+      "tune_fresh": true,
+      "tune_age_ms": 228.19718199968338,
+      "canonical_tune_state": "UNKNOWN",
+      "meters": {
+        "TX-/1/FWDPWR": {
+          "value": 0.001,
+          "unit": "W",
+          "quality": "RX_NOT_TX_MEASUREMENT",
+          "seen": 1791807064183
+        },
+        "TX-/2/REFPWR": {
+          "value": 0.001,
+          "unit": "W",
+          "quality": "RX_NOT_TX_MEASUREMENT",
+          "seen": 1791807064184
+        },
+        "TX-/3/SWR": {
+          "value": 1,
+          "unit": "",
+          "quality": "RX_NOT_TX_MEASUREMENT",
+          "seen": 1791807064184
+        },
+        "TX-/4/PATEMP": {
+          "value": 23.98,
+          "unit": "°C",
+          "quality": "FRESH",
+          "seen": 1791807062281
+        },
+        "RAD/8/PAFETQ1TEMP": {
+          "value": 25,
+          "unit": "°C",
+          "quality": "FRESH",
+          "seen": 1791807062277
+        },
+        "RAD/9/PAFETQ2TEMP": {
+          "value": 25,
+          "unit": "°C",
+          "quality": "FRESH",
+          "seen": 1791807062277
+        },
+        "RAD/300/PACURRENT": {
+          "value": 0.13,
+          "unit": "A",
+          "quality": "FRESH",
+          "seen": 1791807062275
+        },
+        "TX-/6/PAEFF": {
+          "value": 0,
+          "unit": "%",
+          "quality": "FRESH",
+          "seen": 1791807064182
+        },
+        "RAD/334/+13.8A": {
+          "value": 12.01,
+          "unit": "V",
+          "quality": "FRESH",
+          "seen": 1791807062274
+        },
+        "RAD/0/+13.8B": {
+          "value": 12.39,
+          "unit": "V",
+          "quality": "FRESH",
+          "seen": 1791807062275
+        },
+        "RAD/3/MAINFAN": {
+          "value": 988,
+          "unit": "RPM",
+          "quality": "FRESH",
+          "seen": 1791807062276
+        }
+      }
+    },
+    {
+      "seq": 7036,
+      "ts_ms": 1791807064340,
+      "ts_wall": "2026-10-12T12:11:04.340Z",
+      "record_type": "CLIENT_SESSION",
+      "source": "7fbf2bfc9badc7d3",
+      "tx_state": "RX",
+      "interlock_state": "READY",
+      "active_slice": "A",
+      "mode": "LSB",
+      "tune_value": 0,
+      "tune_fresh": true,
+      "observation_confidence": "DIRECT",
+      "derived_from_seq": null
+    },
+    {
+      "seq": 7037,
+      "ts_ms": 1791807064341,
+      "ts_wall": "2026-10-12T12:11:04.341Z",
+      "record_type": "SLICE_REMOVED",
+      "source": "7fbf2bfc9badc7d3",
+      "tx_state": "RX",
+      "interlock_state": "READY",
+      "active_slice": "A",
+      "mode": "LSB",
+      "tune_value": 0,
+      "tune_fresh": true,
+      "observation_confidence": "DIRECT",
+      "derived_from_seq": null,
+      "old_value": "PRESENT",
+      "new_value": "REMOVED"
+    },
+    {
+      "seq": 7038,
+      "ts_ms": 1791807064347,
+      "ts_wall": "2026-10-12T12:11:04.347Z",
+      "record_type": "CANONICAL_STATE",
+      "source": "au510m_live_state",
+      "tx_state": "RX",
+      "interlock_state": "READY",
+      "active_slice": "A",
+      "mode": "LSB",
+      "tune_value": 0,
+      "tune_fresh": true,
+      "derived_from_seq": null,
+      "old_value": "7.1147 MHz"
+    },
+    {
+      "seq": 7039,
+      "ts_ms": 1791807064347,
+      "ts_wall": "2026-10-12T12:11:04.347Z",
+      "record_type": "CANONICAL_STATE",
+      "source": "au510m_live_state",
+      "tx_state": "RX",
+      "interlock_state": "READY",
+      "active_slice": "A",
+      "mode": null,
+      "tune_value": 0,
+      "tune_fresh": true,
+      "derived_from_seq": null,
+      "old_value": "LSB"
+    },
+    {
+      "seq": 7040,
+      "ts_ms": 1791807064347,
+      "ts_wall": "2026-10-12T12:11:04.347Z",
+      "record_type": "CANONICAL_STATE",
+      "source": "au510m_live_state",
+      "tx_state": "RX",
+      "interlock_state": "READY",
+      "active_slice": null,
+      "mode": null,
+      "tune_value": 0,
+      "tune_fresh": true,
+      "derived_from_seq": null,
+      "old_value": "A"
+    },
+    {
+      "seq": 7041,
+      "ts_ms": 1791807064369,
+      "ts_wall": "2026-10-12T12:11:04.369Z",
+      "record_type": "INTERLOCK_STATE",
+      "source": "au510m_live_state",
+      "tx_state": "RX",
+      "interlock_state": "RECEIVE",
+      "active_slice": null,
+      "mode": null,
+      "tune_value": 0,
+      "tune_fresh": true,
+      "observation_confidence": "DIRECT",
+      "derived_from_seq": null,
+      "old_value": "READY",
+      "new_value": "RECEIVE"
+    },
+    {
+      "seq": 7042,
+      "ts_ms": 1791807064369,
+      "ts_wall": "2026-10-12T12:11:04.369Z",
+      "record_type": "INTERLOCK_FIELD",
+      "source": "au510m_live_state",
+      "tx_state": "RX",
+      "interlock_state": "RECEIVE",
+      "active_slice": null,
+      "mode": null,
+      "tune_value": 0,
+      "tune_fresh": true,
+      "observation_confidence": "DIRECT",
+      "derived_from_seq": null,
+      "old_value": 1,
+      "new_value": 0
+    }
+  ],
+  "checks": [
+    {
+      "at": "2026-10-12T12:10:34.035Z",
+      "seq": 6967,
+      "connection": "CONNECTED",
+      "active_slice": "A",
+      "tx_state": "RX",
+      "pa_health_state": "UNKNOWN",
+      "pa_health_reason": "NUMERIC RULES PENDING",
+      "pa_health_confidence": "DERIVED",
+      "tune_candidate": 0,
+      "tune_candidate_fresh": true,
+      "metrics": {
+        "dropped_by_limit": 0,
+        "dropped_by_memory": 0,
+        "source_overflow": 0,
+        "errors": 0,
+        "sqlite_status": "READY",
+        "sqlite_dropped_records": 0,
+        "sqlite_queue_records": 0,
+        "total_incidents": 0,
+        "persistence_active_captures": 0,
+        "total_health_samples": 3189,
+        "total_events": 3778
+      },
+      "canonical_pa_fault": "READY"
+    },
+    {
+      "at": "2026-10-12T12:10:35.101Z",
+      "seq": 6968,
+      "connection": "CONNECTED",
+      "active_slice": "A",
+      "tx_state": "RX",
+      "pa_health_state": "UNKNOWN",
+      "pa_health_reason": "NUMERIC RULES PENDING",
+      "pa_health_confidence": "DERIVED",
+      "tune_candidate": 0,
+      "tune_candidate_fresh": true,
+      "metrics": {
+        "dropped_by_limit": 0,
+        "dropped_by_memory": 0,
+        "source_overflow": 0,
+        "errors": 0,
+        "sqlite_status": "READY",
+        "sqlite_dropped_records": 0,
+        "sqlite_queue_records": 0,
+        "total_incidents": 0,
+        "persistence_active_captures": 0,
+        "total_health_samples": 3190,
+        "total_events": 3778
+      },
+      "canonical_pa_fault": "READY"
+    },
+    {
+      "at": "2026-10-12T12:10:36.150Z",
+      "seq": 6969,
+      "connection": "CONNECTED",
+      "active_slice": "A",
+      "tx_state": "RX",
+      "pa_health_state": "UNKNOWN",
+      "pa_health_reason": "NUMERIC RULES PENDING",
+      "pa_health_confidence": "DERIVED",
+      "tune_candidate": 0,
+      "tune_candidate_fresh": true,
+      "metrics": {
+        "dropped_by_limit": 0,
+        "dropped_by_memory": 0,
+        "source_overflow": 0,
+        "errors": 0,
+        "sqlite_status": "READY",
+        "sqlite_dropped_records": 0,
+        "sqlite_queue_records": 0,
+        "total_incidents": 0,
+        "persistence_active_captures": 0,
+        "total_health_samples": 3191,
+        "total_events": 3778
+      },
+      "canonical_pa_fault": "READY"
+    },
+    {
+      "at": "2026-10-12T12:10:37.220Z",
+      "seq": 6970,
+      "connection": "CONNECTED",
+      "active_slice": "A",
+      "tx_state": "RX",
+      "pa_health_state": "UNKNOWN",
+      "pa_health_reason": "NUMERIC RULES PENDING",
+      "pa_health_confidence": "DERIVED",
+      "tune_candidate": 0,
+      "tune_candidate_fresh": true,
+      "metrics": {
+        "dropped_by_limit": 0,
+        "dropped_by_memory": 0,
+        "source_overflow": 0,
+        "errors": 0,
+        "sqlite_status": "READY",
+        "sqlite_dropped_records": 0,
+        "sqlite_queue_records": 0,
+        "total_incidents": 0,
+        "persistence_active_captures": 0,
+        "total_health_samples": 3192,
+        "total_events": 3778
+      },
+      "canonical_pa_fault": "READY"
+    },
+    {
+      "at": "2026-10-12T12:10:38.261Z",
+      "seq": 6975,
+      "connection": "CONNECTED",
+      "active_slice": "A",
+      "tx_state": "RX",
+      "pa_health_state": "UNKNOWN",
+      "pa_health_reason": "NUMERIC RULES PENDING",
+      "pa_health_confidence": "DERIVED",
+      "tune_candidate": 0,
+      "tune_candidate_fresh": true,
+      "metrics": {
+        "dropped_by_limit": 0,
+        "dropped_by_memory": 0,
+        "source_overflow": 0,
+        "errors": 0,
+        "sqlite_status": "READY",
+        "sqlite_dropped_records": 0,
+        "sqlite_queue_records": 0,
+        "total_incidents": 0,
+        "persistence_active_captures": 0,
+        "total_health_samples": 3193,
+        "total_events": 3782
+      },
+      "canonical_pa_fault": "READY"
+    },
+    {
+      "at": "2026-10-12T12:10:39.322Z",
+      "seq": 6976,
+      "connection": "CONNECTED",
+      "active_slice": "A",
+      "tx_state": "RX",
+      "pa_health_state": "UNKNOWN",
+      "pa_health_reason": "NUMERIC RULES PENDING",
+      "pa_health_confidence": "DERIVED",
+      "tune_candidate": 0,
+      "tune_candidate_fresh": true,
+      "metrics": {
+        "dropped_by_limit": 0,
+        "dropped_by_memory": 0,
+        "source_overflow": 0,
+        "errors": 0,
+        "sqlite_status": "READY",
+        "sqlite_dropped_records": 0,
+        "sqlite_queue_records": 0,
+        "total_incidents": 0,
+        "persistence_active_captures": 0,
+        "total_health_samples": 3194,
+        "total_events": 3782
+      },
+      "canonical_pa_fault": "READY"
+    },
+    {
+      "at": "2026-10-12T12:10:40.370Z",
+      "seq": 6977,
+      "connection": "CONNECTED",
+      "active_slice": "A",
+      "tx_state": "RX",
+      "pa_health_state": "UNKNOWN",
+      "pa_health_reason": "NUMERIC RULES PENDING",
+      "pa_health_confidence": "DERIVED",
+      "tune_candidate": 0,
+      "tune_candidate_fresh": true,
+      "metrics": {
+        "dropped_by_limit": 0,
+        "dropped_by_memory": 0,
+        "source_overflow": 0,
+        "errors": 0,
+        "sqlite_status": "READY",
+        "sqlite_dropped_records": 0,
+        "sqlite_queue_records": 0,
+        "total_incidents": 0,
+        "persistence_active_captures": 0,
+        "total_health_samples": 3195,
+        "total_events": 3782
+      },
+      "canonical_pa_fault": "READY"
+    },
+    {
+      "at": "2026-10-12T12:10:41.417Z",
+      "seq": 6978,
+      "connection": "CONNECTED",
+      "active_slice": "A",
+      "tx_state": "RX",
+      "pa_health_state": "UNKNOWN",
+      "pa_health_reason": "NUMERIC RULES PENDING",
+      "pa_health_confidence": "DERIVED",
+      "tune_candidate": 0,
+      "tune_candidate_fresh": true,
+      "metrics": {
+        "dropped_by_limit": 0,
+        "dropped_by_memory": 0,
+        "source_overflow": 0,
+        "errors": 0,
+        "sqlite_status": "READY",
+        "sqlite_dropped_records": 0,
+        "sqlite_queue_records": 0,
+        "total_incidents": 0,
+        "persistence_active_captures": 0,
+        "total_health_samples": 3196,
+        "total_events": 3782
+      },
+      "canonical_pa_fault": "READY"
+    },
+    {
+      "at": "2026-10-12T12:10:42.455Z",
+      "seq": 6979,
+      "connection": "CONNECTED",
+      "active_slice": "A",
+      "tx_state": "RX",
+      "pa_health_state": "UNKNOWN",
+      "pa_health_reason": "NUMERIC RULES PENDING",
+      "pa_health_confidence": "DERIVED",
+      "tune_candidate": 0,
+      "tune_candidate_fresh": true,
+      "metrics": {
+        "dropped_by_limit": 0,
+        "dropped_by_memory": 0,
+        "source_overflow": 0,
+        "errors": 0,
+        "sqlite_status": "READY",
+        "sqlite_dropped_records": 0,
+        "sqlite_queue_records": 0,
+        "total_incidents": 0,
+        "persistence_active_captures": 0,
+        "total_health_samples": 3197,
+        "total_events": 3782
+      },
+      "canonical_pa_fault": "READY"
+    },
+    {
+      "at": "2026-10-12T12:10:43.492Z",
+      "seq": 6984,
+      "connection": "CONNECTED",
+      "active_slice": "A",
+      "tx_state": "RX",
+      "pa_health_state": "UNKNOWN",
+      "pa_health_reason": "NUMERIC RULES PENDING",
+      "pa_health_confidence": "DERIVED",
+      "tune_candidate": 0,
+      "tune_candidate_fresh": true,
+      "metrics": {
+        "dropped_by_limit": 0,
+        "dropped_by_memory": 0,
+        "source_overflow": 0,
+        "errors": 0,
+        "sqlite_status": "READY",
+        "sqlite_dropped_records": 0,
+        "sqlite_queue_records": 0,
+        "total_incidents": 0,
+        "persistence_active_captures": 0,
+        "total_health_samples": 3198,
+        "total_events": 3786
+      },
+      "canonical_pa_fault": "READY"
+    },
+    {
+      "at": "2026-10-12T12:10:44.542Z",
+      "seq": 6985,
+      "connection": "CONNECTED",
+      "active_slice": "A",
+      "tx_state": "RX",
+      "pa_health_state": "UNKNOWN",
+      "pa_health_reason": "NUMERIC RULES PENDING",
+      "pa_health_confidence": "DERIVED",
+      "tune_candidate": 0,
+      "tune_candidate_fresh": true,
+      "metrics": {
+        "dropped_by_limit": 0,
+        "dropped_by_memory": 0,
+        "source_overflow": 0,
+        "errors": 0,
+        "sqlite_status": "READY",
+        "sqlite_dropped_records": 0,
+        "sqlite_queue_records": 0,
+        "total_incidents": 0,
+        "persistence_active_captures": 0,
+        "total_health_samples": 3199,
+        "total_events": 3786
+      },
+      "canonical_pa_fault": "READY"
+    },
+    {
+      "at": "2026-10-12T12:10:45.585Z",
+      "seq": 6986,
+      "connection": "CONNECTED",
+      "active_slice": "A",
+      "tx_state": "RX",
+      "pa_health_state": "UNKNOWN",
+      "pa_health_reason": "NUMERIC RULES PENDING",
+      "pa_health_confidence": "DERIVED",
+      "tune_candidate": 0,
+      "tune_candidate_fresh": true,
+      "metrics": {
+        "dropped_by_limit": 0,
+        "dropped_by_memory": 0,
+        "source_overflow": 0,
+        "errors": 0,
+        "sqlite_status": "READY",
+        "sqlite_dropped_records": 0,
+        "sqlite_queue_records": 0,
+        "total_incidents": 0,
+        "persistence_active_captures": 0,
+        "total_health_samples": 3200,
+        "total_events": 3786
+      },
+      "canonical_pa_fault": "READY"
+    },
+    {
+      "at": "2026-10-12T12:10:46.627Z",
+      "seq": 6987,
+      "connection": "CONNECTED",
+      "active_slice": "A",
+      "tx_state": "RX",
+      "pa_health_state": "UNKNOWN",
+      "pa_health_reason": "NUMERIC RULES PENDING",
+      "pa_health_confidence": "DERIVED",
+      "tune_candidate": 0,
+      "tune_candidate_fresh": true,
+      "metrics": {
+        "dropped_by_limit": 0,
+        "dropped_by_memory": 0,
+        "source_overflow": 0,
+        "errors": 0,
+        "sqlite_status": "READY",
+        "sqlite_dropped_records": 0,
+        "sqlite_queue_records": 0,
+        "total_incidents": 0,
+        "persistence_active_captures": 0,
+        "total_health_samples": 3201,
+        "total_events": 3786
+      },
+      "canonical_pa_fault": "READY"
+    },
+    {
+      "at": "2026-10-12T12:10:47.681Z",
+      "seq": 6988,
+      "connection": "CONNECTED",
+      "active_slice": "A",
+      "tx_state": "RX",
+      "pa_health_state": "UNKNOWN",
+      "pa_health_reason": "NUMERIC RULES PENDING",
+      "pa_health_confidence": "DERIVED",
+      "tune_candidate": 0,
+      "tune_candidate_fresh": true,
+      "metrics": {
+        "dropped_by_limit": 0,
+        "dropped_by_memory": 0,
+        "source_overflow": 0,
+        "errors": 0,
+        "sqlite_status": "READY",
+        "sqlite_dropped_records": 0,
+        "sqlite_queue_records": 0,
+        "total_incidents": 0,
+        "persistence_active_captures": 0,
+        "total_health_samples": 3202,
+        "total_events": 3786
+      },
+      "canonical_pa_fault": "READY"
+    },
+    {
+      "at": "2026-10-12T12:10:48.718Z",
+      "seq": 6989,
+      "connection": "CONNECTED",
+      "active_slice": "A",
+      "tx_state": "RX",
+      "pa_health_state": "UNKNOWN",
+      "pa_health_reason": "NUMERIC RULES PENDING",
+      "pa_health_confidence": "DERIVED",
+      "tune_candidate": 0,
+      "tune_candidate_fresh": true,
+      "metrics": {
+        "dropped_by_limit": 0,
+        "dropped_by_memory": 0,
+        "source_overflow": 0,
+        "errors": 0,
+        "sqlite_status": "READY",
+        "sqlite_dropped_records": 0,
+        "sqlite_queue_records": 0,
+        "total_incidents": 0,
+        "persistence_active_captures": 0,
+        "total_health_samples": 3203,
+        "total_events": 3786
+      },
+      "canonical_pa_fault": "READY"
+    },
+    {
+      "at": "2026-10-12T12:10:49.766Z",
+      "seq": 6994,
+      "connection": "CONNECTED",
+      "active_slice": "A",
+      "tx_state": "RX",
+      "pa_health_state": "UNKNOWN",
+      "pa_health_reason": "NUMERIC RULES PENDING",
+      "pa_health_confidence": "DERIVED",
+      "tune_candidate": 0,
+      "tune_candidate_fresh": true,
+      "metrics": {
+        "dropped_by_limit": 0,
+        "dropped_by_memory": 0,
+        "source_overflow": 0,
+        "errors": 0,
+        "sqlite_status": "READY",
+        "sqlite_dropped_records": 0,
+        "sqlite_queue_records": 0,
+        "total_incidents": 0,
+        "persistence_active_captures": 0,
+        "total_health_samples": 3204,
+        "total_events": 3790
+      },
+      "canonical_pa_fault": "READY"
+    },
+    {
+      "at": "2026-10-12T12:10:50.817Z",
+      "seq": 7010,
+      "connection": "CONNECTED",
+      "active_slice": "A",
+      "tx_state": "RX",
+      "pa_health_state": "UNKNOWN",
+      "pa_health_reason": "NUMERIC RULES PENDING",
+      "pa_health_confidence": "DERIVED",
+      "tune_candidate": 0,
+      "tune_candidate_fresh": true,
+      "metrics": {
+        "dropped_by_limit": 0,
+        "dropped_by_memory": 0,
+        "source_overflow": 0,
+        "errors": 0,
+        "sqlite_status": "READY",
+        "sqlite_dropped_records": 0,
+        "sqlite_queue_records": 0,
+        "total_incidents": 0,
+        "persistence_active_captures": 0,
+        "total_health_samples": 3206,
+        "total_events": 3804
+      },
+      "canonical_pa_fault": "READY"
+    },
+    {
+      "at": "2026-10-12T12:10:51.907Z",
+      "seq": 7011,
+      "connection": "CONNECTED",
+      "active_slice": "A",
+      "tx_state": "RX",
+      "pa_health_state": "UNKNOWN",
+      "pa_health_reason": "NUMERIC RULES PENDING",
+      "pa_health_confidence": "DERIVED",
+      "tune_candidate": 0,
+      "tune_candidate_fresh": true,
+      "metrics": {
+        "dropped_by_limit": 0,
+        "dropped_by_memory": 0,
+        "source_overflow": 0,
+        "errors": 0,
+        "sqlite_status": "READY",
+        "sqlite_dropped_records": 0,
+        "sqlite_queue_records": 0,
+        "total_incidents": 0,
+        "persistence_active_captures": 0,
+        "total_health_samples": 3207,
+        "total_events": 3804
+      },
+      "canonical_pa_fault": "READY"
+    },
+    {
+      "at": "2026-10-12T12:10:52.947Z",
+      "seq": 7012,
+      "connection": "CONNECTED",
+      "active_slice": "A",
+      "tx_state": "RX",
+      "pa_health_state": "UNKNOWN",
+      "pa_health_reason": "NUMERIC RULES PENDING",
+      "pa_health_confidence": "DERIVED",
+      "tune_candidate": 0,
+      "tune_candidate_fresh": true,
+      "metrics": {
+        "dropped_by_limit": 0,
+        "dropped_by_memory": 0,
+        "source_overflow": 0,
+        "errors": 0,
+        "sqlite_status": "READY",
+        "sqlite_dropped_records": 0,
+        "sqlite_queue_records": 0,
+        "total_incidents": 0,
+        "persistence_active_captures": 0,
+        "total_health_samples": 3208,
+        "total_events": 3804
+      },
+      "canonical_pa_fault": "READY"
+    },
+    {
+      "at": "2026-10-12T12:10:53.989Z",
+      "seq": 7017,
+      "connection": "CONNECTED",
+      "active_slice": "A",
+      "tx_state": "RX",
+      "pa_health_state": "UNKNOWN",
+      "pa_health_reason": "NUMERIC RULES PENDING",
+      "pa_health_confidence": "DERIVED",
+      "tune_candidate": 0,
+      "tune_candidate_fresh": true,
+      "metrics": {
+        "dropped_by_limit": 0,
+        "dropped_by_memory": 0,
+        "source_overflow": 0,
+        "errors": 0,
+        "sqlite_status": "READY",
+        "sqlite_dropped_records": 0,
+        "sqlite_queue_records": 0,
+        "total_incidents": 0,
+        "persistence_active_captures": 0,
+        "total_health_samples": 3209,
+        "total_events": 3808
+      },
+      "canonical_pa_fault": "READY"
+    },
+    {
+      "at": "2026-10-12T12:10:55.048Z",
+      "seq": 7018,
+      "connection": "CONNECTED",
+      "active_slice": "A",
+      "tx_state": "RX",
+      "pa_health_state": "UNKNOWN",
+      "pa_health_reason": "NUMERIC RULES PENDING",
+      "pa_health_confidence": "DERIVED",
+      "tune_candidate": 0,
+      "tune_candidate_fresh": true,
+      "metrics": {
+        "dropped_by_limit": 0,
+        "dropped_by_memory": 0,
+        "source_overflow": 0,
+        "errors": 0,
+        "sqlite_status": "READY",
+        "sqlite_dropped_records": 0,
+        "sqlite_queue_records": 0,
+        "total_incidents": 0,
+        "persistence_active_captures": 0,
+        "total_health_samples": 3210,
+        "total_events": 3808
+      },
+      "canonical_pa_fault": "READY"
+    },
+    {
+      "at": "2026-10-12T12:10:56.114Z",
+      "seq": 7019,
+      "connection": "CONNECTED",
+      "active_slice": "A",
+      "tx_state": "RX",
+      "pa_health_state": "UNKNOWN",
+      "pa_health_reason": "NUMERIC RULES PENDING",
+      "pa_health_confidence": "DERIVED",
+      "tune_candidate": 0,
+      "tune_candidate_fresh": true,
+      "metrics": {
+        "dropped_by_limit": 0,
+        "dropped_by_memory": 0,
+        "source_overflow": 0,
+        "errors": 0,
+        "sqlite_status": "READY",
+        "sqlite_dropped_records": 0,
+        "sqlite_queue_records": 0,
+        "total_incidents": 0,
+        "persistence_active_captures": 0,
+        "total_health_samples": 3211,
+        "total_events": 3808
+      },
+      "canonical_pa_fault": "READY"
+    },
+    {
+      "at": "2026-10-12T12:10:57.152Z",
+      "seq": 7020,
+      "connection": "CONNECTED",
+      "active_slice": "A",
+      "tx_state": "RX",
+      "pa_health_state": "UNKNOWN",
+      "pa_health_reason": "NUMERIC RULES PENDING",
+      "pa_health_confidence": "DERIVED",
+      "tune_candidate": 0,
+      "tune_candidate_fresh": true,
+      "metrics": {
+        "dropped_by_limit": 0,
+        "dropped_by_memory": 0,
+        "source_overflow": 0,
+        "errors": 0,
+        "sqlite_status": "READY",
+        "sqlite_dropped_records": 0,
+        "sqlite_queue_records": 0,
+        "total_incidents": 0,
+        "persistence_active_captures": 0,
+        "total_health_samples": 3212,
+        "total_events": 3808
+      },
+      "canonical_pa_fault": "READY"
+    },
+    {
+      "at": "2026-10-12T12:10:58.195Z",
+      "seq": 7021,
+      "connection": "CONNECTED",
+      "active_slice": "A",
+      "tx_state": "RX",
+      "pa_health_state": "UNKNOWN",
+      "pa_health_reason": "NUMERIC RULES PENDING",
+      "pa_health_confidence": "DERIVED",
+      "tune_candidate": 0,
+      "tune_candidate_fresh": true,
+      "metrics": {
+        "dropped_by_limit": 0,
+        "dropped_by_memory": 0,
+        "source_overflow": 0,
+        "errors": 0,
+        "sqlite_status": "READY",
+        "sqlite_dropped_records": 0,
+        "sqlite_queue_records": 0,
+        "total_incidents": 0,
+        "persistence_active_captures": 0,
+        "total_health_samples": 3213,
+        "total_events": 3808
+      },
+      "canonical_pa_fault": "READY"
+    },
+    {
+      "at": "2026-10-12T12:10:59.237Z",
+      "seq": 7026,
+      "connection": "CONNECTED",
+      "active_slice": "A",
+      "tx_state": "RX",
+      "pa_health_state": "UNKNOWN",
+      "pa_health_reason": "NUMERIC RULES PENDING",
+      "pa_health_confidence": "DERIVED",
+      "tune_candidate": 0,
+      "tune_candidate_fresh": true,
+      "metrics": {
+        "dropped_by_limit": 0,
+        "dropped_by_memory": 0,
+        "source_overflow": 0,
+        "errors": 0,
+        "sqlite_status": "READY",
+        "sqlite_dropped_records": 0,
+        "sqlite_queue_records": 0,
+        "total_incidents": 0,
+        "persistence_active_captures": 0,
+        "total_health_samples": 3214,
+        "total_events": 3812
+      },
+      "canonical_pa_fault": "READY"
+    },
+    {
+      "at": "2026-10-12T12:11:00.302Z",
+      "seq": 7027,
+      "connection": "CONNECTED",
+      "active_slice": "A",
+      "tx_state": "RX",
+      "pa_health_state": "UNKNOWN",
+      "pa_health_reason": "NUMERIC RULES PENDING",
+      "pa_health_confidence": "DERIVED",
+      "tune_candidate": 0,
+      "tune_candidate_fresh": true,
+      "metrics": {
+        "dropped_by_limit": 0,
+        "dropped_by_memory": 0,
+        "source_overflow": 0,
+        "errors": 0,
+        "sqlite_status": "READY",
+        "sqlite_dropped_records": 0,
+        "sqlite_queue_records": 0,
+        "total_incidents": 0,
+        "persistence_active_captures": 0,
+        "total_health_samples": 3215,
+        "total_events": 3812
+      },
+      "canonical_pa_fault": "READY"
+    },
+    {
+      "at": "2026-10-12T12:11:01.342Z",
+      "seq": 7028,
+      "connection": "CONNECTED",
+      "active_slice": "A",
+      "tx_state": "RX",
+      "pa_health_state": "UNKNOWN",
+      "pa_health_reason": "NUMERIC RULES PENDING",
+      "pa_health_confidence": "DERIVED",
+      "tune_candidate": 0,
+      "tune_candidate_fresh": true,
+      "metrics": {
+        "dropped_by_limit": 0,
+        "dropped_by_memory": 0,
+        "source_overflow": 0,
+        "errors": 0,
+        "sqlite_status": "READY",
+        "sqlite_dropped_records": 0,
+        "sqlite_queue_records": 0,
+        "total_incidents": 0,
+        "persistence_active_captures": 0,
+        "total_health_samples": 3216,
+        "total_events": 3812
+      },
+      "canonical_pa_fault": "READY"
+    },
+    {
+      "at": "2026-10-12T12:11:02.393Z",
+      "seq": 7029,
+      "connection": "CONNECTED",
+      "active_slice": "A",
+      "tx_state": "RX",
+      "pa_health_state": "UNKNOWN",
+      "pa_health_reason": "NUMERIC RULES PENDING",
+      "pa_health_confidence": "DERIVED",
+      "tune_candidate": 0,
+      "tune_candidate_fresh": true,
+      "metrics": {
+        "dropped_by_limit": 0,
+        "dropped_by_memory": 0,
+        "source_overflow": 0,
+        "errors": 0,
+        "sqlite_status": "READY",
+        "sqlite_dropped_records": 0,
+        "sqlite_queue_records": 0,
+        "total_incidents": 0,
+        "persistence_active_captures": 0,
+        "total_health_samples": 3217,
+        "total_events": 3812
+      },
+      "canonical_pa_fault": "READY"
+    },
+    {
+      "at": "2026-10-12T12:11:03.441Z",
+      "seq": 7030,
+      "connection": "CONNECTED",
+      "active_slice": "A",
+      "tx_state": "RX",
+      "pa_health_state": "UNKNOWN",
+      "pa_health_reason": "NUMERIC RULES PENDING",
+      "pa_health_confidence": "DERIVED",
+      "tune_candidate": 0,
+      "tune_candidate_fresh": true,
+      "metrics": {
+        "dropped_by_limit": 0,
+        "dropped_by_memory": 0,
+        "source_overflow": 0,
+        "errors": 0,
+        "sqlite_status": "READY",
+        "sqlite_dropped_records": 0,
+        "sqlite_queue_records": 0,
+        "total_incidents": 0,
+        "persistence_active_captures": 0,
+        "total_health_samples": 3218,
+        "total_events": 3812
+      },
+      "canonical_pa_fault": "READY"
+    },
+    {
+      "at": "2026-10-12T12:11:04.505Z",
+      "seq": 7042,
+      "connection": "CONNECTED",
+      "active_slice": null,
+      "tx_state": "RX",
+      "pa_health_state": "UNKNOWN",
+      "pa_health_reason": "NUMERIC RULES PENDING",
+      "pa_health_confidence": "DERIVED",
+      "tune_candidate": 0,
+      "tune_candidate_fresh": true,
+      "metrics": {
+        "dropped_by_limit": 0,
+        "dropped_by_memory": 0,
+        "source_overflow": 0,
+        "errors": 0,
+        "sqlite_status": "READY",
+        "sqlite_dropped_records": 0,
+        "sqlite_queue_records": 0,
+        "total_incidents": 0,
+        "persistence_active_captures": 0,
+        "total_health_samples": 3219,
+        "total_events": 3823
+      },
+      "canonical_pa_fault": "READY"
+    }
+  ],
+  "errors": [],
+  "stopped_reason": "CANONICAL_ACTIVE_SLICE_DISAPPEARED",
+  "guard_policy": "Read-only observation stop guards use canonical fault and existing candidate temperature/current/supply/SWR entry values conservatively; not threshold approval or runtime warning behavior",
+  "guard_events": [],
+  "finished_at": "2026-10-12T12:11:04.568Z",
+  "final_seq": 7042
+}

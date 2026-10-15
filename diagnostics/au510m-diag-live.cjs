@@ -6,7 +6,7 @@ const LABELS={FWDPWR_W:['PWR','W'],REFPWR_W:['REF','W'],SWR:['SWR',''],PATEMP_C:
 const finite=v=>typeof v==='number'&&Number.isFinite(v)?v:null;
 const safe=v=>text(v)??null;
 const fresh=(at,now,limit)=>finite(at)!==null&&at>0&&now>=at&&now-at<limit;
-function createProjector(meterTemplate){
+function createFaultEvaluator(meterTemplate){
  // Invoke the existing trusted METER computed property unchanged; never duplicate its reducer.
  // Only component options are evaluated: no data(), lifecycle or other methods are called.
  const script=meterTemplate.match(/<script>([\s\S]*?)<\/script>/)?.[1];
@@ -14,18 +14,24 @@ function createProjector(meterTemplate){
  const options=vm.runInNewContext('('+script.replace(/^\s*export default/,'')+')',{}, {timeout:1000});
  const canonicalFault=options.computed.paFaultStatus,canonicalFresh=options.methods.freshForwardTimestamp;
  if(typeof canonicalFault!=='function'||typeof canonicalFresh!=='function')throw Error('CANONICAL_FAULT_UNAVAILABLE');
+ return function evaluate({paFault,meters,radio,now=Date.now()}={}){
+  const payload={serverNow:now,paFault,online:meters?.online,timestamp:meters?.timestamp,radio:{connected:radio?.connected,at:radio?.at}};
+  return canonicalFault.call({msg:{payload},serverReceivedAt:now,liveClock:now,freshForwardTimestamp:canonicalFresh});
+ };
+}
+function createProjector(meterTemplate){
+ const evaluateFault=createFaultEvaluator(meterTemplate);
  return function project({data,paFault,meters,radio,now=Date.now()}={}){
   const d=data??{},m=d.metrics??{},s=d.latestState??{},t=d.tuneCandidate??{};
   const connected=d.connectionState==='CONNECTED';
   const available=connected&&fresh(m.last_health_ms,now,d.config?.meterFreshMs??15000)&&m.logger_status==='RUNNING';
-  const payload={serverNow:now,paFault,online:meters?.online,timestamp:meters?.timestamp,radio:{connected:radio?.connected,at:radio?.at}};
-  const view={msg:{payload},serverReceivedAt:now,liveClock:now,freshForwardTimestamp:canonicalFresh};
-  const fault=canonicalFault.call(view);
+  const fault=evaluateFault({paFault,meters,radio,now});
   const reason=available&&paFault?.state===s.interlock_state&&fresh(paFault.reasonSeen,now,15000)?safe(paFault.reason):null;
+  const classified=d.paHealth&&['OK','WARNING','CRITICAL','UNKNOWN'].includes(d.paHealth.state)?d.paHealth:null;
   const paHealth=!available?{state:'UNKNOWN',primaryReason:'DATA STALE',activeReasons:['DATA_STALE'],additional:0,confidence:'UNKNOWN'}:
-   fault.value==='FAULT'?{state:'CRITICAL',primaryReason:'PA FAULT',activeReasons:['PA_FAULT'],additional:0,confidence:'DIRECT_SOURCE / DERIVED_HEALTH_CLASSIFICATION'}:
-   fault.value==='READY'?{state:'UNKNOWN',primaryReason:'NUMERIC RULES PENDING',activeReasons:[],additional:0,confidence:'DERIVED'}:
-   {state:'UNKNOWN',primaryReason:'DIRECT FAULT UNKNOWN',activeReasons:[],additional:0,confidence:'UNKNOWN'};
+   fault.value==='UNKNOWN'||(classified?.state==='CRITICAL'&&fault.value!=='FAULT')?{state:'UNKNOWN',primaryReason:'FAULT SOURCE UNAVAILABLE',activeReasons:['FAULT_SOURCE_UNAVAILABLE'],additional:0,confidence:'UNKNOWN'}:
+   classified?{state:classified.state,primaryReason:safe(classified.primaryReason)??'DATA STALE',activeReasons:Array.isArray(classified.activeReasons)?classified.activeReasons.slice(0,9):[],additional:finite(classified.additional)??0,confidence:['DIRECT','DERIVED','UNKNOWN'].includes(classified.confidence)?classified.confidence:'UNKNOWN'}:
+   {state:'UNKNOWN',primaryReason:'DATA STALE',activeReasons:['DATA_STALE'],additional:0,confidence:'UNKNOWN'};
   const active=finite(m.persistence_active_captures);
   return {kind:'au510m-diag-live',serverNow:now,available,
    connection:connected?(available?'CONNECTED':'STALE'):safe(d.connectionState)??'UNKNOWN',
@@ -43,4 +49,4 @@ function createProjector(meterTemplate){
    health:Object.entries(HEALTH).map(([key,topic])=>{const sample=d.latestHealth?.[topic];return {key,label:LABELS[key][0],unit:LABELS[key][1],value:available&&(!['FWDPWR_W','REFPWR_W','SWR'].includes(key)||s.tx_state==='TX')&&sample?.quality==='FRESH'&&fresh(sample.seen,now,d.config?.meterFreshMs??15000)?finite(sample.value):null};})};
  };
 }
-module.exports={createProjector};
+module.exports={createProjector,createFaultEvaluator};

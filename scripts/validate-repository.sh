@@ -14,7 +14,9 @@ node scripts/test-agct-watcher.mjs
 node scripts/test-agct-dashboard.mjs
 node scripts/test-au510m-diag.mjs
 node scripts/test-au510m-diag-runtime.mjs
+node scripts/test-au510m-command-logging.mjs
 node scripts/test-au510m-diag-live.mjs
+node scripts/test-au510m-diag-layout.mjs
 node scripts/test-au510m-history.mjs
 node scripts/test-au510m-export.mjs
 node scripts/test-au510m-trend.mjs

@@ -1,16 +1,20 @@
 'use strict';
+const Command=require('./au510m-command-policy.cjs');
 const {randomUUID}=require('node:crypto');
 const {DiagnosticStateMachine}=require('./au510m-state-machine.cjs');
+const {PaHealthClassifier}=require('./au510m-pa-health.cjs');
 const TOPICS=Object.freeze(['TX-/1/FWDPWR','TX-/2/REFPWR','TX-/3/SWR','TX-/4/PATEMP','RAD/8/PAFETQ1TEMP','RAD/9/PAFETQ2TEMP','RAD/300/PACURRENT','TX-/6/PAEFF','RAD/334/+13.8A','RAD/0/+13.8B','RAD/3/MAINFAN']);
 const DEFAULTS=Object.freeze({retentionMs:240000,maxRecords:12000,tuneFreshMs:15000,meterFreshMs:15000,rxHz:1,txHz:5,memoryBudgetBytes:50*1024*1024});
 class DiagnosticBuffer {
- constructor({version,wall=Date.now,mono=()=>performance.now(),debug=()=>{},config={}}={}){
-  this.wall=wall;this.mono=mono;this.debug=debug;this.config={...DEFAULTS,...config};
+ constructor({version,wall=Date.now,mono=()=>performance.now(),debug=()=>{},config={},getPaFault=()=>null}={}){
+  this.wall=wall;this.mono=mono;this.debug=debug;this.config={...DEFAULTS,...config};this.getPaFault=getPaFault;this.lastHealthSeq=null;
   if(this.config.maxRecords!==12000||this.config.retentionMs!==240000)throw Error('Stage-1 retention contract must remain 240 s / 12000');
   this.slots=new Array(this.config.maxRecords);this.head=0;this.count=0;this.estimatedBytes=0;this.stateEpoch=0;this.epochWall=wall();this.lastInterlockSeq=null;this.lastInterlockValue=null;this.txSince=null;this.lastHealthMono=mono();this.interlockFields={};this.slices=new Map();this.clients=new Map();this.pending=new Map();
   this.data={run_id:randomUUID(),version,seq:0,config:{...this.config},connectionState:'UNKNOWN',latestState:this.emptyState(),latestHealth:{},tuneCandidate:this.emptyTune(),ringBuffer:{records:this.slots,head:0,count:0},metrics:{logger_status:'RUNNING',connection_status:'UNKNOWN',record_count:0,oldest_age_seconds:0,max_record_count_seen:0,dropped_by_age:0,dropped_by_limit:0,dropped_by_memory:0,estimated_ring_bytes:0,total_events:0,total_health_samples:0,truncated_fields:0,source_overflow:0,pending_expired:0,errors:0,sample_rate_hz:1,current_tx_rx:'UNKNOWN',tune_value:'UNKNOWN',tune_fresh:false,last_event_timestamp:null,uptime_seconds:0,start_wall_ms:wall(),last_health_ms:null,ring_span_seconds:0},startup_mono:mono()};
   this.stateMachine=new DiagnosticStateMachine({metrics:this.data.metrics,emit:extra=>this.append('DIAG_STATE_CHANGE','au510m_diag_state_machine','diag_state',extra.old_state,extra.new_state,extra)});
   this.data.stateMachine=this.stateMachine.data;
+  this.paHealth=new PaHealthClassifier({emit:extra=>this.append('PA_HEALTH_CHANGE','au510m_pa_health','pa_health',extra.old_state,extra.new_state,extra)});
+  this.data.paHealth=this.paHealth.data;
   this.append('LOGGER_START','au510m_diag','runtime',null,version,{raw_source:{run_id:this.data.run_id,version}});
  }
  emptyState(){return {tx_state:'UNKNOWN',interlock_state:null,frequency:null,mode:null,active_slice:null};}
@@ -30,7 +34,7 @@ class DiagnosticBuffer {
   const record={ts_wall:new Date(w).toISOString(),ts_ms:w,seq:++this.data.seq,record_type,source:this.compact(source),field:this.compact(field),old_value:this.compact(old_value),new_value:this.compact(new_value),...s,tune_value:c.tune_value,tune_fresh:c.tune_fresh,trigger_origin:'UNKNOWN',trigger_name:null,intermediary:[],command_origin:'UNKNOWN',command_name:null,client_name:null,client_handle:null,client_id:null,client_program:null,client_ip:null,origin_confidence:'UNKNOWN',derived_from_seq:null,raw_source:null,...extra};
   if(record.raw_source)record.raw_source=this.compact(record.raw_source);
   this.add(record,t);this.data.metrics.total_events++;this.data.metrics.last_event_timestamp=w;
-  if(['DIAG_STATE_CHANGE','LOGGER_START','RADIO_CONNECTED','RADIO_DISCONNECTED','INTERLOCK_STATE','TX_RX','TUNE_CANDIDATE','TUNE_STALE','SLICE_ADDED','SLICE_REMOVED','DIAGNOSTIC_ERROR'].includes(record_type))this.debug(record);
+  if(['DIAG_STATE_CHANGE','PA_HEALTH_CHANGE','LOGGER_START','RADIO_CONNECTED','RADIO_DISCONNECTED','INTERLOCK_STATE','TX_RX','TUNE_CANDIDATE','TUNE_STALE','SLICE_ADDED','SLICE_REMOVED','DIAGNOSTIC_ERROR'].includes(record_type))this.debug(record);
   if(record_type!=='DIAG_STATE_CHANGE')this.stateMachine.consume(record);
   return record.seq;
  }
@@ -60,8 +64,9 @@ class DiagnosticBuffer {
  records(){return Array.from({length:this.count},(_,i)=>this.slots[(this.head+i)%this.slots.length].record);}
  connection(connected,source='7fbf2bfc9badc7d3'){
   const next=connected?'CONNECTED':'DISCONNECTED';if(next===this.data.connectionState)return;
-  const old=this.data.connectionState;this.data.connectionState=next;this.stateEpoch++;this.epochWall=this.wall();this.data.latestState=this.emptyState();this.data.latestHealth={};this.data.tuneCandidate=this.emptyTune();this.lastInterlockSeq=null;this.lastInterlockValue=null;this.interlockFields={};this.txSince=null;this.slices.clear();this.clients.clear();this.pending.clear();
+  const old=this.data.connectionState;this.data.connectionState=next;this.stateEpoch++;this.epochWall=this.wall();this.data.latestState=this.emptyState();this.data.latestHealth={};this.data.tuneCandidate=this.emptyTune();this.lastInterlockSeq=null;this.lastInterlockValue=null;this.lastHealthSeq=null;this.interlockFields={};this.txSince=null;this.slices.clear();this.clients.clear();this.pending.clear();
   this.append(connected?'RADIO_CONNECTED':'RADIO_DISCONNECTED',source,'connection',old,next,{observation_confidence:'DIRECT',raw_source:{kind:'existing_radio_connection',epoch:this.stateEpoch}});
+  this.refreshPaHealth();
  }
  interlock(payload,source='au510m_live_state',client=null){
   if(this.data.connectionState!=='CONNECTED'||!payload||typeof payload!=='object')return null;
@@ -74,7 +79,7 @@ class DiagnosticBuffer {
    if(JSON.stringify(old)!==JSON.stringify(value)){
     this.interlockFields[key]=value;if(key==='state')this.data.latestState.interlock_state=value;
     const seq=this.append(key==='state'?'INTERLOCK_STATE':'INTERLOCK_FIELD',source,key,old,value,{client_handle:typeof client==='string'?client:null,observation_confidence:'DIRECT',raw_source:{kind:'decoded_interlock',field:key,value}});
-    if(key==='state'){this.lastInterlockSeq=seq;this.lastInterlockValue=value;}
+    if(key==='state'){this.lastInterlockSeq=seq;this.lastInterlockValue=value;this.refreshPaHealth();}
    }
   }
   return this.lastInterlockSeq;
@@ -116,13 +121,18 @@ class DiagnosticBuffer {
   if(old===next)return;this.boundMap(this.slices,topic,next);this.append(removed?'SLICE_REMOVED':'SLICE_ADDED','7fbf2bfc9badc7d3',topic,old,next,{observation_confidence:'DIRECT',raw_source:{kind:'decoded_slice_membership'}});
  }
  boundMap(map,key,value){if(!map.has(key)&&map.size>=64){map.delete(map.keys().next().value);this.data.metrics.source_overflow++;}map.set(key,value);}
- request(source,msg){
-  const seq=this.append('COMMAND_REQUEST',source,'request',null,msg.payload,{command_origin:'NODE_RED',command_name:this.compact(msg.payload),origin_confidence:'DIRECT',correlation_id:typeof msg._msgid==='string'?msg._msgid.slice(0,64):null,raw_source:{kind:'existing_local_request'}});
-  if(typeof msg._msgid==='string'){if(this.pending.size>=256){this.pending.delete(this.pending.keys().next().value);this.data.metrics.source_overflow++;}const key=source+':'+msg._msgid.slice(0,64);this.pending.set(key,{seq:this.pending.has(key)?null:seq,at:this.mono()});}
+ commandRequest(raw,metadata={}){
+  const safe={...Command.command(raw),...Command.source(metadata.command_source_node_id,metadata.command_source_module),command_seq:Number.isSafeInteger(metadata.command_seq)?metadata.command_seq:null};
+  const seq=this.data.seq+1;
+  this.append('COMMAND_REQUEST',safe.command_source_node_id,'request',null,safe.command_text_safe,{...safe,request_seq:seq,command_origin:'NODE_RED',origin_confidence:'DIRECT',raw_source:{kind:'existing_client_send_attempt'}});
+  if(this.pending.size>=256){this.pending.delete(this.pending.keys().next().value);this.data.metrics.source_overflow++;}
+  this.pending.set(seq,{seq,at:this.mono(),safe});return seq;
  }
- ack(source,msg){
-  const key=source+':'+String(msg._msgid??'').slice(0,64),p=this.pending.get(key);this.pending.delete(key);
-  this.append('ACK_RESPONSE',source,'status_code',null,msg.status_code??null,{derived_from_seq:p?.seq??null,correlation_id:typeof msg._msgid==='string'?msg._msgid.slice(0,64):null,origin_confidence:p?.seq!=null?'CORRELATED':'UNKNOWN',raw_source:{kind:'existing_request_callback'}});
+ commandAck(message,{request_seq,command_seq}={}){
+  const p=this.pending.get(request_seq),matched=p&&Number.isSafeInteger(command_seq)&&command_seq===p.safe.command_seq&&message?.sequence_number===command_seq;
+  if(matched)this.pending.delete(request_seq);
+  const status=Number.isSafeInteger(message?.response_code)&&message.response_code>=0?message.response_code:null;
+  return this.append('ACK_RESPONSE',matched?p.safe.command_source_node_id:'UNKNOWN','status_code',null,status,{...(matched?p.safe:Command.project({})),command_origin:matched?'NODE_RED':'UNKNOWN',request_seq:matched?p.seq:null,ack_seq:Number.isSafeInteger(message?.sequence_number)?message.sequence_number:null,ack_status:status,ack_latency_ms:matched?Math.max(0,this.mono()-p.at):null,derived_from_seq:matched?p.seq:null,origin_confidence:matched?'CORRELATED':'UNKNOWN',raw_source:{kind:'existing_protocol_response_callback'}});
  }
  rate(){return this.data.connectionState==='CONNECTED'&&(this.data.latestState.tx_state==='TX'||(this.data.tuneCandidate.tune_fresh&&this.data.tuneCandidate.tune_value===1))?this.config.txHz:this.config.rxHz;}
  tick(rows={}){
@@ -147,6 +157,12 @@ class DiagnosticBuffer {
   this.data.latestHealth=meters;
   const record={ts_wall:new Date(now).toISOString(),ts_ms:now,seq:++this.data.seq,record_type:'HEALTH',source:'2702052aa13cacd0',...s,tune_value:c.tune_value,tune_fresh:c.tune_fresh,tune_age_ms:c.tune_age_ms,meters};
   this.add(record);this.data.metrics.total_health_samples++;this.data.metrics.last_health_ms=now;this.stateMachine.consume(record);
+  this.lastHealthSeq=record.seq;this.refreshPaHealth();
+ }
+ refreshPaHealth(){
+  const fault=this.getPaFault(this.wall());
+  this.paHealth.consume({connected:this.data.connectionState==='CONNECTED',paFault:fault,txState:this.data.latestState.tx_state,meters:this.data.latestHealth,now:this.wall(),sourceSeq:fault?.value==='FAULT'?this.lastInterlockSeq:this.lastHealthSeq});
+  this.data.paHealth=this.paHealth.data;
  }
  error(message){this.data.metrics.errors++;this.data.metrics.logger_status='ERROR';this.append('DIAGNOSTIC_ERROR','au510m_diag','error',null,String(message).slice(0,256));}
  close(){this.data.metrics.logger_status='STOPPED';}

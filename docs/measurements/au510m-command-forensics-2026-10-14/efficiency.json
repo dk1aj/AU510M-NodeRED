@@ -1,0 +1,25 @@
+{
+  "scope": "PROJECT_CUMULATIVE_RTK_COMPRESSION_NOT_API_BILLING",
+  "rtk": {
+    "total_commands": 173,
+    "total_input": 228260,
+    "total_output": 188967,
+    "total_saved": 39312,
+    "avg_savings_pct": 17.2224656093928,
+    "total_time_ms": 291738,
+    "avg_time_ms": 1686
+  },
+  "codegraph": {
+    "queries": 7,
+    "scopes": [
+      "command request/core/runtime and source hooks",
+      "runtime owners and command endpoints",
+      "sanitizer/SQLite/export dependencies",
+      "capture/history/export consumers",
+      "radio/interlock/TUNE and PA-health state dependencies",
+      "new observer/policy integration and impact",
+      "final canonical command/ACK consumers and duplicate-path audit"
+    ],
+    "token_savings": "UNAVAILABLE_NOT_ESTIMATED"
+  }
+}

@@ -9,7 +9,7 @@ owner.send=()=>{throw Error('Diagnostic tried to send radio command');};
 const radio={interlock:'READY'},rows={};const ns={'7fbf2bfc9badc7d3':owner,'2702052aa13cacd0':{context:()=>({get:()=>({rows})})},au510m_live_state:{context:()=>({get:()=>radio})}};
 const hooks={has:k=>hooksMap.has(k),add:(k,v)=>{assert(!hooksMap.has(k));hooksMap.set(k,v);},remove:key=>{for(const k of [...hooksMap.keys()])if(k.endsWith(key.slice(1)))hooksMap.delete(k);}};
 const module={exports:{}};
-const mock=p=>p==='@node-red/runtime/lib/nodes'?{getNode:id=>ns[id]}:p==='@node-red/util'?{hooks}:p==='node:perf_hooks'?{performance:{now:()=>time}}:p==='./au510m-stage1-core.cjs'?require('../diagnostics/au510m-stage1-core.cjs'):require(p);
+const mock=p=>p==='./au510m-command-observer.cjs'?require('../diagnostics/au510m-command-observer.cjs'):p==='./au510m-command-policy.cjs'?require('../diagnostics/au510m-command-policy.cjs'):p==='@node-red/runtime/lib/nodes'?{getNode:id=>ns[id]}:p==='@node-red/util'?{hooks}:p==='node:perf_hooks'?{performance:{now:()=>time}}:p==='./au510m-stage1-core.cjs'?require('../diagnostics/au510m-stage1-core.cjs'):p==='./au510m-diag-live.cjs'?require('../diagnostics/au510m-diag-live.cjs'):require(p);
 vm.runInNewContext('(function(require,module,__dirname){'+source+'})',{process,setInterval:(cb,ms)=>{assert.equal(ms,50);timers.set(1,cb);return 1;},clearInterval:id=>timers.delete(id)})(mock,module,process.cwd()+'/diagnostics');
 const values=new Map(),output=[];const handle=module.exports.start({context:{set:(k,v)=>values.set(k,v)},send:v=>output.push(v)});const data=values.get('au510mDiag');assert.equal(data.latestState.tx_state,'UNKNOWN');assert.equal(data.tuneCandidate.tune_value,'UNKNOWN');assert.equal(data.ringBuffer.records[0].record.seq,1);assert.equal(data.stateMachine.diag_state,"UNKNOWN");
 assert.throws(()=>module.exports.start({context:{set(){}}}),/Existing diagnostic instance/);
@@ -18,7 +18,15 @@ hooksMap.get('onSend.au510mDiagStage1')([{source:{id:'au510m_live_state'},msg:sn
 owner.emit('status',{topic:'transmit',payload:{tune:1},client:'handle'});assert.equal(data.tuneCandidate.tune_value,1);owner.emit('disconnected');assert.equal(data.tuneCandidate.tune_value,'UNKNOWN');assert.equal(data.latestState.tx_state,'UNKNOWN');
 owner.emit('connected');assert.equal(data.tuneCandidate.tune_value,'UNKNOWN');assert.equal(data.latestState.tx_state,'UNKNOWN');
 owner.emit('status',{topic:'transmit',payload:{tune:0},client:'handle'});assert.equal(data.tuneCandidate.tune_value,0);time=1000;timers.get(1)();assert.equal(data.metrics.total_health_samples,1);
+// Direct post-clone producer evidence stays outside the message and survives to the API call.
+const wire=[];owner.radio={nextRequestSequenceNumber:0,_sendRequest(raw,cb){wire.push(raw);this.nextRequestSequenceNumber++;cb({sequence_number:0,response_code:0});}};
+// Test harness owner.send deliberately throws, so install a normal local bridge before a fresh observer lifecycle.
 handle.close();assert.equal(hooksMap.size,0);assert.equal(timers.size,0);assert.equal(owner.listenerCount('status'),0);assert.equal(owner.listenerCount('disconnected'),0);assert.equal(owner.listenerCount('connected'),0);assert.equal(data.metrics.logger_status,'STOPPED');
-const second=module.exports.start({context:{set:(k,v)=>values.set(k,v)}});const next=values.get('au510mDiag');assert.equal(next.ringBuffer.records[0].record.seq,1);assert.equal(next.metrics.record_count,2);assert.equal(next.stateMachine.diag_state,"UNKNOWN");assert.equal(next.tuneCandidate.tune_value,'UNKNOWN');assert.equal(next.latestState.tx_state,'UNKNOWN');assert.notEqual(next.run_id,data.run_id);second.close();
+owner.send=function(msg,callback){this.radio._sendRequest(msg.payload,callback);};
+const second=module.exports.start({context:{set:(k,v)=>values.set(k,v)}});const next=values.get('au510mDiag');assert.equal(next.ringBuffer.records[0].record.seq,1);assert.equal(next.metrics.record_count,2);assert.equal(next.stateMachine.diag_state,"UNKNOWN");assert.equal(next.tuneCandidate.tune_value,'UNKNOWN');assert.equal(next.latestState.tx_state,'UNKNOWN');assert.notEqual(next.run_id,data.run_id);const command={payload:'sub tx all'},unchanged=JSON.stringify(command);
+hooksMap.get('preDeliver.au510mDiagStage1')({source:{id:'a2e5d60332cdb49a'},destination:{id:'07c61c6741eb8fad'},msg:command});
+hooksMap.get('onReceive.au510mDiagStage1')({destination:{id:'07c61c6741eb8fad'},msg:command});owner.send(command);
+assert.equal(JSON.stringify(command),unchanged);assert.deepEqual(wire,['sub tx all']);
+const logged=next.ringBuffer.records.filter(Boolean).map(s=>s.record).find(r=>r.record_type==='COMMAND_REQUEST');assert.equal(logged.command_source_node_id,'a2e5d60332cdb49a');assert.equal(logged.command_text_safe,'sub tx all');second.close();
 assert(output.some(x=>x.payload.record_type==='LOGGER_START'));assert(!output.some(x=>x.payload.record_type==='HEALTH'));
 console.log('PASS: installed-runtime adapter only observes existing owners, never sends commands, preserves input, resets on disconnect/redeploy and removes all hooks/listeners/timers.');
