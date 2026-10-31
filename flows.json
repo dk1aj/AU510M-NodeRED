@@ -38,12 +38,12 @@
         "env": [
             {
                 "name": "WATCHER_OLD_VERSION",
-                "value": "4.33",
+                "value": "4.34",
                 "type": "str"
             },
             {
                 "name": "WATCHER_VERSION",
-                "value": "4.34",
+                "value": "4.35",
                 "type": "str"
             }
         ]
@@ -1658,7 +1658,7 @@
         "outputs": 1,
         "timeout": 0,
         "noerr": 0,
-        "initialize": "// Stage 4: isolated diagnostic observer and worker persistence, existing radio owners only.\nconst runtimeRequire=loader.createRequire('/mnt/dietpi_userdata/node-red/package.json');\nfor(const name of ['au510m-command-policy','au510m-command-observer','au510m-state-machine','au510m-pa-health','au510m-diag-live','au510m-stage1-core','au510m-stage1-runtime','au510m-incident-detector','au510m-persistence-sanitize','au510m-persistence-client','au510m-persistence']){\n const file='/mnt/dietpi_userdata/node-red/diagnostics/'+name+'.cjs';\n delete runtimeRequire.cache[runtimeRequire.resolve(file)];\n}\nconst runtime=runtimeRequire('/mnt/dietpi_userdata/node-red/diagnostics/au510m-stage1-runtime.cjs');\nconst storage=runtimeRequire('/mnt/dietpi_userdata/node-red/diagnostics/au510m-persistence.cjs');\ncontext.set('au510mDiagHandle',runtime.start({context,send:msg=>node.send(msg),status:value=>node.status(value),attachPersistence:core=>storage.attach(core,{onError:message=>node.warn(message)})}));",
+        "initialize": "// Passive diagnostics: exact TUNE evidence and worker persistence, existing radio owners only.\nconst runtimeRequire=loader.createRequire('/mnt/dietpi_userdata/node-red/package.json');\nfor(const name of ['au510m-trace','au510m-command-policy','au510m-command-observer','au510m-state-machine','au510m-pa-health','au510m-diag-live','au510m-stage1-core','au510m-stage1-runtime','au510m-incident-detector','au510m-persistence-sanitize','au510m-persistence-client','au510m-persistence']){\n const file='/mnt/dietpi_userdata/node-red/diagnostics/'+name+'.cjs';\n delete runtimeRequire.cache[runtimeRequire.resolve(file)];\n}\nconst runtime=runtimeRequire('/mnt/dietpi_userdata/node-red/diagnostics/au510m-stage1-runtime.cjs');\nconst storage=runtimeRequire('/mnt/dietpi_userdata/node-red/diagnostics/au510m-persistence.cjs');\ncontext.set('au510mDiagHandle',runtime.start({context,send:msg=>node.send(msg),status:value=>node.status(value),attachPersistence:core=>storage.attach(core,{onError:message=>node.warn(message)})}));",
         "finalize": "const handle=context.get('au510mDiagHandle');context.set('au510mDiagHandle',undefined);if(handle)return handle.close();",
         "libs": [
             {
@@ -1874,7 +1874,7 @@
         "timeout": 0,
         "noerr": 0,
         "func": "const service=context.get('exportClient');\nif(msg.req.params.exportId!==undefined){await service.download(msg.req.params.exportId,msg.res._res || msg.res);return null;}\n// Block cross-site browser initiation; existing station HTTP access model is preserved.\nconst origin=msg.req.headers.origin;\nif(origin){let same=false;try{same=new URL(origin).host===msg.req.headers.host;}catch{}if(!same){msg.statusCode=403;msg.payload={status:'INVALID'};return msg;}}\nconst metrics=context.get('exportNodes').getNode('au510m_diag_stage1')?.context().get('au510mDiag')?.metrics;\nconst result=metrics?.sqlite_status==='READY'?await service.generate(msg.req.params.id):{status:'ERROR',error:'SQLITE_UNAVAILABLE'};\nmsg.statusCode=result.status==='READY'?200:result.status==='INVALID'?400:result.error==='INCIDENT_NOT_FOUND'?404:503;\nmsg.headers={'Content-Type':'application/json','Cache-Control':'no-store','X-Content-Type-Options':'nosniff'};msg.payload=result;return msg;",
-        "initialize": "const r=loader.createRequire('/mnt/dietpi_userdata/node-red/package.json');\nconst file='/mnt/dietpi_userdata/node-red/diagnostics/au510m-export-client.cjs';delete r.cache[r.resolve(file)];\nconst version=JSON.parse(r('node:fs').readFileSync('/mnt/dietpi_userdata/node-red/agct-watcher-version.json','utf8')).NEW_VERSION;\ncontext.set('exportNodes',r('@node-red/runtime/lib/nodes'));\nconst client=new (r(file).ExportClient)({version});context.set('exportClient',client);context.set('exportMetrics',client.metrics);",
+        "initialize": "// Reload export workers and evidence policies together for each diagnostic deployment.\nconst r=loader.createRequire('/mnt/dietpi_userdata/node-red/package.json');\nfor(const name of ['au510m-export-client','au510m-export-policy','au510m-persistence-sanitize','au510m-command-policy','au510m-trace']){\n const moduleFile='/mnt/dietpi_userdata/node-red/diagnostics/'+name+'.cjs';delete r.cache[r.resolve(moduleFile)];\n}\nconst file='/mnt/dietpi_userdata/node-red/diagnostics/au510m-export-client.cjs';\nconst version=JSON.parse(r('node:fs').readFileSync('/mnt/dietpi_userdata/node-red/agct-watcher-version.json','utf8')).NEW_VERSION;\ncontext.set('exportNodes',r('@node-red/runtime/lib/nodes'));\nconst client=new (r(file).ExportClient)({version});context.set('exportClient',client);context.set('exportMetrics',client.metrics);",
         "finalize": "const client=context.get('exportClient');context.set('exportClient',undefined);context.set('exportNodes',undefined);if(client)return client.close();",
         "libs": [
             {

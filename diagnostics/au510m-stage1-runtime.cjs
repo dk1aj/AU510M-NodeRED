@@ -39,7 +39,7 @@ function start({context,send=()=>{},status=()=>{},attachPersistence=null}){
  }});}
  function radioStatus(m){safely(()=>{
   counters.status_messages++;
-  if(m.topic==='transmit'&&m.payload&&Object.hasOwn(m.payload,'tune'))core.tune(m.payload.tune,m.client);
+  if(m.topic==='transmit'&&m.payload&&Object.hasOwn(m.payload,'tune'))core.tune(m.payload.tune,m.client,{decoded:m,wire:commandObserver.statusEvidence()});
   else if(String(m.topic).startsWith('client/'))core.session(m.topic,m.payload,m.client);
   else if(String(m.topic).startsWith('slice/'))core.slice(m.topic,m.payload);
  });}

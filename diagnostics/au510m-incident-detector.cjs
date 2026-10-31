@@ -41,7 +41,7 @@ class IncidentDetector {
    // after an actual completed RX return; never treat UNKNOWN -> 1 as reactivation.
    if(this.lastRx&&!this.cycle&&r.seq>this.lastRx.end_seq&&r.old_value===0&&this.active(tune)){
     this.lastRx.tune_reactivated_before_next_cycle=true;this.lastRx.tune_reactivation_seq=r.seq;
-    this.lastRx.tune_reactivation_ts=r.ts_ms;
+    this.lastRx.tune_reactivation_ts=r.ts_ms;this.lastRx.tune_reactivation_metadata=r.diagnostic_metadata??null;
    }
    if(this.lastRx&&!tune.fresh)this.lastRx.tune_reactivated_before_next_cycle='UNKNOWN';
    return;
@@ -59,6 +59,7 @@ class IncidentDetector {
      preceding_cycle_seq:this.lastRx?.end_seq??null,
      tune_reactivated_from_previous:this.lastRx?.tune_reactivated_before_next_cycle??'UNKNOWN',
      preceding_reactivation_seq:this.lastRx?.tune_reactivation_seq??null,
+     preceding_reactivation_metadata:this.lastRx?.tune_reactivation_metadata??null,
      preceding_reactivation_ts:this.lastRx?.tune_reactivation_ts??null};
    }
    if(state==='TRANSMITTING'){this.cycle.transmitted=true;this.cycle.transmit_seq??=r.seq;}
@@ -127,7 +128,7 @@ class IncidentDetector {
   const evidence=[];
   for(const c of cycles){
    if(c.tune_active_during_rx)evidence.push({label:'RX_RETURN_WHILE_TUNE_ACTIVE',seq:c.end_seq,ts:c.end_ts});
-   if(c.tune_reactivated_from_previous===true&&cycles.some(p=>p.end_seq===c.preceding_cycle_seq))evidence.push({label:'TUNE_REACTIVATED_AFTER_RX',seq:c.preceding_reactivation_seq,ts:c.preceding_reactivation_ts});
+   if(c.tune_reactivated_from_previous===true&&cycles.some(p=>p.end_seq===c.preceding_cycle_seq))evidence.push({label:'TUNE_REACTIVATED_AFTER_RX',seq:c.preceding_reactivation_seq,ts:c.preceding_reactivation_ts,metadata:c.preceding_reactivation_metadata});
   }
   return evidence.sort((a,b)=>a.seq-b.seq)[0]??{label:'UNKNOWN',seq:null,ts:null};
  }
@@ -150,7 +151,7 @@ class IncidentDetector {
    cycle_count:cycles.length,duration_ms:now-first.start_mono,frequency:r.frequency??null,mode:r.mode??null,
    active_slice:r.active_slice??null,tune_active_at_trigger:this.active(t),tune_fresh_at_trigger:t.fresh,
    first_cycle_seq:first.start_seq,last_cycle_seq:r.seq,first_abnormal_event:bad.label,first_abnormal_seq:bad.seq,
-   first_abnormal_ts:bad.ts,provenance:origin,...this.precursor(first,r),
+   first_abnormal_ts:bad.ts,diagnostic_metadata:bad.metadata?{...bad.metadata,event_type:bad.label}:null,provenance:origin,...this.precursor(first,r),
    pre_trigger_from_ts:r.ts_ms-120000,pre_trigger_to_ts:r.ts_ms,pre_trigger_complete:available>=120&&gaps===0,
    pre_window_available_seconds:available,pre_reference:{run_id:this.runId,oldest_seq:b.oldest_seq??null,
     newest_seq:b.newest_seq??r.seq,oldest_ts:b.oldest_ts??null,dropped_by_age:b.dropped_by_age??0,

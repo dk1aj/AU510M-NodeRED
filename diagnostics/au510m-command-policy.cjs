@@ -22,7 +22,10 @@ function command(raw){
  else if((m=/^sub (client|slice|tx|pan|radio|meter) all$/.exec(raw))){name='subscribe';args={target:m[1],scope:'all'};}
  else if((m=/^sub meter ([0-9]{1,5})$/.exec(raw))){name='subscribe';args={target:'meter',meter_id:Number(m[1])};}
  else if((m=/^slice s ([0-9]{1,3}) agc_threshold=([0-9]{1,3})$/.exec(raw))&&Number(m[2])<=100){name='set_agc_threshold';args={slice_index:Number(m[1]),agc_threshold:Number(m[2])};}
- else if((m=/^transmit tune ([01])$/.exec(raw))){name='tune';args={enabled:Number(m[1])};}
+ else if((m=/^(?:transmit tune |transmit set tune=|tune )([01])$/.exec(raw))){name='tune';args={enabled:Number(m[1])};}
+ else if((m=/^(xmit|ptt|tx) ([01])$/.exec(raw))){name=m[1];args={enabled:Number(m[2])};}
+ else if((m=/^transmit set (rfpower|tunepower)=([0-9]{1,3})$/.exec(raw))&&Number(m[2])<=100){name='set_'+m[1];args={value:Number(m[2])};}
+ else if((m=/^interlock set (acc_txreq_enable|rca_txreq_enable|tx1_enabled|tx2_enabled|tx3_enabled)=([01])$/.exec(raw))){name='set_'+m[1];args={enabled:Number(m[2])};}
  else if((m=/^client set (enforce_network_mtu|send_reduced_bw_dax)=([01])$/.exec(raw))){name='set';args={setting:m[1],enabled:Number(m[2])};}
  // UDP port is an opaque runtime identifier; record identity only.
  else if(/^client udpport [0-9]{1,5}$/.test(raw))return {command_family:'client',command_name:'udpport',command_args_safe:null,command_text_safe:null};
@@ -37,4 +40,8 @@ function project(r){
  else if(!r.command_text_safe&&['meter','sub','slice','transmit','interlock','profile','info','client'].includes(r.command_family))c.command_family=r.command_family;
  return {...c,...source(r.command_source_node_id,r.command_source_module),command_seq:integer(r.command_seq),request_seq:integer(r.request_seq),ack_seq:integer(r.ack_seq),ack_status:integer(r.ack_status),ack_latency_ms:typeof r.ack_latency_ms==='number'&&Number.isFinite(r.ack_latency_ms)&&r.ack_latency_ms>=0?r.ack_latency_ms:null};
 }
-module.exports={command,source,project,FIELDS,SOURCES};
+function rawEvidence(raw){
+ if(typeof raw!=='string'||raw.length>512||/[\r\n\x00-\x1f\x7f]/.test(raw)||! /^(?:tune|xmit|tx|ptt|interlock|transmit)(?: |$)/.test(raw)||/\b(?:auth|token|password|secret|credential|private_key)\b/i.test(raw))return null;
+ return raw;
+}
+module.exports={command,source,project,FIELDS,SOURCES,rawEvidence};

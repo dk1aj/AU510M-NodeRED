@@ -1,5 +1,6 @@
 'use strict';
 const Command=require('./au510m-command-policy.cjs');
+const Trace=require('./au510m-trace.cjs');
 const {randomUUID}=require('node:crypto');
 const {DiagnosticStateMachine}=require('./au510m-state-machine.cjs');
 const {PaHealthClassifier}=require('./au510m-pa-health.cjs');
@@ -64,7 +65,7 @@ class DiagnosticBuffer {
  records(){return Array.from({length:this.count},(_,i)=>this.slots[(this.head+i)%this.slots.length].record);}
  connection(connected,source='7fbf2bfc9badc7d3'){
   const next=connected?'CONNECTED':'DISCONNECTED';if(next===this.data.connectionState)return;
-  const old=this.data.connectionState;this.data.connectionState=next;this.stateEpoch++;this.epochWall=this.wall();this.data.latestState=this.emptyState();this.data.latestHealth={};this.data.tuneCandidate=this.emptyTune();this.lastInterlockSeq=null;this.lastInterlockValue=null;this.lastHealthSeq=null;this.interlockFields={};this.txSince=null;this.slices.clear();this.clients.clear();this.pending.clear();
+  const old=this.data.connectionState;this.data.connectionState=next;this.stateEpoch++;this.epochWall=this.wall();this.data.latestState=this.emptyState();this.data.latestHealth={};this.data.tuneCandidate=this.emptyTune();this.lastInterlockSeq=null;this.lastInterlockValue=null;this.lastHealthSeq=null;this.interlockFields={};this.txSince=null;this.slices.clear();this.clients.clear();this.pending.clear();this.lastTuneCommand=null;
   this.append(connected?'RADIO_CONNECTED':'RADIO_DISCONNECTED',source,'connection',old,next,{observation_confidence:'DIRECT',raw_source:{kind:'existing_radio_connection',epoch:this.stateEpoch}});
   this.refreshPaHealth();
  }
@@ -100,11 +101,21 @@ class DiagnosticBuffer {
   }
   this.updateMetrics();
  }
- tune(value,client=null){
+ traceContext(event_type){
+  const s=this.data.latestState,last=this.lastTuneCommand;
+  return Trace.metadata({event_type,timestamp:new Date(this.wall()).toISOString(),radio_state:s.tx_state,interlock_state:s.interlock_state,frequency:s.frequency,mode:s.mode,slice:s.active_slice,
+   command_origin:'UNKNOWN',trigger_origin:'UNKNOWN',origin_confidence:'UNKNOWN',
+   last_tune_command_timestamp:last?.timestamp,last_tune_command:last?.command,last_tune_command_source:last?.command_origin,last_tune_command_node_id:last?.source_node_id,last_tune_command_node_name:last?.source_node_name,last_known_client:last?.client_handle!=='UNKNOWN'?last?.client_handle:last?.client_name,
+   last_tune_command_seq:last?.seq,last_tune_command_run_id:last?.run_id,last_tune_command_epoch:last?.epoch,
+   command_link_confidence:'UNKNOWN',command_link_availability:'LAST_OBSERVED_COMMAND_ONLY_NO_CAUSAL_LINK'});
+ }
+ tune(value,client=null,evidence=null){
   if(this.data.connectionState!=='CONNECTED')return;
   const c=this.data.tuneCandidate,valid=value===0||value===1||value==='0'||value==='1',v=valid?Number(value):'UNKNOWN',old=c.tune_value,wasFresh=c.tune_fresh;
   c.tune_value=v;c.last_observed_value=valid?v:null;c.tune_last_update_ms=this.wall();c._mono=this.mono();c.tune_age_ms=0;c.tune_fresh=valid;
-  if(old!==v||wasFresh!==valid)c.last_record_seq=this.append('TUNE_CANDIDATE','7fbf2bfc9badc7d3','transmit.tune',old,v,{observation_confidence:'DIRECT',client_handle:typeof client==='string'?client:null,raw_source:{kind:'decoded_radio_status',topic:'transmit',field:'tune',value:v},candidate_only:true});
+  const diagnostic_metadata=this.traceContext('TUNE_STATE_CHANGE');
+  Object.assign(diagnostic_metadata,{tune_state:v,previous_tune_state:old,client_handle:typeof client==='string'||typeof client==='number'?client:'UNKNOWN',status_client_handle_role:'STATUS_HEADER_NOT_COMMAND_ORIGIN'});
+  if(old!==v||wasFresh!==valid)c.last_record_seq=this.append('TUNE_CANDIDATE','7fbf2bfc9badc7d3','transmit.tune',old,v,{diagnostic_metadata,raw_evidence:Trace.evidence({kind:'OBSERVED_FLEX_RECORD',legacy_raw_source:{kind:'decoded_radio_status',topic:'transmit',field:'tune',value:v},decoded:evidence?.decoded??{topic:'transmit',payload:{tune:value},client},wire:evidence?.wire??null,wire_availability:evidence?.wire?'DIRECT':'UNKNOWN'}),observation_confidence:'DIRECT',client_handle:typeof client==='string'?client:null,raw_source:{kind:'decoded_radio_status',topic:'transmit',field:'tune',value:v},candidate_only:true});
   this.updateMetrics();
  }
  session(topic,payload,client){
@@ -123,8 +134,10 @@ class DiagnosticBuffer {
  boundMap(map,key,value){if(!map.has(key)&&map.size>=64){map.delete(map.keys().next().value);this.data.metrics.source_overflow++;}map.set(key,value);}
  commandRequest(raw,metadata={}){
   const safe={...Command.command(raw),...Command.source(metadata.command_source_node_id,metadata.command_source_module),command_seq:Number.isSafeInteger(metadata.command_seq)?metadata.command_seq:null};
-  const seq=this.data.seq+1;
-  this.append('COMMAND_REQUEST',safe.command_source_node_id,'request',null,safe.command_text_safe,{...safe,request_seq:seq,command_origin:'NODE_RED',origin_confidence:'DIRECT',raw_source:{kind:'existing_client_send_attempt'}});
+  const seq=this.data.seq+1,related=/^(?:tune|xmit|tx|ptt|interlock|transmit)$/.test(typeof raw==='string'?raw.split(' ')[0]:'');
+  const diagnostic_metadata=related?{...this.traceContext('COMMAND_REQUEST'),command:Command.rawEvidence(raw)??'UNKNOWN',raw_command:Command.rawEvidence(raw)??'UNKNOWN',command_family:safe.command_family,command_name:safe.command_name,source_node_id:safe.command_source_node_id,source_node_name:safe.command_source_node_name,command_source_node_id:safe.command_source_node_id,command_source_node_name:safe.command_source_node_name,command_origin:'NODE_RED',origin_confidence:'DIRECT',client_handle:metadata.client_handle??'UNKNOWN',client_program:'node-red-contrib-flexradio',client_name:'Node-RED',source_ip:metadata.source_ip??'UNKNOWN',source_port:metadata.source_port??'UNKNOWN'}:null;
+  if(diagnostic_metadata&&safe.command_name==='tune')this.lastTuneCommand={...diagnostic_metadata,seq,run_id:this.data.run_id,epoch:this.stateEpoch};
+  this.append('COMMAND_REQUEST',safe.command_source_node_id,'request',null,safe.command_text_safe,{...safe,diagnostic_metadata,raw_evidence:diagnostic_metadata&&Command.rawEvidence(raw)?{kind:'OBSERVED_FLEX_RECORD',command:raw}:null,request_seq:seq,command_origin:'NODE_RED',origin_confidence:'DIRECT',raw_source:{kind:'existing_client_send_attempt'}});
   if(this.pending.size>=256){this.pending.delete(this.pending.keys().next().value);this.data.metrics.source_overflow++;}
   this.pending.set(seq,{seq,at:this.mono(),safe});return seq;
  }

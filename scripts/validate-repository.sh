@@ -15,6 +15,7 @@ node scripts/test-agct-dashboard.mjs
 node scripts/test-au510m-diag.mjs
 node scripts/test-au510m-diag-runtime.mjs
 node scripts/test-au510m-command-logging.mjs
+node scripts/test-au510m-tune-trace.mjs
 node scripts/test-au510m-diag-live.mjs
 node scripts/test-au510m-diag-layout.mjs
 node scripts/test-au510m-history.mjs

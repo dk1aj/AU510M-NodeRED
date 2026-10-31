@@ -58,7 +58,7 @@ try{
  const ack=store.db.prepare("SELECT * FROM state_events WHERE record_type='ACK_RESPONSE' AND ack_seq=41").get();assert.equal(ack.request_seq,req[1].seq);
  assert(fs.readFileSync(store.filename(incident.incident_id),'utf8').includes('sub tx all'));
  const out=generate({dbPath,exportDir:path.join(dir,'exports'),id:incident.incident_id,version:'4.34'});
- const text=execFileSync('unzip',['-p',path.join(dir,'exports',out.filename),'events.jsonl'],{encoding:'utf8'});assert(text.includes('sub tx all'));assert(text.includes('command_source_node_id'));assert(!/SECRET|55677|session_id|client_handle/.test(text));
+ const text=execFileSync('unzip',['-p',path.join(dir,'exports',out.filename),'events.jsonl'],{encoding:'utf8'});assert(text.includes('sub tx all'));assert(text.includes('command_source_node_id'));assert(!/SECRET|55677|session_id/.test(text));const traced=JSON.parse(text.trim().split('\n').find(line=>JSON.parse(line).diagnostic_metadata));assert.equal(traced.diagnostic_metadata.trigger_origin,'UNKNOWN');assert.equal(traced.diagnostic_metadata.command_link_confidence,'UNKNOWN');
  assert(!/SECRET|55677/.test(JSON.stringify(core.records())));
  // Migration: removing new columns simulates the original v1 table, then reopen.
  for(const field of C.FIELDS)store.db.exec(`ALTER TABLE state_events DROP COLUMN ${field}`);

@@ -1,0 +1,110 @@
+{
+  "old_version": "4.34",
+  "new_version": "4.35",
+  "known_good_commit": "1a8196af4f4d1705604aa3133c8fc227d1f2aa5c",
+  "deployment_revision": "8ada4c26cfd0ce9f37f261d001b94bfa177530058afed6f141599d17b05a055f",
+  "offline_suite": "PASS bash scripts/validate-repository.sh",
+  "live": {
+    "checked_at_utc": "2026-10-31T14:04:30.515Z",
+    "version": 4.35,
+    "metrics": {
+      "logger_status": "RUNNING",
+      "connection_status": "CONNECTED",
+      "current_tx_rx": "RX",
+      "active_slice": "A",
+      "errors": 0,
+      "command_observer_errors": 0,
+      "sqlite_status": "READY",
+      "sqlite_dropped_records": 0,
+      "persistence_active_captures": 0
+    },
+    "window": {
+      "last_ms": 1793455461985,
+      "duration_ms": 60000,
+      "records_inspected": 12
+    },
+    "commands": [],
+    "dashboard": {
+      "pageHttp": 200,
+      "widgets": {
+        "9ee3e94e3758b01f": {
+          "messages": 87
+        },
+        "au510m_power_swr_static_ui": {
+          "messages": 86
+        },
+        "961ffe09d3da81ac": {
+          "messages": 8
+        },
+        "80108e5a65682ca7": {
+          "messages": 8
+        },
+        "9b1bcb4b21cd24ff": {
+          "messages": 24
+        }
+      },
+      "verification": "LIVE_NODE_DELIVERY_AND_HTTP",
+      "rendering": "NOT_CHECKED_NO_BROWSER_AVAILABLE"
+    },
+    "watcher": {
+      "uiVersion": "4.35",
+      "rxTx": "RX",
+      "activeSlice": "0",
+      "frequencyMHz": 18.1,
+      "state": "IDLE",
+      "reason": "INITIAL BAND BASELINE",
+      "level_fresh": true
+    }
+  },
+  "export_tests": {
+    "checked_at": "2026-10-31T14:00:40.920Z",
+    "different_names": true,
+    "incident_rows_unchanged": true,
+    "same_second": true,
+    "results": [
+      {
+        "incident_id": "AU510M-20261022165403661-880bc844-8d8d-418e-aeb9-89e3a4904fec",
+        "zip_filename": "AU510M-20261031-150040-355-TUNE_RX_OSCILLATION-462be96f515b65481923afaa50757f17.zip",
+        "zip_path": "/mnt/dietpi_userdata/node-red/data/exports/AU510M-20261031-150040-355-TUNE_RX_OSCILLATION-462be96f515b65481923afaa50757f17.zip",
+        "incident_timestamp": "2026-10-22T16:54:03.661Z",
+        "export_timestamp": "2026-10-31T15:00:40.355+01:00",
+        "size_bytes": 420371,
+        "download_http": 200,
+        "attachment_matches": true,
+        "zip_valid": true
+      },
+      {
+        "incident_id": "AU510M-20261022165403661-880bc844-8d8d-418e-aeb9-89e3a4904fec",
+        "zip_filename": "AU510M-20261031-150040-564-TUNE_RX_OSCILLATION-af41d4e2e91b2a62e3c0173d272f1429.zip",
+        "zip_path": "/mnt/dietpi_userdata/node-red/data/exports/AU510M-20261031-150040-564-TUNE_RX_OSCILLATION-af41d4e2e91b2a62e3c0173d272f1429.zip",
+        "incident_timestamp": "2026-10-22T16:54:03.661Z",
+        "export_timestamp": "2026-10-31T15:00:40.564+01:00",
+        "size_bytes": 420371,
+        "download_http": 200,
+        "attachment_matches": true,
+        "zip_valid": true
+      },
+      {
+        "incident_id": "AU510M-20261021165137252-ad1ecf07-6b66-4cab-a0a2-4888411c5352",
+        "zip_filename": "AU510M-20261031-150040-727-TUNE_RX_OSCILLATION-4495139b8605c4a41df6c33812aedc2d.zip",
+        "zip_path": "/mnt/dietpi_userdata/node-red/data/exports/AU510M-20261031-150040-727-TUNE_RX_OSCILLATION-4495139b8605c4a41df6c33812aedc2d.zip",
+        "incident_timestamp": "2026-10-21T16:51:37.252Z",
+        "export_timestamp": "2026-10-31T15:00:40.727+01:00",
+        "size_bytes": 904921,
+        "download_http": 200,
+        "attachment_matches": true,
+        "zip_valid": true
+      }
+    ]
+  },
+  "final_export": {
+    "filename": "AU510M-20261031-150509-611-TUNE_RX_OSCILLATION-122c164ef3102fc4c8170e54a9115b4c.zip",
+    "export_timestamp": "2026-10-31T15:05:09.611+01:00",
+    "http": 200
+  },
+  "limitations": [
+    "No hardware TX/TUNE induced; transition scenarios tested offline",
+    "Browser/kiosk rendering unavailable",
+    "Other Flex clients command streams and physical triggers unobservable"
+  ]
+}

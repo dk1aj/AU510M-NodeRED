@@ -171,3 +171,9 @@ modify incident rows. LIVE, HISTORY reading, logger, radio connections,
 subscriptions, health sampling and canonical meter pipelines are unchanged.
 See [Stage 7 export and acceptance](au510m-stage7-v4.30.md) for fields, security,
 file lifecycle, offline fixtures and actual kiosk acceptance status.
+
+The [v4.35 TUNE tracing and export update](au510m-tune-tracing-v4.35.md) adds
+source/evidence metadata through the existing observer, capture and export paths.
+ZIP filenames now use local export-request time with milliseconds and a random ID;
+incident.json distinguishes incident and export timestamps. Original radio paths,
+incident conditions, PRE/POST behavior, four ZIP entries and browser workflow remain.
